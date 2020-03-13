@@ -1,7 +1,7 @@
 # creativeAIdataset
 Creative AI dataset
 
-1.	Project Aims and Objectives
+Project Aims and Objectives
 This project aims to design, develop and demonstrate a unique dataset capturing human creativity from inside the embodied relationships of music performance. The understanding of such a critical and fruitful mesh of environment, embodiment, new goal creation, and human-machine cooperation, will allow this project to cast a new light on the role of embodiment in HDI in music. It will also gather empirical data about the way in which human beings can create and enjoy music performance through their data streams. This dataset will be the first of its kind to deal with em-bodied creativity, and will have potential impact upon the fields of realtime performance, game engine integration, companion-bots, healthcare interventions through art, and other interpersonal interaction between people, their data and their machines. Our novel approach of forefronting musicking (over the score) in the process of musical creation will offer new pathways of exploration for those already examining computer models of musical creativity.
 
 The objectives are:
