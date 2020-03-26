@@ -24,7 +24,3 @@ Each hub (Leicester, Liverpool, New Haven) will commission performers to engage 
 
 **Phase 3 (months 8 – 10)** – implementation of the dataset and trained AI into the existing Embod-ied Robotics in Music as a proof-of-concept demonstration and to evaluate the next steps of this project.
 
-### Potential Creative Applications
-
-* Access from game engines (e.g. Unity) to allow for musicking agents in a virtual environment
-
