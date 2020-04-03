@@ -33,7 +33,7 @@ plt.show()
 
 # reduce dp to 2
 pd.options.display.float_format = '{:,.2f}'.format
-# instigate corrolation analysis and plot heatmap
+# instigate correlation analysis and plot heatmap
 df[col_study].corr()
 plt.figure(figsize=(12,8))
 sns.heatmap(df[col_study].corr(), annot=True, fmt=".2f")
