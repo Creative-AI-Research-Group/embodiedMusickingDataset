@@ -5,7 +5,6 @@ from keras.layers import Dense
 # proto dataset is seq_id; limb; x, y, z; FFt freq, amp
 # amplitude is operation input X, with xyz  the predicted output (the embodied action)
 
-
 def prep_dataset():
     # load the dataset
     df = pd.read_csv('data/raw_phase1_dataset.csv', header=None)
@@ -15,9 +14,9 @@ def prep_dataset():
     # A) just the features we want
     df.filter(['x', 'y', 'z', 'freq', 'amp'])
     # B) all rows with amp values greater than 0.2 (i.e. has a sound)
-    df = df[df['amp'] > 0.2]
+    df = df[df['amp'] > 0]
     # C) only "body" data
-    df = df[df['limb'] == '/Body']
+    df = df[df['limb'] == '/Hand_Right']
     print (df)
     # split into input (X) and output (y) variables
     X = df.iloc[:, 2:5].values # X = independent variables / input to our model
@@ -31,7 +30,7 @@ def train(X, y):
     model.add(Dense(8, activation='relu'))
     model.add(Dense(1, activation='sigmoid'))
     # compile the keras model
-    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+    model.compile(loss='mse', optimizer='adam', metrics=['accuracy'])
     # fit the keras model on the dataset.
     # 150 epochs and batch size 400 (so really small)
     model.fit(X, y, epochs=150, batch_size=200)
@@ -42,7 +41,10 @@ def train(X, y):
     print ('saved')
 
 """so far loss vs accuracy are
-input = xyz, output= amp (ABOVE 0.2) (body only) loss = 66%, accuracy = 16%
+input = xyz, output= amp (ABOVE 0) (/Hand_Right only) (loss='mse') loss = 8%, accuracy = 87%
+input = xyz, output= amp (ABOVE 0) (/Body only) (loss='mse') loss = 8%, accuracy = 99%
+input = xyz, output= amp (ABOVE 0.2) (/Body only) (loss='mse') loss = 6%, accuracy = 16%
+input = xyz, output= amp (ABOVE 0.2) (/Body only) loss = 66%, accuracy = 16%
 input = xyz, output= amp (body only) loss = 60%, accuracy = 11%
 input = xyz, output= amp (all limbs) loss = 70%, accuracy = 9%
 input = amp; output = xyz loss = -21169.1751% and accuracy is 0%  
