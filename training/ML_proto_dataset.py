@@ -13,18 +13,18 @@ def prep_dataset():
     # apply filter function
     # A) just the features we want
     df.filter(['x', 'y', 'z', 'freq', 'amp'])
-    # B) all rows with amp values greater than 0.2 (i.e. has a sound)
-    df = df[df['amp'] > 0]
+    # B) all rows with amp values greater than 0.1 (i.e. has a sound)
+    df = df[df['amp'] > 0.1]
     # C) only "body" data
-    df = df[df['limb'] == '/Hand_Right']
+    df = df[df['limb'] == '/Head']
     print (df)
     # split into input (X) and output (y) variables
-    X = df.iloc[:, 2:5].values # X = independent variables / input to our model
-    y = df.iloc[:, 6].values # y = dependent variable/ outputs our model predicts (amplitude)
+    X = df.iloc[:, 2:5].values  # X = independent variables / input to our model
+    y = df.iloc[:, -1].values # y = dependent variable/ outputs our model predicts (amplitude)
     return (X, y)
 
 def train(X, y):
-    # define the keras model
+    # define the keras model using 3 inputs
     model = Sequential()
     model.add(Dense(12, input_dim=3, activation='relu'))
     model.add(Dense(8, activation='relu'))
@@ -37,10 +37,11 @@ def train(X, y):
     # evaluate the keras model
     _, accuracy = model.evaluate(X, y)
     print('Accuracy: %.2f' % (accuracy * 100))
-    model.save('data/body_only_model.h5')
+    model.save('data/head_model.h5')
     print ('saved')
 
 """so far loss vs accuracy are
+input = x+y+z, output= amp (ABOVE 0) (all limbs) (loss='mse') loss = 8%, accuracy = 87%
 input = xyz, output= amp (ABOVE 0) (/Hand_Right only) (loss='mse') loss = 8%, accuracy = 87%
 input = xyz, output= amp (ABOVE 0) (/Body only) (loss='mse') loss = 8%, accuracy = 99%
 input = xyz, output= amp (ABOVE 0.2) (/Body only) (loss='mse') loss = 6%, accuracy = 16%
@@ -54,8 +55,8 @@ Overall - GIGO but - does it make music?
 """
 
 # --------- programme starts here -----------
-# if '__name__' == '__main__':
-X, y = prep_dataset()
-print('X =', X)
-print('y =', y)
-mod = train(X, y)
+if __name__ == '__main__':
+    X, y = prep_dataset()
+    print('X =', X)
+    print('y =', y)
+    mod = train(X, y)
