@@ -12,23 +12,23 @@ def prep_dataset():
     df.columns = col_name
     # apply filter function
     # A) just the features we want
-    df.filter(['x', 'y', 'z', 'freq', 'amp'])
+    df = df.filter(['limb', 'x', 'y', 'z', 'freq', 'amp'])
     # B) all rows with amp values greater than 0.1 (i.e. has a sound)
     df = df[df['amp'] > 0.1]
     # C) only "body" data
-    df = df[df['limb'] == '/Head']
+    df = df[df['limb'] == '/Body']
     print (df)
     # split into input (X) and output (y) variables
-    X = df.iloc[:, 2:5].values  # X = independent variables / input to our model
-    y = df.iloc[:, -1].values # y = dependent variable/ outputs our model predicts (amplitude)
+    y = df.iloc[:, 1:4].values  # X = independent variables / input to our model
+    X = df.iloc[:, -1].values # y = dependent variable/ outputs our model predicts (amplitude)
     return (X, y)
 
 def train(X, y):
     # define the keras model using 3 inputs
     model = Sequential()
-    model.add(Dense(12, input_dim=3, activation='relu'))
+    model.add(Dense(12, input_dim=1, activation='relu'))
     model.add(Dense(8, activation='relu'))
-    model.add(Dense(1, activation='sigmoid'))
+    model.add(Dense(3, activation='sigmoid'))
     # compile the keras model
     model.compile(loss='mse', optimizer='adam', metrics=['accuracy'])
     # fit the keras model on the dataset.
@@ -37,11 +37,11 @@ def train(X, y):
     # evaluate the keras model
     _, accuracy = model.evaluate(X, y)
     print('Accuracy: %.2f' % (accuracy * 100))
-    model.save('data/head_model.h5')
+    model.save('data/new_model.h5')
     print ('saved')
 
 """so far loss vs accuracy are
-input = x+y+z, output= amp (ABOVE 0) (all limbs) (loss='mse') loss = 8%, accuracy = 87%
+input = amp, output= xyz (ABOVE 0.1) (body only) (loss='mse') loss = 2%, accuracy = 100%
 input = xyz, output= amp (ABOVE 0) (/Hand_Right only) (loss='mse') loss = 8%, accuracy = 87%
 input = xyz, output= amp (ABOVE 0) (/Body only) (loss='mse') loss = 8%, accuracy = 99%
 input = xyz, output= amp (ABOVE 0.2) (/Body only) (loss='mse') loss = 6%, accuracy = 16%
@@ -59,4 +59,4 @@ if __name__ == '__main__':
     X, y = prep_dataset()
     print('X =', X)
     print('y =', y)
-    mod = train(X, y)
+    train(X, y)
