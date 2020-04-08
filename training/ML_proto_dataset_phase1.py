@@ -40,6 +40,8 @@ def train(X, y):
     model.save('data/new_model.h5')
     print ('saved')
 
+
+
 """so far loss vs accuracy are
 input = amp, output= xyz (ABOVE 0.1) (body only) (loss='mse') loss = 2%, accuracy = 100%
 input = xyz, output= amp (ABOVE 0) (/Hand_Right only) (loss='mse') loss = 8%, accuracy = 87%
