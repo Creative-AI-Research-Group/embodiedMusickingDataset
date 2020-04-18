@@ -13,15 +13,15 @@ def main():
     df.columns = col_name
         # apply filter function
         # A) just the features we want
-    df = df.filter(['limb', 'x', 'y', 'z', 'freq', 'amp'])
+    df = df.filter(['limb', 'x', 'y', 'freq', 'amp'])
         # B) all rows with amp values greater than 0.1 (i.e. has a sound)
     df = df[df['amp'] > 0.1]
         # C) only "body" data
     df = df[df['limb'] == '/Hand_Right']
     print (df)
         # split into input (X) and output (y) variables
-    y_array = df.iloc[:, 1:4].values  # y = dependent variable/ outputs our model predicts (xyz) as numpy arrays
-    x_array = df.iloc[:, -1].values # X = independent variables / input to our model (amplitude)
+    y_array = df.iloc[:, 1:3].values  # y = dependent variable/ outputs our model predicts (xy) as numpy arrays
+    x_array = df.iloc[:, -2:-1].values # X = independent variables / input to our model (amplitude)
     print (y_array[0], x_array[0])
         # calc length of 2D array (rows, columns)
     print (len(y_array))
@@ -40,7 +40,7 @@ def main():
     model.add(Dropout(0.9))
     model.add(Dense(128, activation='relu'))
     model.add(Dropout(0.9))
-    model.add(Dense(3, activation='sigmoid'))
+    model.add(Dense(2, activation='sigmoid'))
     # compile the keras model
     model.compile(loss='binary_crossentropy',
                   optimizer='rmsprop',
