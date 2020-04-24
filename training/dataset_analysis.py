@@ -12,7 +12,7 @@ import seaborn as sns
 # print(sys.version)
 # print(sklearn.__version__)
 
-df = pd.read_csv('data/raw_phase1_dataset.csv', header=None)
+df = pd.read_csv('../data/raw_phase1_dataset.csv', header=None)
 col_name = ['id', 'limb', 'x', 'y', 'z', 'freq', 'amp']
 df.columns = col_name
 

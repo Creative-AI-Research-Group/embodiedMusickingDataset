@@ -7,7 +7,7 @@ from keras.layers import Dense
 
 def prep_dataset():
     # load the dataset
-    df = pd.read_csv('data/raw_phase1_dataset.csv', header=None)
+    df = pd.read_csv('../data/raw_phase1_dataset.csv', header=None)
     col_name = ['id', 'limb', 'x', 'y', 'z', 'freq', 'amp']
     df.columns = col_name
     # apply filter function
