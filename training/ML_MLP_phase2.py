@@ -17,7 +17,7 @@ def main():
         # B) all rows with amp values greater than 0.1 (i.e. has a sound)
     df = df[df['amp'] > 0.1]
         # C) only "body" data
-    df = df[df['limb'] == '/Hand_Right']
+    df = df[df['limb'] == '/Body']
     print (df)
         # split into input (X) and output (y) variables
     y_array = df.iloc[:, 1:4].values  # y = dependent variable/ outputs our model predicts (xyz) as numpy arrays
@@ -52,7 +52,7 @@ def main():
     # evaluate the keras model
     score = model.evaluate(x_test, y_test, batch_size=128)
     # print('Score: %.2f' % (score * 100))
-    model.save('data/phase3_RH_model.h5')
+    model.save('../data/LSTM-body_model.h5')
     print ('saved')
 
 # --------- programme starts here -----------
