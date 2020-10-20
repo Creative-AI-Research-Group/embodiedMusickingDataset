@@ -83,7 +83,6 @@ class MainWindow(QWidget):
         fields.addWidget(self.list_audio_devices, 3, 1)
         fields.addWidget(refresh_audio_input_button, 3, 2)
 
-
         fields_group_box.setLayout(fields)
 
         # viewfinder
