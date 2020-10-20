@@ -21,11 +21,14 @@ class MainWindow(QWidget):
         self.session_name = QLineEdit()
         self.video_file_path = QLineEdit()
         self.list_cameras = QComboBox()
+        self.list_audio_devices = QComboBox()
         self.record_stop_button = QPushButton('Record session')
 
         self.view_finder = QCameraViewfinder()
 
         self.get_list_cameras()
+        self.get_list_audio_devices()
+
         self.setup_ui()
 
         self.camera = QCamera(self.list_cameras.currentData())
@@ -54,15 +57,32 @@ class MainWindow(QWidget):
         # connect the list of cameras signal
         self.list_cameras.activated[str].connect(self.change_camera)
 
+        # audio input selection
+        list_audio_label = QLabel('Available audio input: ')
+        refresh_audio_input_button = QPushButton('Refresh audio input')
+        # connect the button signal
+        refresh_audio_input_button.clicked.connect(self.refresh_audio_input)
+
         # fields layout
+        # session name
         fields.addWidget(session_name_label, 0, 0)
         fields.addWidget(self.session_name, 0, 1)
-        fields.addWidget(list_cameras_label, 2, 0)
-        fields.addWidget(self.list_cameras, 2, 1)
-        fields.addWidget(refresh_cameras_button, 2, 2)
+
+        # video path
         fields.addWidget(video_path_file_label, 1, 0)
         fields.addWidget(self.video_file_path, 1, 1)
         fields.addWidget(folder_browser_button, 1, 2)
+
+        # cameras
+        fields.addWidget(list_cameras_label, 2, 0)
+        fields.addWidget(self.list_cameras, 2, 1)
+        fields.addWidget(refresh_cameras_button, 2, 2)
+
+        # audio
+        fields.addWidget(list_audio_label, 3, 0)
+        fields.addWidget(self.list_audio_devices, 3, 1)
+        fields.addWidget(refresh_audio_input_button, 3, 2)
+
 
         fields_group_box.setLayout(fields)
 
@@ -75,6 +95,8 @@ class MainWindow(QWidget):
         # button
         record_button_group_box = QGroupBox()
         record_button_layout = QGridLayout()
+        # need to find a better solution
+        # this is a workaround
         empty_label = QLabel(' ')
         record_button_layout.addWidget(empty_label, 0, 1)
         record_button_layout.addWidget(empty_label, 0, 2)
@@ -105,6 +127,11 @@ class MainWindow(QWidget):
             self.video_file_path.setText(folder_dialog.directory().absolutePath())
 
     @Slot()
+    def refresh_audio_input(self):
+        self.list_audio_devices.clear()
+        self.get_list_audio_devices()
+
+    @Slot()
     def refresh_cameras(self):
         self.list_cameras.clear()
         self.get_list_cameras()
@@ -123,6 +150,11 @@ class MainWindow(QWidget):
         # list the available cameras
         for camera_info in QCameraInfo.availableCameras():
             self.list_cameras.addItem(camera_info.description(), camera_info)
+
+    def get_list_audio_devices(self):
+        # list the available audio devices
+        for device_info in QAudioDeviceInfo.availableDevices(QAudio.AudioInput):
+            self.list_audio_devices.addItem(device_info.deviceName(), device_info)
 
 
 if __name__ == '__main__':
