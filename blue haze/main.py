@@ -29,8 +29,7 @@ class MainWindow(QWidget):
         self.setup_ui()
 
         self.camera = QCamera(self.list_cameras.currentData())
-        self.camera.setViewfinder(self.view_finder)
-        self.camera.start()
+        self.start_camera()
 
     def setup_ui(self):
         # fields
@@ -52,6 +51,8 @@ class MainWindow(QWidget):
         refresh_cameras_button = QPushButton('Refresh cameras')
         # connect the button signal
         refresh_cameras_button.clicked.connect(self.refresh_cameras)
+        # connect the list of cameras signal
+        self.list_cameras.activated[str].connect(self.change_camera)
 
         # fields layout
         fields.addWidget(session_name_label, 0, 0)
@@ -107,6 +108,16 @@ class MainWindow(QWidget):
     def refresh_cameras(self):
         self.list_cameras.clear()
         self.get_list_cameras()
+
+    @Slot()
+    def change_camera(self):
+        self.camera.stop()
+        self.camera = QCamera(self.list_cameras.currentData())
+        self.start_camera()
+
+    def start_camera(self):
+        self.camera.setViewfinder(self.view_finder)
+        self.camera.start()
 
     def get_list_cameras(self):
         # list the available cameras
