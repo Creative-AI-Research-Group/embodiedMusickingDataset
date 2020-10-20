@@ -49,12 +49,16 @@ class MainWindow(QWidget):
 
         # camera selection
         list_cameras_label = QLabel('Available cameras: ')
+        refresh_cameras_button = QPushButton('Refresh cameras')
+        # connect the button signal
+        refresh_cameras_button.clicked.connect(self.refresh_cameras)
 
         # fields layout
         fields.addWidget(session_name_label, 0, 0)
         fields.addWidget(self.session_name, 0, 1)
         fields.addWidget(list_cameras_label, 2, 0)
         fields.addWidget(self.list_cameras, 2, 1)
+        fields.addWidget(refresh_cameras_button, 2, 2)
         fields.addWidget(video_path_file_label, 1, 0)
         fields.addWidget(self.video_file_path, 1, 1)
         fields.addWidget(folder_browser_button, 1, 2)
@@ -98,6 +102,11 @@ class MainWindow(QWidget):
         folder_dialog.setFileMode(QFileDialog.Directory)
         if folder_dialog.exec_():
             self.video_file_path.setText(folder_dialog.directory().absolutePath())
+
+    @Slot()
+    def refresh_cameras(self):
+        self.list_cameras.clear()
+        self.get_list_cameras()
 
     def get_list_cameras(self):
         # list the available cameras
