@@ -23,6 +23,7 @@ class MainWindow(QWidget):
         self.list_cameras = QComboBox()
         self.list_audio_devices = QComboBox()
         self.record_stop_button = QPushButton('Record session')
+        self.recording = False
 
         self.view_finder = QCameraViewfinder()
 
@@ -91,7 +92,7 @@ class MainWindow(QWidget):
         view_finder_layout.addWidget(self.view_finder, 1, 1)
         view_finder_group_box.setLayout(view_finder_layout)
 
-        # button
+        # record/stop button
         record_button_group_box = QGroupBox()
         record_button_layout = QGridLayout()
         # need to find a better solution
@@ -110,12 +111,19 @@ class MainWindow(QWidget):
         layout.addWidget(record_button_group_box)
         self.setLayout(layout)
 
-        # connect the button signal
+        # connect the record/stop button signal
         self.record_stop_button.clicked.connect(self.action_record_stop_button)
 
     @Slot()
     def action_record_stop_button(self):
-        print('Button pressed')
+        print(self.recording)
+        if self.recording:
+            self.record_stop_button.setText('Record session')
+            print("1")
+        else:
+            self.record_stop_button.setText('Recording…')
+            print("2")
+        self.recording = not self.recording
 
     @Slot()
     def show_folder_browser(self):
