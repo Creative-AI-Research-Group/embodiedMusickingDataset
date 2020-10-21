@@ -207,14 +207,13 @@ class MainWindow(QWidget):
 class BitalinoReader(BITalino):
     def __init__(self):
         # Connect to BITalino
-       self.device = BITalino(bitalino_macAddress)
+        self.device = BITalino(bitalino_macAddress)
 
         # Set battery threshold
         self.device.battery(batteryThreshold)
 
         # Read BITalino version
         print(self.device.version())
-
 
     def read(self):
         # Start Acquisition
@@ -275,7 +274,6 @@ class BrainbitReader():
         # board.start_stream () # use this for default options
         self.board.start_stream(45000, self.args.streamer_params)
 
-
     def read(self):
         # data = board.get_current_board_data (256) # get latest 256 packages or less, doesnt remove them from internal buffer
         self.data = self.board.get_board_data () # get all data and remove it from internal buffer
@@ -284,6 +282,7 @@ class BrainbitReader():
     def terminate(self):
         self.board.stop_stream()
         self.board.release_session()
+
 
 class SkeletonReader():
     def __init__(self):
@@ -311,42 +310,43 @@ class SkeletonReader():
 
     def read(self):
         # Create a pipeline object. This object configures the streaming camera and owns it's handle
-        unaligned_frames = pipeline.wait_for_frames()
-        frames = align.process(unaligned_frames)
-        depth = frames.get_depth_frame()
-        color = frames.get_color_frame()
-        if not depth or not color:
+        self.unaligned_frames = pipeline.wait_for_frames()
+        self.frames = self.align.process(self.unaligned_frames)
+        self.depth = self.frames.get_depth_frame()
+        self.color = self.frames.get_color_frame()
+        if not self.depth or not self.color:
             continue
 
         # Convert images to numpy arrays
-        depth_image = np.asanyarray(depth.get_data())
-        color_image = np.asanyarray(color.get_data())
+        depth_image = np.asanyarray(self.depth.get_data())
+        color_image = np.asanyarray(self.color.get_data())
 
         # perform inference and update the tracking id
-        skeletons = skeletrack.track_skeletons(color_image)
+        self.skeletons = self.skeletrack.track_skeletons(color_image)
 
-        # render the skeletons on top of the acquired image and display it
-        color_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2RGB)
-        cm.render_result(skeletons, color_image, joint_confidence)
-        render_ids_3d(
-            color_image, skeletons, depth, depth_intrinsic, joint_confidence
-        )
-        cv2.imshow(window_name, color_image)
-        if cv2.waitKey(1) == 27:
-            break
+        # # render the skeletons on top of the acquired image and display it
+        # color_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2RGB)
+        # cm.render_result(skeletons, color_image, joint_confidence)
+        # render_ids_3d(
+        #     color_image, skeletons, depth, depth_intrinsic, joint_confidence
+        # )
+        # cv2.imshow(window_name, color_image)
+        # if cv2.waitKey(1) == 27:
+        #     break
 
-    def terminate():
-        pipeline.stop()
+    def terminate(self):
+        self.pipeline.stop()
 
 if __name__ == '__main__':
+    running = True
     # BITalino startup
     bitalino = BitalinoReader()
 
     #BraibBit startup
-    board, args = brainbit_setup()
+    brainbit = BrainbitReader()
 
     # RealSense & Skeleton startup
-    pipeline, skeletrack, joint_confidence = skeleton_setup()
+    skeleton = SkeletonReader()
 
     # UI startup
     app = QApplication(sys.argv)
@@ -358,10 +358,10 @@ if __name__ == '__main__':
 
 
     #Terminations
+    if not running:
+        brainbit.terminate()
+        bitalino.terminate()
+        skeleton.terminate()
 
-    brainbit_terminate()
-    bitalino_terminate()
-    skeleton_terminate()
-
-    # Close UI
-    sys.exit(app.exec_())
+        # Close UI
+        sys.exit(app.exec_())
