@@ -10,6 +10,7 @@ from PySide2.QtWidgets import *
 from PySide2.QtMultimedia import *
 from PySide2.QtMultimediaWidgets import QCameraViewfinder
 from PySide2.QtCore import Slot, Qt
+from glob import glob
 
 import sys
 
@@ -22,12 +23,14 @@ class MainWindow(QWidget):
         self.video_file_path = QLineEdit()
         self.list_cameras = QComboBox()
         self.list_audio_devices = QComboBox()
+        self.list_backing_tracks = QComboBox()
         self.record_stop_button = QPushButton('Record session')
 
         self.view_finder = QCameraViewfinder()
 
         self.get_list_cameras()
         self.get_list_audio_devices()
+        self.get_list_backing_tracks()
 
         self.setup_ui()
 
@@ -63,6 +66,11 @@ class MainWindow(QWidget):
         # connect the button signal
         refresh_audio_input_button.clicked.connect(self.refresh_audio_input)
 
+        # backing track selection
+        list_backing_tracks_label = QLabel('Available backing tracks: ')
+        # connect the list of backing tracks
+        self.list_backing_tracks.activated[str].connect(self.get_list_backing_tracks)
+
         # fields layout
         # session name
         fields.addWidget(session_name_label, 0, 0)
@@ -82,6 +90,10 @@ class MainWindow(QWidget):
         fields.addWidget(list_audio_label, 3, 0)
         fields.addWidget(self.list_audio_devices, 3, 1)
         fields.addWidget(refresh_audio_input_button, 3, 2)
+
+        # backing tracks
+        fields.addWidget(list_backing_tracks_label, 4, 0)
+        fields.addWidget(self.list_backing_tracks, 4, 1)
 
         fields_group_box.setLayout(fields)
 
@@ -131,6 +143,11 @@ class MainWindow(QWidget):
         self.get_list_audio_devices()
 
     @Slot()
+    def change_backing_track(self):
+        self.list_backing_tracks.clear()
+        self.get_list_backing_tracks()
+
+    @Slot()
     def refresh_cameras(self):
         self.list_cameras.clear()
         self.get_list_cameras()
@@ -154,6 +171,11 @@ class MainWindow(QWidget):
         # list the available audio devices
         for device_info in QAudioDeviceInfo.availableDevices(QAudio.AudioInput):
             self.list_audio_devices.addItem(device_info.deviceName(), device_info)
+
+    def get_list_backing_tracks(self):
+        # list the available audio_backing tracks
+        for backing_track in glob("../data/audio_backing/*wav"):
+            self.list_backing_tracks.addItem(backing_track)
 
 
 if __name__ == '__main__':
