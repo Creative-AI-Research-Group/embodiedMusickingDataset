@@ -119,10 +119,8 @@ class MainWindow(QWidget):
         print(self.recording)
         if self.recording:
             self.record_stop_button.setText('Record session')
-            print("1")
         else:
             self.record_stop_button.setText('Recording…')
-            print("2")
         self.recording = not self.recording
 
     @Slot()
