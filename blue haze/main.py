@@ -235,32 +235,32 @@ class BitalinoReader(BITalino):
 
 class BrainbitReader():
     def __init__(self):
-        self.parser = argparse.ArgumentParser()
-        # use docs to check which parameters are required for specific board, e.g. for Cyton - set serial port
-        self.parser.add_argument ('--timeout', type = int, help  = 'timeout for device discovery or connection', required = False, default = 0)
-        self.parser.add_argument ('--ip-port', type = int, help  = 'ip port', required = False, default = 0)
-        self.parser.add_argument ('--ip-protocol', type = int, help  = 'ip protocol, check IpProtocolType enum', required = False, default = 0)
-        self.parser.add_argument ('--ip-address', type = str, help  = 'ip address', required = False, default = '')
-        self.parser.add_argument ('--serial-port', type = str, help  = 'serial port', required = False, default = '')
-        self.parser.add_argument ('--mac-address', type = str, help  = 'mac address', required = False, default = '')
-        self.parser.add_argument ('--other-info', type = str, help  = 'other info', required = False, default = '')
-        self.parser.add_argument ('--streamer-params', type = str, help  = 'streamer params', required = False, default = '')
-        self.parser.add_argument ('--serial-number', type = str, help  = 'serial number', required = False, default = '')
-        self.parser.add_argument ('--board-id', type = int, help  = 'board id, check docs to get a list of supported boards', required = False, default=7)
-        self.parser.add_argument ('--file', type = str, help  = 'file', required = False, default = '')
-        self.parser.add_argument ('--log', action = 'store_true')
-        self.args = self.parser.parse_args ()
+        # self.parser = argparse.ArgumentParser()
+        # # use docs to check which parameters are required for specific board, e.g. for Cyton - set serial port
+        # self.parser.add_argument ('--timeout', type = int, help  = 'timeout for device discovery or connection', required = False, default = 0)
+        # self.parser.add_argument ('--ip-port', type = int, help  = 'ip port', required = False, default = 0)
+        # self.parser.add_argument ('--ip-protocol', type = int, help  = 'ip protocol, check IpProtocolType enum', required = False, default = 0)
+        # self.parser.add_argument ('--ip-address', type = str, help  = 'ip address', required = False, default = '')
+        # self.parser.add_argument ('--serial-port', type = str, help  = 'serial port', required = False, default = '')
+        # self.parser.add_argument ('--mac-address', type = str, help  = 'mac address', required = False, default = '')
+        # self.parser.add_argument ('--other-info', type = str, help  = 'other info', required = False, default = '')
+        # self.parser.add_argument ('--streamer-params', type = str, help  = 'streamer params', required = False, default = '')
+        # self.parser.add_argument ('--serial-number', type = str, help  = 'serial number', required = False, default = '')
+        # self.parser.add_argument ('--board-id', type = int, help  = 'board id, check docs to get a list of supported boards', required = False, default=7)
+        # self.parser.add_argument ('--file', type = str, help  = 'file', required = False, default = '')
+        # self.parser.add_argument ('--log', action = 'store_true')
+        # self.args = self.parser.parse_args ()
 
         self.params = BrainFlowInputParams ()
-        self.params.ip_port = args.ip_port
-        self.params.serial_port = args.serial_port
-        self.params.mac_address = args.mac_address
-        self.params.other_info = args.other_info
-        self.params.serial_number = args.serial_number
-        self.params.ip_address = args.ip_address
-        self.params.ip_protocol = args.ip_protocol
-        self.params.timeout = args.timeout
-        self.params.file = args.file
+        self.params.ip_port = 0
+        self.params.serial_port = ''
+        self.params.mac_address = ''
+        self.params.other_info = ''
+        self.params.serial_number = ''
+        self.params.ip_address = ''
+        self.params.ip_protocol = 0
+        self.params.timeout = 0
+        self.params.file = 0
 
         if (self.args.log):
             BoardShim.enable_dev_board_logger ()
@@ -310,12 +310,12 @@ class SkeletonReader():
 
     def read(self):
         # Create a pipeline object. This object configures the streaming camera and owns it's handle
-        self.unaligned_frames = pipeline.wait_for_frames()
+        self.unaligned_frames = self.pipeline.wait_for_frames()
         self.frames = self.align.process(self.unaligned_frames)
         self.depth = self.frames.get_depth_frame()
         self.color = self.frames.get_color_frame()
-        if not self.depth or not self.color:
-            continue
+        # if not self.depth or not self.color:
+        #     continue
 
         # Convert images to numpy arrays
         depth_image = np.asanyarray(self.depth.get_data())
@@ -323,6 +323,8 @@ class SkeletonReader():
 
         # perform inference and update the tracking id
         self.skeletons = self.skeletrack.track_skeletons(color_image)
+
+        # print (color_image, self.skeletons, self.depth, self.depth_intrinsic, self.joint_confidence)
 
         # # render the skeletons on top of the acquired image and display it
         # color_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2RGB)
