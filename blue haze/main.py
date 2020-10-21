@@ -68,8 +68,6 @@ class MainWindow(QWidget):
 
         # backing track selection
         list_backing_tracks_label = QLabel('Available backing tracks: ')
-        # connect the list of backing tracks
-        self.list_backing_tracks.activated[str].connect(self.get_list_backing_tracks)
 
         # fields layout
         # session name
