@@ -204,181 +204,111 @@ class MainWindow(QWidget):
             trackname = os.path.basename(backing_track)
             self.list_backing_tracks.addItem(trackname)
 
-def bitalino_setup():
-    # Connect to BITalino
-    device = BITalino(bitalino_macAddress)
+class BitalinoReader(BITalino):
+    def __init__(self):
+        # Connect to BITalino
+       self.device = BITalino(bitalino_macAddress)
 
-    # Set battery threshold
-    device.battery(batteryThreshold)
+        # Set battery threshold
+        self.device.battery(batteryThreshold)
 
-    # Read BITalino version
-    print(device.version())
-
-    return device
-
-def bitalino_read():
-    # Start Acquisition
-    device.start(samplingRate, acqChannels)
-
-    # Read samples
-    print(device.read(nSamples))
-
-    # Turn BITalino led on
-    device.trigger(digitalOutput)
-
-def bitalino_terminate():
-    # Stop Bitalino acquisition
-    device.stop()
-
-    # Close Bitalino connection
-    device.close()
+        # Read BITalino version
+        print(self.device.version())
 
 
-def brainbit_setup ():
-    parser = argparse.ArgumentParser()
-    # use docs to check which parameters are required for specific board, e.g. for Cyton - set serial port
-    parser.add_argument ('--timeout', type = int, help  = 'timeout for device discovery or connection', required = False, default = 0)
-    parser.add_argument ('--ip-port', type = int, help  = 'ip port', required = False, default = 0)
-    parser.add_argument ('--ip-protocol', type = int, help  = 'ip protocol, check IpProtocolType enum', required = False, default = 0)
-    parser.add_argument ('--ip-address', type = str, help  = 'ip address', required = False, default = '')
-    parser.add_argument ('--serial-port', type = str, help  = 'serial port', required = False, default = '')
-    parser.add_argument ('--mac-address', type = str, help  = 'mac address', required = False, default = '')
-    parser.add_argument ('--other-info', type = str, help  = 'other info', required = False, default = '')
-    parser.add_argument ('--streamer-params', type = str, help  = 'streamer params', required = False, default = '')
-    parser.add_argument ('--serial-number', type = str, help  = 'serial number', required = False, default = '')
-    parser.add_argument ('--board-id', type = int, help  = 'board id, check docs to get a list of supported boards', required = False, default=7)
-    parser.add_argument ('--file', type = str, help  = 'file', required = False, default = '')
-    parser.add_argument ('--log', action = 'store_true')
-    args = parser.parse_args ()
+    def bitalino_read(self):
+        # Start Acquisition
+        self.device.start(samplingRate, acqChannels)
 
-    params = BrainFlowInputParams ()
-    params.ip_port = args.ip_port
-    params.serial_port = args.serial_port
-    params.mac_address = args.mac_address
-    params.other_info = args.other_info
-    params.serial_number = args.serial_number
-    params.ip_address = args.ip_address
-    params.ip_protocol = args.ip_protocol
-    params.timeout = args.timeout
-    params.file = args.file
+        # Read samples
+        print(self.device.read(nSamples))
 
-    if (args.log):
-        BoardShim.enable_dev_board_logger ()
-    else:
-        BoardShim.disable_board_logger ()
+        # Turn BITalino led on
+        self.device.trigger(digitalOutput)
 
-    board = BoardShim (args.board_id, params)
+    def bitalino_terminate(self):
+        # Stop Bitalino acquisition
+        self.device.stop()
 
-    board.prepare_session ()
+        # Close Bitalino connection
+        self.device.close()
 
-    # board.start_stream () # use this for default options
-    board.start_stream(45000, args.streamer_params)
 
-    return board, args
+class BrainbitReader():
+    def __init__(self):
+        self.parser = argparse.ArgumentParser()
+        # use docs to check which parameters are required for specific board, e.g. for Cyton - set serial port
+        self.parser.add_argument ('--timeout', type = int, help  = 'timeout for device discovery or connection', required = False, default = 0)
+        self.parser.add_argument ('--ip-port', type = int, help  = 'ip port', required = False, default = 0)
+        self.parser.add_argument ('--ip-protocol', type = int, help  = 'ip protocol, check IpProtocolType enum', required = False, default = 0)
+        self.parser.add_argument ('--ip-address', type = str, help  = 'ip address', required = False, default = '')
+        self.parser.add_argument ('--serial-port', type = str, help  = 'serial port', required = False, default = '')
+        self.parser.add_argument ('--mac-address', type = str, help  = 'mac address', required = False, default = '')
+        self.parser.add_argument ('--other-info', type = str, help  = 'other info', required = False, default = '')
+        self.parser.add_argument ('--streamer-params', type = str, help  = 'streamer params', required = False, default = '')
+        self.parser.add_argument ('--serial-number', type = str, help  = 'serial number', required = False, default = '')
+        self.parser.add_argument ('--board-id', type = int, help  = 'board id, check docs to get a list of supported boards', required = False, default=7)
+        self.parser.add_argument ('--file', type = str, help  = 'file', required = False, default = '')
+        self.parser.add_argument ('--log', action = 'store_true')
+        self.args = self.parser.parse_args ()
 
-def brainbit_read(board):
-    # data = board.get_current_board_data (256) # get latest 256 packages or less, doesnt remove them from internal buffer
-    data = board.get_board_data () # get all data and remove it from internal buffer
-    print (data)
+        self.params = BrainFlowInputParams ()
+        self.params.ip_port = args.ip_port
+        self.params.serial_port = args.serial_port
+        self.params.mac_address = args.mac_address
+        self.params.other_info = args.other_info
+        self.params.serial_number = args.serial_number
+        self.params.ip_address = args.ip_address
+        self.params.ip_protocol = args.ip_protocol
+        self.params.timeout = args.timeout
+        self.params.file = args.file
 
-def brainbit_terminate():
-    board.stop_stream()
-    board.release_session()
+        if (self.args.log):
+            BoardShim.enable_dev_board_logger ()
+        else:
+            BoardShim.disable_board_logger ()
 
-def render_ids_3d(
-    render_image, skeletons_2d, depth_map, depth_intrinsic, joint_confidence
-):
-    thickness = 1
-    text_color = (255, 255, 255)
-    rows, cols, channel = render_image.shape[:3]
-    distance_kernel_size = 5
-    # calculate 3D keypoints and display them
-    for skeleton_index in range(len(skeletons_2d)):
-        skeleton_2D = skeletons_2d[skeleton_index]
-        joints_2D = skeleton_2D.joints
-        did_once = False
-        for joint_index in range(len(joints_2D)):
-            if did_once == False:
-                cv2.putText(
-                    render_image,
-                    "id: " + str(skeleton_2D.id),
-                    (int(joints_2D[joint_index].x), int(joints_2D[joint_index].y - 30)),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.55,
-                    text_color,
-                    thickness,
-                )
-                did_once = True
-            # check if the joint was detected and has valid coordinate
-            if skeleton_2D.confidences[joint_index] > joint_confidence:
-                distance_in_kernel = []
-                low_bound_x = max(
-                    0,
-                    int(
-                        joints_2D[joint_index].x - math.floor(distance_kernel_size / 2)
-                    ),
-                )
-                upper_bound_x = min(
-                    cols - 1,
-                    int(joints_2D[joint_index].x + math.ceil(distance_kernel_size / 2)),
-                )
-                low_bound_y = max(
-                    0,
-                    int(
-                        joints_2D[joint_index].y - math.floor(distance_kernel_size / 2)
-                    ),
-                )
-                upper_bound_y = min(
-                    rows - 1,
-                    int(joints_2D[joint_index].y + math.ceil(distance_kernel_size / 2)),
-                )
-                for x in range(low_bound_x, upper_bound_x):
-                    for y in range(low_bound_y, upper_bound_y):
-                        distance_in_kernel.append(depth_map.get_distance(x, y))
-                median_distance = np.percentile(np.array(distance_in_kernel), 50)
-                depth_pixel = [
-                    int(joints_2D[joint_index].x),
-                    int(joints_2D[joint_index].y),
-                ]
-                if median_distance >= 0.3:
-                    point_3d = rs.rs2_deproject_pixel_to_point(
-                        depth_intrinsic, depth_pixel, median_distance
-                    )
-                    point_3d = np.round([float(i) for i in point_3d], 3)
-                    point_str = [str(x) for x in point_3d]
-                    cv2.putText(
-                        render_image,
-                        str(point_3d),
-                        (int(joints_2D[joint_index].x), int(joints_2D[joint_index].y)),
-                        cv2.FONT_HERSHEY_DUPLEX,
-                        0.4,
-                        text_color,
-                        thickness,
-                    )
+        self.board = BoardShim (self.args.board_id, self.params)
 
-def skeleton_setup():
-    config = rs.config()
-    config.enable_stream(rs.stream.depth, 1280, 720, rs.format.z16, 30)
-    config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 30)
+        self.board.prepare_session ()
 
-    # Start the realsense pipeline
-    pipeline = rs.pipeline()
-    pipeline.start()
+        # board.start_stream () # use this for default options
+        self.board.start_stream(45000, self.args.streamer_params)
 
-    # Create align object to align depth frames to color frames
-    align = rs.align(rs.stream.color)
 
-    # Get the intrinsics information for calculation of 3D point
-    unaligned_frames = pipeline.wait_for_frames()
-    frames = align.process(unaligned_frames)
-    depth = frames.get_depth_frame()
-    depth_intrinsic = depth.profile.as_video_stream_profile().intrinsics
+    def brainbit_read(self):
+        # data = board.get_current_board_data (256) # get latest 256 packages or less, doesnt remove them from internal buffer
+        self.data = self.board.get_board_data () # get all data and remove it from internal buffer
+        print (self.data)
 
-    # Initialize the cubemos api with a valid license key in default_license_dir()
-    skeletrack = skeletontracker(cloud_tracking_api_key="")
-    joint_confidence = 0.2
+    def brainbit_terminate(self):
+        self.board.stop_stream()
+        self.board.release_session()
 
-    return pipeline, skeletrack, joint_confidence
+class SkeletonReader():
+    def __init__(self):
+        config = rs.config()
+        config.enable_stream(rs.stream.depth, 1280, 720, rs.format.z16, 30)
+        config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 30)
+
+        # Start the realsense pipeline
+        pipeline = rs.pipeline()
+        pipeline.start()
+
+        # Create align object to align depth frames to color frames
+        align = rs.align(rs.stream.color)
+
+        # Get the intrinsics information for calculation of 3D point
+        unaligned_frames = pipeline.wait_for_frames()
+        frames = align.process(unaligned_frames)
+        depth = frames.get_depth_frame()
+        depth_intrinsic = depth.profile.as_video_stream_profile().intrinsics
+
+        # Initialize the cubemos api with a valid license key in default_license_dir()
+        skeletrack = skeletontracker(cloud_tracking_api_key="")
+        joint_confidence = 0.2
+
+
 
 def skeleton_read(pipeline, skeletrack, joint_confidence):
     while True:
@@ -412,7 +342,7 @@ def skeleton_terminate():
 
 if __name__ == '__main__':
     # BITalino startup
-    device = bitalino_setup()
+    bitalino = BitalinoReader()
 
     #BraibBit startup
     board, args = brainbit_setup()
