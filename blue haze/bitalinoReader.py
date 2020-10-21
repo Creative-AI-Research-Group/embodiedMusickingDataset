@@ -79,6 +79,12 @@ class BITalino(object):
     ===============  ================================================================
     """
     def __init__(self, macAddress, timeout = None):
+        # Bitalino setup parameters
+        # The macAddress variable on Windows can be "XX:XX:XX:XX:XX:XX" or "COMX"
+        # while on Mac OS can be "/dev/tty.BITalino-XX-XX-DevB" for devices ending with the last 4 digits of the MAC address or "/dev/tty.BITalino-DevB" for the remaining
+        # macAddress = macAddress
+
+
         regCompiled = re.compile('^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$')
         checkMatch = re.match(regCompiled, macAddress)
         self.isPython2 = True if sys.version_info[0] == 2 else False
@@ -122,7 +128,7 @@ class BITalino(object):
             version_nbr = float(version.split(split_string_old)[1][:3])
         self.isBitalino2 = True if version_nbr >= 4.2 else False
 
-    def start(self, SamplingRate = 1000, analogChannels = [0, 1, 2, 3, 4, 5]):
+    def start(self, SamplingRate = 100, analogChannels = [0, 1, 2, 3, 4, 5]):
         """
         :param SamplingRate: sampling frequency (Hz)
         :type SamplingRate: int    

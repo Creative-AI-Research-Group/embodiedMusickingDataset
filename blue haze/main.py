@@ -13,29 +13,14 @@ from PySide2.QtCore import Slot, Qt, QThread
 from glob import glob
 import os
 import sys
-from bitalino import BITalino
-import argparse
+from .bitalinoReader import BITalino
 import numpy as np
-import brainflow
-from brainflow.board_shim import BoardShim, BrainFlowInputParams
-from brainflow.data_filter import DataFilter, FilterTypes, AggOperations
-import util as cm
 import time
 import pyrealsense2 as rs
-import math
-from skeletontracker import skeletontracker
+from .skeletontracker import skeletontracker
+from .brainbitReader import BrainbitReader
 
 
-# Bitalino setup parameters
-# The macAddress variable on Windows can be "XX:XX:XX:XX:XX:XX" or "COMX"
-# while on Mac OS can be "/dev/tty.BITalino-XX-XX-DevB" for devices ending with the last 4 digits of the MAC address or "/dev/tty.BITalino-DevB" for the remaining
-bitalino_macAddress = "98:D3:B1:FD:3D:1F"
-
-batteryThreshold = 30
-acqChannels = [0] # removed , 1, 2, 3, 4, 5
-samplingRate = 100 #100 hz all round
-nSamples = 10
-digitalOutput = [1, 1]
 
 
 class MainWindow(QWidget):
@@ -204,84 +189,32 @@ class MainWindow(QWidget):
             trackname = os.path.basename(backing_track)
             self.list_backing_tracks.addItem(trackname)
 
-class BitalinoReader(BITalino):
-    def __init__(self):
-        # Connect to BITalino
-        self.device = BITalino(bitalino_macAddress)
+# Threading functions
 
-        # Set battery threshold
-        self.device.battery(batteryThreshold)
+def read():
+    # Read parameters
+    acqChannels = acqChannels
+    samplingRate = sampleRate
+    nSamples = 10
+    digitalOutput = [1, 1]
 
-        # Read BITalino version
-        print(self.device.version())
+    # Start Acquisition
+    bitalino.start(samplingRate, acqChannels)
 
-    def read(self):
-        # Start Acquisition
-        self.device.start(samplingRate, acqChannels)
+    # Read samples
+    print(bitalino.read(nSamples))
 
-        # Read samples
-        print(self.device.read(nSamples))
+    # Turn BITalino led on
+    bitalino.trigger(digitalOutput)
 
-        # Turn BITalino led on
-        self.device.trigger(digitalOutput)
+def terminate(self):
+    # Stop Bitalino acquisition
+    self.device.stop()
 
-    def terminate(self):
-        # Stop Bitalino acquisition
-        self.device.stop()
-
-        # Close Bitalino connection
-        self.device.close()
+    # Close Bitalino connection
+    self.device.close()
 
 
-class BrainbitReader():
-    def __init__(self):
-        # self.parser = argparse.ArgumentParser()
-        # # use docs to check which parameters are required for specific board, e.g. for Cyton - set serial port
-        # self.parser.add_argument ('--timeout', type = int, help  = 'timeout for device discovery or connection', required = False, default = 0)
-        # self.parser.add_argument ('--ip-port', type = int, help  = 'ip port', required = False, default = 0)
-        # self.parser.add_argument ('--ip-protocol', type = int, help  = 'ip protocol, check IpProtocolType enum', required = False, default = 0)
-        # self.parser.add_argument ('--ip-address', type = str, help  = 'ip address', required = False, default = '')
-        # self.parser.add_argument ('--serial-port', type = str, help  = 'serial port', required = False, default = '')
-        # self.parser.add_argument ('--mac-address', type = str, help  = 'mac address', required = False, default = '')
-        # self.parser.add_argument ('--other-info', type = str, help  = 'other info', required = False, default = '')
-        # self.parser.add_argument ('--streamer-params', type = str, help  = 'streamer params', required = False, default = '')
-        # self.parser.add_argument ('--serial-number', type = str, help  = 'serial number', required = False, default = '')
-        # self.parser.add_argument ('--board-id', type = int, help  = 'board id, check docs to get a list of supported boards', required = False, default=7)
-        # self.parser.add_argument ('--file', type = str, help  = 'file', required = False, default = '')
-        # self.parser.add_argument ('--log', action = 'store_true')
-        # self.args = self.parser.parse_args ()
-
-        self.params = BrainFlowInputParams ()
-        self.params.ip_port = 0
-        self.params.serial_port = ''
-        self.params.mac_address = ''
-        self.params.other_info = ''
-        self.params.serial_number = ''
-        self.params.ip_address = ''
-        self.params.ip_protocol = 0
-        self.params.timeout = 0
-        self.params.file = 0
-
-        if (self.args.log):
-            BoardShim.enable_dev_board_logger ()
-        else:
-            BoardShim.disable_board_logger ()
-
-        self.board = BoardShim (self.args.board_id, self.params)
-
-        self.board.prepare_session ()
-
-        # board.start_stream () # use this for default options
-        self.board.start_stream(45000, self.args.streamer_params)
-
-    def read(self):
-        # data = board.get_current_board_data (256) # get latest 256 packages or less, doesnt remove them from internal buffer
-        self.data = self.board.get_board_data () # get all data and remove it from internal buffer
-        print (self.data)
-
-    def terminate(self):
-        self.board.stop_stream()
-        self.board.release_session()
 
 
 class SkeletonReader():
@@ -340,9 +273,23 @@ class SkeletonReader():
         self.pipeline.stop()
 
 if __name__ == '__main__':
+    # Start the plates spinning
     running = True
+
     # BITalino startup
-    bitalino = BitalinoReader()
+    bitalino_macAddress = "98:D3:B1:FD:3D:1F"
+    sampleRate = 100
+    acqChannels = [0]
+    batteryThreshold = 30
+
+    # Connect to BITalino
+    bitalino = BITalino(bitalino_macAddress)
+
+    # Set battery threshold
+    bitalino.battery(batteryThreshold)
+
+    # Read BITalino version
+    print(bitalino.version())
 
     #BraibBit startup
     brainbit = BrainbitReader()
