@@ -216,7 +216,7 @@ class BitalinoReader(BITalino):
         print(self.device.version())
 
 
-    def bitalino_read(self):
+    def read(self):
         # Start Acquisition
         self.device.start(samplingRate, acqChannels)
 
@@ -226,7 +226,7 @@ class BitalinoReader(BITalino):
         # Turn BITalino led on
         self.device.trigger(digitalOutput)
 
-    def bitalino_terminate(self):
+    def terminate(self):
         # Stop Bitalino acquisition
         self.device.stop()
 
@@ -276,42 +276,40 @@ class BrainbitReader():
         self.board.start_stream(45000, self.args.streamer_params)
 
 
-    def brainbit_read(self):
+    def read(self):
         # data = board.get_current_board_data (256) # get latest 256 packages or less, doesnt remove them from internal buffer
         self.data = self.board.get_board_data () # get all data and remove it from internal buffer
         print (self.data)
 
-    def brainbit_terminate(self):
+    def terminate(self):
         self.board.stop_stream()
         self.board.release_session()
 
 class SkeletonReader():
     def __init__(self):
-        config = rs.config()
-        config.enable_stream(rs.stream.depth, 1280, 720, rs.format.z16, 30)
-        config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 30)
+        self.config = rs.config()
+        self.config.enable_stream(rs.stream.depth, 1280, 720, rs.format.z16, 30)
+        self.config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 30)
 
         # Start the realsense pipeline
-        pipeline = rs.pipeline()
-        pipeline.start()
+        self.pipeline = rs.pipeline()
+        self.pipeline.start()
 
         # Create align object to align depth frames to color frames
-        align = rs.align(rs.stream.color)
+        self.align = rs.align(rs.stream.color)
 
         # Get the intrinsics information for calculation of 3D point
-        unaligned_frames = pipeline.wait_for_frames()
-        frames = align.process(unaligned_frames)
-        depth = frames.get_depth_frame()
-        depth_intrinsic = depth.profile.as_video_stream_profile().intrinsics
+        self.unaligned_frames = pipeline.wait_for_frames()
+        self.frames = self.align.process(self.unaligned_frames)
+        self.depth = self.frames.get_depth_frame()
+        self.depth_intrinsic = self.depth.profile.as_video_stream_profile().intrinsics
 
         # Initialize the cubemos api with a valid license key in default_license_dir()
-        skeletrack = skeletontracker(cloud_tracking_api_key="")
-        joint_confidence = 0.2
+        self.skeletrack = skeletontracker(cloud_tracking_api_key="")
+        self.joint_confidence = 0.2
 
 
-
-def skeleton_read(pipeline, skeletrack, joint_confidence):
-    while True:
+    def read(self):
         # Create a pipeline object. This object configures the streaming camera and owns it's handle
         unaligned_frames = pipeline.wait_for_frames()
         frames = align.process(unaligned_frames)
@@ -337,8 +335,8 @@ def skeleton_read(pipeline, skeletrack, joint_confidence):
         if cv2.waitKey(1) == 27:
             break
 
-def skeleton_terminate():
-    pipeline.stop()
+    def terminate():
+        pipeline.stop()
 
 if __name__ == '__main__':
     # BITalino startup
