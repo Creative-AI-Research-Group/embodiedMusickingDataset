@@ -66,7 +66,7 @@ class MLModuleDLL (object):
     def __init__ (self):
         if platform.system () == 'Windows':
             if struct.calcsize ("P") * 8 == 64:
-                dll_path = 'lib\\MLModule.dll'
+                dll_path = 'lib/MLModule.dll'
             else:
                 dll_path = 'lib\\MLModule32.dll'
         elif platform.system () == 'Darwin':

@@ -13,6 +13,25 @@ from PySide2.QtCore import Slot, Qt
 from glob import glob
 import os
 import sys
+from bitalino import BITalino
+import argparse
+import time
+import numpy as np
+
+import brainflow
+from brainflow.board_shim import BoardShim, BrainFlowInputParams
+from brainflow.data_filter import DataFilter, FilterTypes, AggOperations
+
+# Bitalino setup parameters
+# The macAddress variable on Windows can be "XX:XX:XX:XX:XX:XX" or "COMX"
+# while on Mac OS can be "/dev/tty.BITalino-XX-XX-DevB" for devices ending with the last 4 digits of the MAC address or "/dev/tty.BITalino-DevB" for the remaining
+bitalino_macAddress = "98:D3:B1:FD:3D:1F"
+
+batteryThreshold = 30
+acqChannels = [0] # removed , 1, 2, 3, 4, 5
+samplingRate = 100 #100 hz all round
+nSamples = 10
+digitalOutput = [1, 1]
 
 
 class MainWindow(QWidget):
@@ -181,8 +200,96 @@ class MainWindow(QWidget):
             trackname = os.path.basename(backing_track)
             self.list_backing_tracks.addItem(trackname)
 
+def bitalino_setup():
+    # Connect to BITalino
+    device = BITalino(bitalino_macAddress)
+
+    # Set battery threshold
+    device.battery(batteryThreshold)
+
+    # Read BITalino version
+    print(device.version())
+
+    return device
+
+def bitalino_read():
+    # Start Acquisition
+    device.start(samplingRate, acqChannels)
+
+    # Read samples
+    print(device.read(nSamples))
+
+    # Turn BITalino led on
+    device.trigger(digitalOutput)
+
+def bitalino_terminate():
+    # Stop Bitalino acquisition
+    device.stop()
+
+    # Close Bitalino connection
+    device.close()
+
+
+def brainbit_setup ():
+    parser = argparse.ArgumentParser()
+    # use docs to check which parameters are required for specific board, e.g. for Cyton - set serial port
+    parser.add_argument ('--timeout', type = int, help  = 'timeout for device discovery or connection', required = False, default = 0)
+    parser.add_argument ('--ip-port', type = int, help  = 'ip port', required = False, default = 0)
+    parser.add_argument ('--ip-protocol', type = int, help  = 'ip protocol, check IpProtocolType enum', required = False, default = 0)
+    parser.add_argument ('--ip-address', type = str, help  = 'ip address', required = False, default = '')
+    parser.add_argument ('--serial-port', type = str, help  = 'serial port', required = False, default = '')
+    parser.add_argument ('--mac-address', type = str, help  = 'mac address', required = False, default = '')
+    parser.add_argument ('--other-info', type = str, help  = 'other info', required = False, default = '')
+    parser.add_argument ('--streamer-params', type = str, help  = 'streamer params', required = False, default = '')
+    parser.add_argument ('--serial-number', type = str, help  = 'serial number', required = False, default = '')
+    parser.add_argument ('--board-id', type = int, help  = 'board id, check docs to get a list of supported boards', required = False, default=7)
+    parser.add_argument ('--file', type = str, help  = 'file', required = False, default = '')
+    parser.add_argument ('--log', action = 'store_true')
+    args = parser.parse_args ()
+
+    params = BrainFlowInputParams ()
+    params.ip_port = args.ip_port
+    params.serial_port = args.serial_port
+    params.mac_address = args.mac_address
+    params.other_info = args.other_info
+    params.serial_number = args.serial_number
+    params.ip_address = args.ip_address
+    params.ip_protocol = args.ip_protocol
+    params.timeout = args.timeout
+    params.file = args.file
+
+    if (args.log):
+        BoardShim.enable_dev_board_logger ()
+    else:
+        BoardShim.disable_board_logger ()
+
+    board = BoardShim (args.board_id, params)
+
+    board.prepare_session ()
+
+    # board.start_stream () # use this for default options
+    board.start_stream(45000, args.streamer_params)
+
+    return board, args
+
+def brainbit_read(board):
+    # data = board.get_current_board_data (256) # get latest 256 packages or less, doesnt remove them from internal buffer
+    data = board.get_board_data () # get all data and remove it from internal buffer
+    print (data)
+
+def brainbit_terminate():
+    board.stop_stream()
+    board.release_session()
+
 
 if __name__ == '__main__':
+    # BITalino startup
+    device = bitalino_setup()
+
+    #BraibBit startup
+    board, args = brainbit_setup()
+
+    # UI startup
     app = QApplication(sys.argv)
 
     widget = MainWindow()
@@ -190,4 +297,12 @@ if __name__ == '__main__':
     widget.setFixedSize(1350, 950)
     widget.show()
 
+
+
+    #Terminations
+
+    brainbit_terminate()
+    bitalino_terminate()
+
+    # Close UI
     sys.exit(app.exec_())

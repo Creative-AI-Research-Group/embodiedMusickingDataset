@@ -61,7 +61,7 @@ class DataHandlerDLL (object):
     def __init__ (self):
         if platform.system () == 'Windows':
             if struct.calcsize ("P") * 8 == 64:
-                dll_path = 'lib\\DataHandler.dll'
+                dll_path = 'lib/DataHandler.dll'
             else:
                 dll_path = 'lib\\DataHandler32.dll'
         elif platform.system () == 'Darwin':

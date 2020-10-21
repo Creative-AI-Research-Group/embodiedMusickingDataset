@@ -122,7 +122,7 @@ class BoardControllerDLL (object):
     def __init__ (self):
         if platform.system () == 'Windows':
             if struct.calcsize ("P") * 8 == 64:
-                dll_path = 'lib\\BoardController.dll'
+                dll_path = 'lib/BoardController.dll'
             else:
                 dll_path = 'lib\\BoardController32.dll'
         elif platform.system () == 'Darwin':
