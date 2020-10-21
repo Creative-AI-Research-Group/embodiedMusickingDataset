@@ -191,6 +191,7 @@ class MainWindow(QWidget):
 
 # Threading functions
 
+
 def read():
     # Read parameters
     acqChannels = acqChannels
@@ -231,7 +232,7 @@ class SkeletonReader():
         self.align = rs.align(rs.stream.color)
 
         # Get the intrinsics information for calculation of 3D point
-        self.unaligned_frames = pipeline.wait_for_frames()
+        self.unaligned_frames = self.pipeline.wait_for_frames()
         self.frames = self.align.process(self.unaligned_frames)
         self.depth = self.frames.get_depth_frame()
         self.depth_intrinsic = self.depth.profile.as_video_stream_profile().intrinsics
@@ -272,24 +273,31 @@ class SkeletonReader():
     def terminate(self):
         self.pipeline.stop()
 
+def bitalino_startup(macAddress):
+    sampleRate = 100
+    acqChannels = [0]
+    batteryThreshold = 30
+
+    # instantiate an object
+    bitalino = BITalino(bitalino_macAddress)
+    # Set battery threshold
+    bitalino.battery(batteryThreshold)
+
+    # Read BITalino version
+    print(bitalino.version())
+
+
+
 if __name__ == '__main__':
     # Start the plates spinning
     running = True
 
     # BITalino startup
     bitalino_macAddress = "98:D3:B1:FD:3D:1F"
-    sampleRate = 100
-    acqChannels = [0]
-    batteryThreshold = 30
+    bitalino = bitalino_startup(bitalino_macAddress)
 
-    # Connect to BITalino
-    bitalino = BITalino(bitalino_macAddress)
 
-    # Set battery threshold
-    bitalino.battery(batteryThreshold)
 
-    # Read BITalino version
-    print(bitalino.version())
 
     #BraibBit startup
     brainbit = BrainbitReader()
