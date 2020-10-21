@@ -11,7 +11,7 @@ from PySide2.QtMultimedia import *
 from PySide2.QtMultimediaWidgets import QCameraViewfinder
 from PySide2.QtCore import Slot, Qt
 from glob import glob
-
+import os
 import sys
 
 
@@ -175,7 +175,8 @@ class MainWindow(QWidget):
     def get_list_backing_tracks(self):
         # list the available audio_backing tracks
         for backing_track in glob("../data/audio_backing/*wav"):
-            self.list_backing_tracks.addItem(backing_track)
+            trackname = os.path.basename(backing_track)
+            self.list_backing_tracks.addItem(trackname)
 
 
 if __name__ == '__main__':
