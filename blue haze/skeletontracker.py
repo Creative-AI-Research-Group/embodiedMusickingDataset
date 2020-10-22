@@ -4,6 +4,10 @@ from cubemos.skeletontracking.core_wrapper import CM_TargetComputeDevice
 from cubemos.skeletontracking.core_wrapper import initialise_logging, CM_LogLevel
 from cubemos.skeletontracking.native_wrapper import Api, TrackingContext, SkeletonKeypoints
 from cubemos.skeletontracking.native_wrapper import CM_SKEL_TrackingSimilarityMetric, CM_SKEL_TrackingMethod
+import pyrealsense2 as rs
+import numpy as np
+from time import sleep
+
 
 def default_log_dir():
     if platform.system() == "Windows":
@@ -84,3 +88,73 @@ class skeletontracker:
 
         return skeletons
 
+
+class SkeletonReader():
+    def __init__(self):
+        self.config = rs.config()
+        self.config.enable_stream(rs.stream.depth, 1280, 720, rs.format.z16, 30)
+        self.config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 30)
+        print('Real Sense Depth Camera ready')
+
+    def start(self):
+        # Start the realsense pipeline
+        self.pipeline = rs.pipeline()
+        self.pipeline.start()
+
+        # Create align object to align depth frames to color frames
+        self.align = rs.align(rs.stream.color)
+
+        # Get the intrinsics information for calculation of 3D point
+        self.unaligned_frames = self.pipeline.wait_for_frames()
+        self.frames = self.align.process(self.unaligned_frames)
+        self.depth = self.frames.get_depth_frame()
+        self.depth_intrinsic = self.depth.profile.as_video_stream_profile().intrinsics
+
+        # Initialize the cubemos api with a valid license key in default_license_dir()
+        self.skeletrack = skeletontracker(cloud_tracking_api_key="")
+        self.joint_confidence = 0.2
+
+    def read(self):
+        # Create a pipeline object. This object configures the streaming camera and owns it's handle
+        self.unaligned_frames = self.pipeline.wait_for_frames()
+        self.frames = self.align.process(self.unaligned_frames)
+        self.depth = self.frames.get_depth_frame()
+        self.color = self.frames.get_color_frame()
+        # if not self.depth or not self.color:
+        #     continue
+
+        # Convert images to numpy arrays
+        depth_image = np.asanyarray(self.depth.get_data())
+        color_image = np.asanyarray(self.color.get_data())
+
+        # perform inference and update the tracking id
+        self.skeletons = self.skeletrack.track_skeletons(color_image)
+
+        return self.skeletons # removed self.depth, self.depth_intrinsic, self.joint_confidence
+
+        # # render the skeletons on top of the acquired image and display it
+        # color_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2RGB)
+        # cm.render_result(skeletons, color_image, joint_confidence)
+        # render_ids_3d(
+        #     color_image, skeletons, depth, depth_intrinsic, joint_confidence
+        # )
+        # cv2.imshow(window_name, color_image)
+        # if cv2.waitKey(1) == 27:
+        #     break
+
+    def terminate(self):
+        self.pipeline.stop()
+
+
+
+if __name__ == '__main__':
+    skeleton = SkeletonReader()
+
+    skeleton.start()
+
+    for i in range(10):
+        data = skeleton.read()
+        print(data)
+        sleep(0.1)
+
+    skeleton.terminate()

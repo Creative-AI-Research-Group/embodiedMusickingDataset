@@ -127,6 +127,7 @@ class BITalino(object):
         else:
             version_nbr = float(version.split(split_string_old)[1][:3])
         self.isBitalino2 = True if version_nbr >= 4.2 else False
+        print('Bitalino ready')
 
     def start(self, SamplingRate = 100, analogChannels = [0, 1, 2, 3, 4, 5]):
         """
@@ -546,9 +547,12 @@ class BITalino(object):
                         raise Exception(ExceptionCode.CONTACTING_DEVICE)
                 data += self.socket.recv(1)
         return data
-            
+
+
+
+
 if __name__ == '__main__':
-    macAddress = "00:00:00:00:00:00"
+    macAddress = "98:D3:B1:FD:3D:1F"
 
     running_time = 5
     

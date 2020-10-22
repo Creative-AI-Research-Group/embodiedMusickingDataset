@@ -13,14 +13,11 @@ from PySide2.QtCore import Slot, Qt, QThread
 from glob import glob
 import os
 import sys
-from .bitalinoReader import BITalino
-import numpy as np
-import time
-import pyrealsense2 as rs
-from .skeletontracker import skeletontracker
-from .brainbitReader import BrainbitReader
 
-
+from bitalinoReader import BITalino
+from time import sleep
+from skeletontracker import SkeletonReader
+from brainbitReader import BrainbitReader
 
 
 class MainWindow(QWidget):
@@ -34,6 +31,23 @@ class MainWindow(QWidget):
         self.list_backing_tracks = QComboBox()
         self.record_stop_button = QPushButton('Record session')
         self.recording = False
+
+        # BITalino instantiate object
+        bitalino_macAddress = "98:D3:B1:FD:3D:1F"
+        self.nSamples = 10
+        self.digitalOutput = [1, 1]
+        # Connect to BITalino
+        self.bitalino = BITalino(bitalino_macAddress)
+        # Set battery threshold
+        self.bitalino.battery(30)
+        # Read BITalino version
+        print(self.bitalino.version())
+
+        # BraibBit instantiate object
+        self.brainbit = BrainbitReader()
+
+        # RealSense & Skeleton startup
+        self.skeleton = SkeletonReader()
 
         self.view_finder = QCameraViewfinder()
 
@@ -189,121 +203,56 @@ class MainWindow(QWidget):
             trackname = os.path.basename(backing_track)
             self.list_backing_tracks.addItem(trackname)
 
-# Threading functions
 
+    # Threading
+    # Instantiate streaming for brainbit
+    def brainbit_start(self):
+        # board.start_stream () # use this for default options
+        self.brainbit.start()
 
-def read():
-    # Read parameters
-    acqChannels = acqChannels
-    samplingRate = sampleRate
-    nSamples = 10
-    digitalOutput = [1, 1]
+    # Read data from buffer
+    def brainbit_read(self):
+        brainbit_data = self.brainbit.read()
+        print(brainbit_data)
 
-    # Start Acquisition
-    bitalino.start(samplingRate, acqChannels)
+    def brainbit_terminate(self):
+        self.brainbit.terminate()
 
-    # Read samples
-    print(bitalino.read(nSamples))
+    # initiate bitalino streaming data
+    def bitalino_start(self):
+        acqChannels = [0] # removed, 1, 2, 3, 4, 5]
+        samplingRate = baudrate
+        self.bitalino.start(samplingRate, acqChannels)
 
-    # Turn BITalino led on
-    bitalino.trigger(digitalOutput)
+    # Read data from buffer
+    def bitalino_read(self):
+        # Read samples
+        bitalino_data = self.bitalino.read(self.nSamples)
+        print(bitalino_data)
+        # Turn BITalino led on
+        self.bitalino.trigger(self.digitalOutput)
 
-def terminate(self):
-    # Stop Bitalino acquisition
-    self.device.stop()
+    def bitalino_terminate(self):
+        # Stop Bitalino acquisition
+        self.bitalino.stop()
+        # Close Bitalino connection
+        self.bitalino.close()
 
-    # Close Bitalino connection
-    self.device.close()
+    # Instantiate skeleton tracking
+    def skeleton_start(self):
+        self.skeleton.start()
 
+    def skeleton_read(self):
+        skeleton_data = self.skeleton.read()
+        print(skeleton_data)
 
-
-
-class SkeletonReader():
-    def __init__(self):
-        self.config = rs.config()
-        self.config.enable_stream(rs.stream.depth, 1280, 720, rs.format.z16, 30)
-        self.config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 30)
-
-        # Start the realsense pipeline
-        self.pipeline = rs.pipeline()
-        self.pipeline.start()
-
-        # Create align object to align depth frames to color frames
-        self.align = rs.align(rs.stream.color)
-
-        # Get the intrinsics information for calculation of 3D point
-        self.unaligned_frames = self.pipeline.wait_for_frames()
-        self.frames = self.align.process(self.unaligned_frames)
-        self.depth = self.frames.get_depth_frame()
-        self.depth_intrinsic = self.depth.profile.as_video_stream_profile().intrinsics
-
-        # Initialize the cubemos api with a valid license key in default_license_dir()
-        self.skeletrack = skeletontracker(cloud_tracking_api_key="")
-        self.joint_confidence = 0.2
-
-
-    def read(self):
-        # Create a pipeline object. This object configures the streaming camera and owns it's handle
-        self.unaligned_frames = self.pipeline.wait_for_frames()
-        self.frames = self.align.process(self.unaligned_frames)
-        self.depth = self.frames.get_depth_frame()
-        self.color = self.frames.get_color_frame()
-        # if not self.depth or not self.color:
-        #     continue
-
-        # Convert images to numpy arrays
-        depth_image = np.asanyarray(self.depth.get_data())
-        color_image = np.asanyarray(self.color.get_data())
-
-        # perform inference and update the tracking id
-        self.skeletons = self.skeletrack.track_skeletons(color_image)
-
-        # print (color_image, self.skeletons, self.depth, self.depth_intrinsic, self.joint_confidence)
-
-        # # render the skeletons on top of the acquired image and display it
-        # color_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2RGB)
-        # cm.render_result(skeletons, color_image, joint_confidence)
-        # render_ids_3d(
-        #     color_image, skeletons, depth, depth_intrinsic, joint_confidence
-        # )
-        # cv2.imshow(window_name, color_image)
-        # if cv2.waitKey(1) == 27:
-        #     break
-
-    def terminate(self):
-        self.pipeline.stop()
-
-def bitalino_startup(macAddress):
-    sampleRate = 100
-    acqChannels = [0]
-    batteryThreshold = 30
-
-    # instantiate an object
-    bitalino = BITalino(bitalino_macAddress)
-    # Set battery threshold
-    bitalino.battery(batteryThreshold)
-
-    # Read BITalino version
-    print(bitalino.version())
-
-
+    def skeleton_terminate(self):
+        self.skeleton.terminate()
 
 if __name__ == '__main__':
-    # Start the plates spinning
+    # Initialise running vars
     running = True
-
-    # BITalino startup
-    bitalino_macAddress = "98:D3:B1:FD:3D:1F"
-    bitalino = bitalino_startup(bitalino_macAddress)
-
-
-
-
-    #BraibBit startup
-    brainbit = BrainbitReader()
-
-    # RealSense & Skeleton startup
-    skeleton = SkeletonReader()
+    baudrate = 24 # aligning with fps of piano fingers
 
     # UI startup
     app = QApplication(sys.argv)
@@ -313,12 +262,18 @@ if __name__ == '__main__':
     widget.setFixedSize(1350, 950)
     widget.show()
 
+    for i in range (10):
+        widget.brainbit_read()
+        widget.bitalino_read()
+        widget.skeleton_read()
+        # control reading inline with project baudrate
+        sleep(baudrate / 1000)
 
-    #Terminations
-    if not running:
-        brainbit.terminate()
-        bitalino.terminate()
-        skeleton.terminate()
+    # Terminations
+    widget.brainbit_terminate()
+    widget.bitalino_terminate()
+    widget.skeleton_terminate()
 
-        # Close UI
-        sys.exit(app.exec_())
+    # Close UI
+    sys.exit(app.exec_())
+
