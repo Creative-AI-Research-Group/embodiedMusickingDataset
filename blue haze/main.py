@@ -6,6 +6,9 @@
 # Craig Vear - cvear@dmu.ac.uk
 #
 
+# todo filter out Intel cameras from camera menu
+
+
 from PySide2.QtWidgets import *
 from PySide2.QtMultimedia import *
 from PySide2.QtMultimediaWidgets import QCameraViewfinder
@@ -255,7 +258,7 @@ if __name__ == '__main__':
     widget.setFixedSize(1350, 950)
     widget.show()
 
-    for i in range (10):
+    for i in range (100):
         print('Time  =  ', localtime())
         widget.brainbit_read()
         widget.bitalino_read()

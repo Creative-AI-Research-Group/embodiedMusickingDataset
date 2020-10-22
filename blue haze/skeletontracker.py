@@ -120,8 +120,6 @@ class SkeletonReader():
         self.frames = self.align.process(self.unaligned_frames)
         self.depth = self.frames.get_depth_frame()
         self.color = self.frames.get_color_frame()
-        # if not self.depth or not self.color:
-        #     continue
 
         # Convert images to numpy arrays
         depth_image = np.asanyarray(self.depth.get_data())
@@ -132,19 +130,9 @@ class SkeletonReader():
 
         return self.skeletons # removed self.depth, self.depth_intrinsic, self.joint_confidence
 
-        # # render the skeletons on top of the acquired image and display it
-        # color_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2RGB)
-        # cm.render_result(skeletons, color_image, joint_confidence)
-        # render_ids_3d(
-        #     color_image, skeletons, depth, depth_intrinsic, joint_confidence
-        # )
-        # cv2.imshow(window_name, color_image)
-        # if cv2.waitKey(1) == 27:
-        #     break
 
     def terminate(self):
         self.pipeline.stop()
-
 
 
 if __name__ == '__main__':
