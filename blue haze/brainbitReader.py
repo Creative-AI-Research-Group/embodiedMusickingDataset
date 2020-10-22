@@ -19,6 +19,7 @@ class BrainbitReader():
 
         # set it logging
         BoardShim.enable_dev_board_logger()
+        print('BrainBit reader ready')
 
     def start(self):
         # instantiate the board reading
@@ -27,7 +28,7 @@ class BrainbitReader():
         self.board.prepare_session ()
 
         # board.start_stream () # use this for default options
-        self.board.start_stream(45000)
+        self.board.start_stream() # removed 48000
         print ('BrainBit stream started')
 
     def read(self):

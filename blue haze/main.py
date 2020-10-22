@@ -15,7 +15,7 @@ import os
 import sys
 
 from bitalinoReader import BITalino
-from time import sleep
+from time import sleep, localtime
 from skeletontracker import SkeletonReader
 from brainbitReader import BrainbitReader
 
@@ -43,7 +43,7 @@ class MainWindow(QWidget):
         # Read BITalino version
         print(self.bitalino.version())
 
-        # BraibBit instantiate object
+        # BrainBit instantiate object
         self.brainbit = BrainbitReader()
 
         # RealSense & Skeleton startup
@@ -56,6 +56,13 @@ class MainWindow(QWidget):
         self.get_list_backing_tracks()
 
         self.setup_ui()
+
+        # Start HW device streams
+        acqChannels = [0]  # removed, 1, 2, 3, 4, 5]
+        samplingRate = baudrate
+        self.bitalino.start(samplingRate, acqChannels)
+        self.brainbit.start()
+        self.skeleton.start()
 
         self.camera = QCamera(self.list_cameras.currentData())
         self.start_camera()
@@ -204,31 +211,20 @@ class MainWindow(QWidget):
             self.list_backing_tracks.addItem(trackname)
 
 
-    # Threading
-    # Instantiate streaming for brainbit
-    def brainbit_start(self):
-        # board.start_stream () # use this for default options
-        self.brainbit.start()
-
+    # Threading Functions
     # Read data from buffer
     def brainbit_read(self):
         brainbit_data = self.brainbit.read()
-        print(brainbit_data)
+        print('BrainBit data  =  ', brainbit_data)
 
     def brainbit_terminate(self):
         self.brainbit.terminate()
-
-    # initiate bitalino streaming data
-    def bitalino_start(self):
-        acqChannels = [0] # removed, 1, 2, 3, 4, 5]
-        samplingRate = baudrate
-        self.bitalino.start(samplingRate, acqChannels)
 
     # Read data from buffer
     def bitalino_read(self):
         # Read samples
         bitalino_data = self.bitalino.read(self.nSamples)
-        print(bitalino_data)
+        print('BITalino data  =  ', bitalino_data)
         # Turn BITalino led on
         self.bitalino.trigger(self.digitalOutput)
 
@@ -238,13 +234,10 @@ class MainWindow(QWidget):
         # Close Bitalino connection
         self.bitalino.close()
 
-    # Instantiate skeleton tracking
-    def skeleton_start(self):
-        self.skeleton.start()
-
+    # Read data from buffer
     def skeleton_read(self):
         skeleton_data = self.skeleton.read()
-        print(skeleton_data)
+        print('Skeleton data  =  ', skeleton_data)
 
     def skeleton_terminate(self):
         self.skeleton.terminate()
@@ -252,7 +245,7 @@ class MainWindow(QWidget):
 if __name__ == '__main__':
     # Initialise running vars
     running = True
-    baudrate = 24 # aligning with fps of piano fingers
+    baudrate = 10 # Bitalino is 1, 10, 100, 1000
 
     # UI startup
     app = QApplication(sys.argv)
@@ -263,6 +256,7 @@ if __name__ == '__main__':
     widget.show()
 
     for i in range (10):
+        print('Time  =  ', localtime())
         widget.brainbit_read()
         widget.bitalino_read()
         widget.skeleton_read()
