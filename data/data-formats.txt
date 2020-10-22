@@ -1,0 +1,47 @@
+data Formats
+
+BITalino
+[[  0   1   1   1   1 169]
+ [  1   1   1   1   1 169]
+ [  2   1   1   1   1 169]
+ [  3   1   1   1   1 169]
+ [  4   1   1   1   1 169]
+ [  5   1   1   1   1 169]
+ [  6   1   1   1   1 169]
+ [  7   1   1   1   1 169]
+ [  8   1   1   1   1 169]
+ [  9   1   1   1   1 169]]
+Col. 1: Sample sequence number (4-bit) generated on the device to facilitate the detection of missing data;
+Col. 2 & 3: State of the digital inputs I1 & I2 (1-bit);
+Col. 3 & 4: State of the digital outputs O1 & O2 (1-bit);
+Col. 5-: Raw data for each analog input acquired during the recording session (in this case A1, which has 10-bit resolution in A1-A4 and can have 6-bit or 10-bit in A5 & A6 depending on how many channels are acquired.
+
+BrainBIT/ BrainFlow
+The BrainBit device could provide you with the following types of data: 
+EEG signal from 4 channels
+Resistance data for 4 channels
+Bipolar EEG channels of your choice
+Battery charge level
+4 EEG channels are canonical EEG montage channels T3, T4, O1, O2 from the 10-20 EEG system. For all of these channels, you could get electrode-skin resistance value, but not simultaneously with the signal receiving. You will receive zeros instead of the signal during resistance measurement.
+Generic Format Description
+Methods like:
+get_board_data ()
+get_current_board_data (max_num_packages)
+Return 2d double array [num_channels x num_data_points], rows of this array represent different channels like EEG channels, EMG channels, Accel channels, Timesteps and so on, while columns in this array represent actual packages from a board.
+Exact format for this array is board specific. To keep the API uniform, we have methods like:
+# these methods return an array of rows in this 2d array containing eeg\emg\ecg\accel data
+get_eeg_channels (board_id)
+get_emg_channels (board_id)
+get_ecg_channels (board_id)
+get_accel_channels (board_id)
+and so on, check docs for full list
+# also we have methods to get sampling rate from board id, get number of timestamp channel and others
+get_sampling_rate (board_id)
+get_timestamp_channel (board_id)
+# and so on
+
+
+Skeleton
+Skeleton data  =   [SkeletonKeypoints(joints=[Coordinate(x=364.1055603027344, y=144.375), Coordinate(x=390.3812255859375, y=316.875), Coordinate(x=270.263916015625, y=301.875), Coordinate(x=-1.0, y=-1.0), Coordinate(x=-1.0, y=-1.0), Coordinate(x=540.52783203125, y=301.875), Coordinate(x=-1.0, y=-1.0), Coordinate(x=-1.0, y=-1.0), Coordinate(x=-1.0, y=-1.0), Coordinate(x=-1.0, y=-1.0), Coordinate(x=-1.0, y=-1.0), Coordinate(x=-1.0, y=-1.0), Coordinate(x=-1.0, y=-1.0), Coordinate(x=-1.0, y=-1.0), Coordinate(x=337.8299255371094, y=118.125), Coordinate(x=397.8885498046875, y=118.125), Coordinate(x=307.80059814453125, y=140.625), Coordinate(x=442.93255615234375, y=140.625)], confidences=[0.8627133369445801, 0.4271840751171112, 0.28388893604278564, 0.0, 0.0, 0.49805599451065063, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.8855968713760376, 0.8579847812652588, 0.769591748714447, 0.753663957118988], id=1, id_confirmed_on_cloud=False)]
+format:
+nose, neck, r_shoudler, r_elbow, r_wrist, l_shoudler, l_elbow, l_wrist, r_hip, r_knee, r_ankle, l_hip, l_knee, l_ankle, r_eye, l_eye, r_ear, l_ear
