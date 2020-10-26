@@ -135,6 +135,8 @@ class MainWindow(QWidget):
         # record/stop button
         record_button_group_box = QGroupBox()
         record_button_layout = QGridLayout()
+        # rec image
+        self.recording_label.setPixmap('assets/gray_rec.png')
         # need to find a better solution
         # this is a workaround
         empty_label = QLabel(' ')
@@ -172,10 +174,10 @@ class MainWindow(QWidget):
             return
 
         if self.recording:
+            self.recording_label.setPixmap('assets/gray_rec.png')
             self.record_stop_button.setText('Record session')
-            self.recording_label.setText(' ')
         else:
-            self.recording_label.setPixmap('assets/rec.png')
+            self.recording_label.setPixmap('assets/red_rec.png')
             self.record_stop_button.setText('Recording… Press here to stop')
         self.recording = not self.recording
 
