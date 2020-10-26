@@ -11,6 +11,8 @@ from PySide2.QtMultimedia import *
 from PySide2.QtMultimediaWidgets import QCameraViewfinder
 from PySide2.QtCore import Slot, Qt, QThread, QDir
 from glob import glob
+from playBackTrack import PlayBackTrack
+
 import os
 import sys
 
@@ -30,8 +32,14 @@ class MainWindow(QWidget):
         self.list_audio_devices = QComboBox()
         self.list_backing_tracks = QComboBox()
         self.record_stop_button = QPushButton('Record session')
+        self.play_stop_backing_track_button = QPushButton('Play backing track')
+        self.backing_track_player = PlayBackTrack()
         self.recording_label = QLabel()
         self.recording = False
+
+        # folders
+        self.ASSETS_IMAGES_FOLDER = 'assets/images/'
+        self.ASSETS_BACKING_AUDIO_FOLDER = 'assets/audio_backing/'
 
         # # BITalino instantiate object
         # bitalino_macAddress = "98:D3:B1:FD:3D:1F"
@@ -78,9 +86,9 @@ class MainWindow(QWidget):
         session_name_label = QLabel('Session name: ')
 
         # video file path
-        video_path_file_label = QLabel('Video path: ')
+        video_path_file_label = QLabel('Video/Audio path: ')
         folder_browser_button = QPushButton('Browse directories')
-        # connect the button signal
+        # connect the folder_browser_button signal
         folder_browser_button.clicked.connect(self.show_folder_browser)
 
         # camera selection
@@ -94,11 +102,13 @@ class MainWindow(QWidget):
         # audio input selection
         list_audio_label = QLabel('Available audio input: ')
         refresh_audio_input_button = QPushButton('Refresh audio input')
-        # connect the button signal
+        # connect the refresh_audio_input_button signal
         refresh_audio_input_button.clicked.connect(self.refresh_audio_input)
 
         # backing track selection
         list_backing_tracks_label = QLabel('Available backing tracks: ')
+        # connect the play_stop_backing_track_button signal
+        self.play_stop_backing_track_button.clicked.connect(self.play_stop_backing_track)
 
         # fields layout
         # session name
@@ -123,6 +133,7 @@ class MainWindow(QWidget):
         # backing tracks
         fields.addWidget(list_backing_tracks_label, 4, 0)
         fields.addWidget(self.list_backing_tracks, 4, 1)
+        fields.addWidget(self.play_stop_backing_track_button, 4, 2)
 
         fields_group_box.setLayout(fields)
 
@@ -136,7 +147,7 @@ class MainWindow(QWidget):
         record_button_group_box = QGroupBox()
         record_button_layout = QGridLayout()
         # rec image
-        self.recording_label.setPixmap('assets/gray_rec.png')
+        self.recording_label.setPixmap(self.ASSETS_IMAGES_FOLDER + 'gray_rec.png')
         # need to find a better solution
         # this is a workaround
         empty_label = QLabel(' ')
@@ -160,7 +171,7 @@ class MainWindow(QWidget):
     def action_record_stop_button(self):
         # check if the session name & video path file fields are filled
         if not self.session_name.text() or not self.video_file_path.text():
-            self.error_dialog('Please inform both the Session Name and the Video Path!')
+            self.error_dialog('Please inform both the Session Name and the Video/Audio Path!')
             return
 
         # check if the directory exists
@@ -174,7 +185,7 @@ class MainWindow(QWidget):
             return
 
         if self.recording:
-            self.recording_label.setPixmap('assets/gray_rec.png')
+            self.recording_label.setPixmap(self.ASSETS_IMAGES_FOLDER + 'gray_rec.png')
             self.record_stop_button.setText('Record session')
             # enable fields
             self.session_name.setEnabled(True)
@@ -183,7 +194,7 @@ class MainWindow(QWidget):
             self.list_audio_devices.setEnabled(True)
             self.list_backing_tracks.setEnabled(True)
         else:
-            self.recording_label.setPixmap('assets/red_rec.png')
+            self.recording_label.setPixmap(self.ASSETS_IMAGES_FOLDER + 'red_rec.png')
             self.record_stop_button.setText('Recording… Press here to stop')
             # disable fields
             self.session_name.setEnabled(False)
@@ -222,6 +233,20 @@ class MainWindow(QWidget):
         self.camera = QCamera(self.list_cameras.currentData())
         self.start_camera()
 
+    @Slot()
+    def play_stop_backing_track(self):
+        if self.backing_track_player.status():
+            self.backing_track_player.stop()
+            self.play_stop_backing_track_button.setText('Play backing track')
+            # disable field
+            self.list_backing_tracks.setEnabled(True)
+        else:
+            backing_track_file = '{}{}'.format(self.ASSETS_BACKING_AUDIO_FOLDER, self.list_backing_tracks.currentText())
+            self.backing_track_player.play(backing_track_file)
+            self.play_stop_backing_track_button.setText('Stop backing track')
+            # enable field
+            self.list_backing_tracks.setEnabled(False)
+
     def start_camera(self):
         self.camera.setViewfinder(self.view_finder)
         self.camera.start()
@@ -239,7 +264,8 @@ class MainWindow(QWidget):
 
     def get_list_backing_tracks(self):
         # list the available audio_backing tracks
-        for backing_track in glob("../data/audio_backing/*wav"):
+        backing_tracks_folder = '{}*wav'.format(self.ASSETS_BACKING_AUDIO_FOLDER)
+        for backing_track in glob(backing_tracks_folder):
             trackname = os.path.basename(backing_track)
             self.list_backing_tracks.addItem(trackname)
 
