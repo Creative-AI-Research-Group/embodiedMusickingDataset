@@ -155,12 +155,21 @@ class MainWindow(QWidget):
 
     @Slot()
     def action_record_stop_button(self):
+        # check if the session name & video path file fields are filled
         if not self.session_name.text() or not self.video_file_path.text():
             self.error_dialog('Please inform both the Session Name and the Video Path!')
             return
+
+        # check if the directory exists
         if not QDir(self.video_file_path.text()).exists():
             self.error_dialog('The directory {} does not exist!'.format(self.video_file_path.text()))
             return
+
+        # check if the directory is writable
+        if not os.access(self.video_file_path.text(), os.W_OK):
+            self.error_dialog('The directory {} is not writable!'.format(self.video_file_path.text()))
+            return
+
         if self.recording:
             self.record_stop_button.setText('Record session')
         else:
