@@ -30,6 +30,7 @@ class MainWindow(QWidget):
         self.list_audio_devices = QComboBox()
         self.list_backing_tracks = QComboBox()
         self.record_stop_button = QPushButton('Record session')
+        self.recording_label = QLabel()
         self.recording = False
 
         # # BITalino instantiate object
@@ -139,7 +140,7 @@ class MainWindow(QWidget):
         empty_label = QLabel(' ')
         record_button_layout.addWidget(empty_label, 0, 1)
         record_button_layout.addWidget(empty_label, 0, 2)
-        record_button_layout.addWidget(empty_label, 0, 3)
+        record_button_layout.addWidget(self.recording_label, 0, 3, alignment=Qt.AlignRight)
         record_button_layout.addWidget(self.record_stop_button, 0, 4)
         record_button_group_box.setLayout(record_button_layout)
 
@@ -172,8 +173,10 @@ class MainWindow(QWidget):
 
         if self.recording:
             self.record_stop_button.setText('Record session')
+            self.recording_label.setText(' ')
         else:
-            self.record_stop_button.setText('Recording…')
+            self.recording_label.setPixmap('assets/rec.png')
+            self.record_stop_button.setText('Recording… Press here to stop')
         self.recording = not self.recording
 
     @Slot()
