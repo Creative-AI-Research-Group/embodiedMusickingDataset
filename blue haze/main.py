@@ -155,6 +155,9 @@ class MainWindow(QWidget):
 
     @Slot()
     def action_record_stop_button(self):
+        if not self.session_name.text() or not self.video_file_path.text():
+            self.error_dialog('Please inform both the Session Name and the Video Path')
+            return
         if self.recording:
             self.record_stop_button.setText('Record session')
         else:
@@ -211,6 +214,13 @@ class MainWindow(QWidget):
             trackname = os.path.basename(backing_track)
             self.list_backing_tracks.addItem(trackname)
 
+    def error_dialog(self, message):
+        error_dialog = QMessageBox(self)
+        error_dialog.setText(message)
+        error_dialog.setWindowTitle('Blue Haze - Error')
+        error_dialog.setIcon(QMessageBox.Critical)
+        error_dialog.setStandardButtons(QMessageBox.Ok)
+        error_dialog.exec_()
 
     # Threading Functions
     # Read data from buffer
