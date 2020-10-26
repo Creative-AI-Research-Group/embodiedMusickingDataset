@@ -21,6 +21,3 @@ class PlayBackTrack:
 
     def stop(self):
         self.player.stop()
-
-    def status(self):
-        return self.player.isPlaying()

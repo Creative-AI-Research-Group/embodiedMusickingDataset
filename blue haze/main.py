@@ -185,6 +185,8 @@ class MainWindow(QWidget):
             return
 
         if self.recording:
+            # it is already recording
+            # we will stop the session
             self.recording_label.setPixmap(self.ASSETS_IMAGES_FOLDER + 'gray_rec.png')
             self.record_stop_button.setText('Record session')
             # enable fields
@@ -194,6 +196,8 @@ class MainWindow(QWidget):
             self.list_audio_devices.setEnabled(True)
             self.list_backing_tracks.setEnabled(True)
         else:
+            # it is not yet recording
+            # we will start the session
             self.recording_label.setPixmap(self.ASSETS_IMAGES_FOLDER + 'red_rec.png')
             self.record_stop_button.setText('Recording… Press here to stop')
             # disable fields
@@ -235,7 +239,7 @@ class MainWindow(QWidget):
 
     @Slot()
     def play_stop_backing_track(self):
-        if self.backing_track_player.status():
+        if self.backing_track_player.player.isPlaying():
             self.backing_track_player.stop()
             self.play_stop_backing_track_button.setText('Play backing track')
             # disable field
