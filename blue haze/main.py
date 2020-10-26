@@ -176,9 +176,21 @@ class MainWindow(QWidget):
         if self.recording:
             self.recording_label.setPixmap('assets/gray_rec.png')
             self.record_stop_button.setText('Record session')
+            # enable fields
+            self.session_name.setEnabled(True)
+            self.video_file_path.setEnabled(True)
+            self.list_cameras.setEnabled(True)
+            self.list_audio_devices.setEnabled(True)
+            self.list_backing_tracks.setEnabled(True)
         else:
             self.recording_label.setPixmap('assets/red_rec.png')
             self.record_stop_button.setText('Recording… Press here to stop')
+            # disable fields
+            self.session_name.setEnabled(False)
+            self.video_file_path.setEnabled(False)
+            self.list_cameras.setEnabled(False)
+            self.list_audio_devices.setEnabled(False)
+            self.list_backing_tracks.setEnabled(False)
         self.recording = not self.recording
 
     @Slot()
