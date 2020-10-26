@@ -9,9 +9,10 @@
 from PySide2.QtWidgets import *
 from PySide2.QtMultimedia import *
 from PySide2.QtMultimediaWidgets import QCameraViewfinder
-from PySide2.QtCore import Slot, Qt, QThread, QDir
+from PySide2.QtCore import Slot, Qt, QThread, QDir, QUrl
 from glob import glob
 from playBackTrack import PlayBackTrack
+from recordSession import RecordSession
 
 import os
 import sys
@@ -36,6 +37,10 @@ class MainWindow(QWidget):
         self.backing_track_player = PlayBackTrack()
         self.recording_label = QLabel()
         self.recording = False
+
+        self.record_session = RecordSession()
+
+        self.camera_recorder = None
 
         # folders
         self.ASSETS_IMAGES_FOLDER = 'assets/images/'
@@ -195,6 +200,9 @@ class MainWindow(QWidget):
             self.list_cameras.setEnabled(True)
             self.list_audio_devices.setEnabled(True)
             self.list_backing_tracks.setEnabled(True)
+            # stop session
+            self.record_session.stop()
+            self.camera_recorder.stop()
         else:
             # it is not yet recording
             # we will start the session
@@ -206,6 +214,20 @@ class MainWindow(QWidget):
             self.list_cameras.setEnabled(False)
             self.list_audio_devices.setEnabled(False)
             self.list_backing_tracks.setEnabled(False)
+            # start session
+            self.record_session.start_recording(self.session_name.text(),
+                                                self.video_file_path.text(),
+                                                QCamera(self.list_cameras.currentData()))
+            self.camera_recorder = QMediaRecorder(QCamera(self.list_cameras.currentData()))
+            video_file_name = '/home/sandbenders/teste.mp4'
+            self.camera_recorder.setOutputLocation(QUrl.fromLocalFile(video_file_name))
+            self.camera.setCaptureMode(QCamera.CaptureVideo)
+            self.camera_recorder.setContainerFormat('mp4')
+            print(self.camera_recorder.supportedContainers())
+            self.camera_recorder.record()
+            print(self.camera_recorder.state())
+            print(self.camera_recorder.status())
+            print(self.camera_recorder.error())
         self.recording = not self.recording
 
     @Slot()

@@ -10,3 +10,4 @@ brainflow==3.5.0
 cmake
 cubemos.skeletontracking==3.0.0
 pyserial==3.4
+shortuuid>=1.0.1
