@@ -9,7 +9,7 @@
 from PySide2.QtWidgets import *
 from PySide2.QtMultimedia import *
 from PySide2.QtMultimediaWidgets import QCameraViewfinder
-from PySide2.QtCore import Slot, Qt, QThread
+from PySide2.QtCore import Slot, Qt, QThread, QDir
 from glob import glob
 import os
 import sys
@@ -156,7 +156,10 @@ class MainWindow(QWidget):
     @Slot()
     def action_record_stop_button(self):
         if not self.session_name.text() or not self.video_file_path.text():
-            self.error_dialog('Please inform both the Session Name and the Video Path')
+            self.error_dialog('Please inform both the Session Name and the Video Path!')
+            return
+        if not QDir(self.video_file_path.text()).exists():
+            self.error_dialog('The directory {} does not exist!'.format(self.video_file_path.text()))
             return
         if self.recording:
             self.record_stop_button.setText('Record session')
