@@ -218,10 +218,16 @@ class MainWindow(QWidget):
             self.record_session.start_recording(self.session_name.text(),
                                                 self.video_file_path.text(),
                                                 QCamera(self.list_cameras.currentData()))
-            self.camera_recorder = QMediaRecorder(QCamera(self.list_cameras.currentData(), self))
-            video_file_name = '/Users/sandbenders/teste.mov'
-            self.camera_recorder.setOutputLocation(QUrl.fromLocalFile('/Users/sandbenders/teste.mov'))
-            self.camera_recorder.setContainerFormat('mov')
+
+            self.camera_recorder = QMediaRecorder(self.camera)
+            settings = self.camera_recorder.videoSettings()
+            settings.setQuality(QMultimedia.VeryHighQuality)
+            settings.setResolution(640, 480)
+            settings.setFrameRate(24.0)
+            settings.setCodec('video/x-h264')
+            self.camera_recorder.setVideoSettings(settings)
+            self.camera_recorder.setContainerFormat('video/mpeg2')
+            print(self.camera_recorder.setOutputLocation(QUrl.fromLocalFile('teste.mp4')))
             self.camera_recorder.record()
             print(self.camera_recorder.supportedContainers())
             print(self.camera_recorder.supportedVideoCodecs())
@@ -229,6 +235,7 @@ class MainWindow(QWidget):
             print(self.camera_recorder.state())
             print(self.camera_recorder.status())
             print(self.camera_recorder.error())
+            print(self.camera_recorder.availability())
         self.recording = not self.recording
 
     @Slot()
