@@ -11,7 +11,7 @@ class MainWindow(QWidget):
         QWidget.__init__(self)
         self.viewfinder = QCameraViewfinder()
 
-        self.camera = QCamera(QCameraInfo.availableCameras()[1], self)
+        self.camera = QCamera(QCameraInfo.availableCameras()[0], self)
         self.camera_recorder = QMediaRecorder(self.camera)
         self.camera_recorder.stateChanged.connect(self.update_recorder_state)
         self.camera_recorder.statusChanged.connect(self.update_recorder_status)
@@ -37,10 +37,10 @@ class MainWindow(QWidget):
         settings.setQuality(QMultimedia.VeryHighQuality)
         # settings.setResolution(640, 480)
         # settings.setFrameRate(24.0)
-        settings.setCodec('video/x-h264')
+        # settings.setCodec('mov')
         self.camera_recorder.setVideoSettings(settings)
-        self.camera_recorder.setContainerFormat('video/quicktime')
-        self.camera_recorder.setOutputLocation(QUrl.fromLocalFile('/home/sandbenders/teste.mov'))
+        # self.camera_recorder.setContainerFormat('avc1')
+        self.camera_recorder.setOutputLocation(QUrl.fromLocalFile('/Users/sandbenders/teste.mov'))
         self.camera.setCaptureMode(QCamera.CaptureVideo)
         self.camera.start()
 
