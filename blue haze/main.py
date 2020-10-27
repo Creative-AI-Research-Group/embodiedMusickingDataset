@@ -289,8 +289,8 @@ class MainWindow(QWidget):
     def get_list_cameras(self):
         # list the available cameras
         for camera_info in QCameraInfo.availableCameras():
-            if 'Intel' not in camera_info.description():
-                self.list_cameras.addItem(camera_info.description(), camera_info)
+            # if 'Intel' not in camera_info.description():
+            self.list_cameras.addItem(camera_info.description(), camera_info)
 
     def get_list_audio_devices(self):
         # list the available audio devices
