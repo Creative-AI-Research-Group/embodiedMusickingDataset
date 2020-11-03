@@ -60,11 +60,15 @@ class RecordSession:
 
         cmd = None
 
+        # everything is hard-coded here
+        # what is not good…
         if self.plat == 'Windows':
             cmd = ['ffmpeg', '-f', 'dshow',
                    '-i', 'video=HUE HD Camera',
                    video_file_name]
         elif self.plat == 'Darwin':
+            # for Mac, we can chenge it to:
+            # ffmpeg -f avfoundation -framerate 30 -video_size 1280x720 -i "Microsoft":none out.avi
             cmd = ['ffmpeg', '-f', 'avfoundation',
                    '-framerate', '30',
                    '-video_size', '1280x720',
