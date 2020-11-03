@@ -1,5 +1,6 @@
 #
 # Blue Haze
+# Check platform
 # 30 Oct 2020
 #
 # Fabrizio Poltronieri - fabrizio.poltronieri@dmu.ac.uk

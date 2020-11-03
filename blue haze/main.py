@@ -40,8 +40,6 @@ class MainWindow(QWidget):
 
         self.record_session = RecordSession()
 
-        self.camera_recorder = None
-
         # folders
         self.ASSETS_IMAGES_FOLDER = 'assets/images/'
         self.ASSETS_BACKING_AUDIO_FOLDER = 'assets/audio_backing/'
@@ -202,7 +200,6 @@ class MainWindow(QWidget):
             self.list_backing_tracks.setEnabled(True)
             # stop session
             self.record_session.stop()
-            self.camera_recorder.stop()
         else:
             # it is not yet recording
             # we will start the session
@@ -216,26 +213,7 @@ class MainWindow(QWidget):
             self.list_backing_tracks.setEnabled(False)
             # start session
             self.record_session.start_recording(self.session_name.text(),
-                                                self.video_file_path.text(),
-                                                QCamera(self.list_cameras.currentData()))
-
-            self.camera_recorder = QMediaRecorder(self.camera)
-            settings = self.camera_recorder.videoSettings()
-            settings.setQuality(QMultimedia.VeryHighQuality)
-            settings.setResolution(640, 480)
-            settings.setFrameRate(24.0)
-            settings.setCodec('video/x-h264')
-            self.camera_recorder.setVideoSettings(settings)
-            self.camera_recorder.setContainerFormat('video/mpeg2')
-            print(self.camera_recorder.setOutputLocation(QUrl.fromLocalFile('teste.mp4')))
-            self.camera_recorder.record()
-            print(self.camera_recorder.supportedContainers())
-            print(self.camera_recorder.supportedVideoCodecs())
-            print(self.camera_recorder.availability())
-            print(self.camera_recorder.state())
-            print(self.camera_recorder.status())
-            print(self.camera_recorder.error())
-            print(self.camera_recorder.availability())
+                                                self.video_file_path.text())
         self.recording = not self.recording
 
     @Slot()

@@ -7,8 +7,9 @@
 # Craig Vear - cvear@dmu.ac.uk
 #
 
-from PySide2.QtMultimedia import QMediaRecorder
-from PySide2.QtCore import QUrl
+
+from checkPlatform import *
+from subprocess import Popen
 
 import shortuuid
 import time
@@ -25,13 +26,11 @@ class RecordSession:
         self.session_time_start = None
         self.session_name = None
         self.video_audio_path = None
-        self.camera = None
-        self.camera_recorder = None
+        self.video_process = None
 
     def start_recording(self,
                         session_name,
-                        video_audio_path,
-                        camera):
+                        video_audio_path):
         self.session_id = shortuuid.uuid()
         self.session_date = time.strftime('%Y%m%d')
         self.session_time_start = current_milli_time()
@@ -39,22 +38,33 @@ class RecordSession:
                                               session_name,
                                               self.session_id)
         self.video_audio_path = video_audio_path
-        self.camera = camera
-        # self.video_recording()
+        self.video_recording()
 
     def video_recording(self):
         print('recording')
-        self.camera_recorder = QMediaRecorder(self.camera)
         video_file_name = '{}/{}.mp4'.format(self.video_audio_path,
-                                        self.session_name)
-        print(video_file_name)
-        self.camera_recorder.setOutputLocation(QUrl.fromLocalFile(video_file_name))
-        self.camera_recorder.record()
-        print(self.camera_recorder.state())
-        print(self.camera_recorder.status())
-        print(self.camera_recorder.error())
+                                             self.session_name)
+        # see:
+        # https://trac.ffmpeg.org/wiki/Capture/Webcam
+
+        cmd = None
+        plat = check_platform()
+
+        if plat == 'Windows':
+            cmd = ['ffmpeg', '-f', 'dshow',
+                   '-i', 'video=HUE HD Camera',
+                   video_file_name]
+        elif plat == 'Darwin':
+            cmd = ['ffmpeg', '-f', 'avfoundation',
+                   '-framerate', '30',
+                   '-video_size', '1280x720',
+                   '-i', '0:none',
+                   video_file_name]
+        elif plat == 'Linux':
+            cmd = []
+
+        self.video_process = Popen(cmd)
 
     def stop(self):
-        print('stop recording')
-        # self.camera_recorder.stop()
+        self.video_process.terminate()
 
