@@ -63,8 +63,11 @@ class RecordSession:
                    '-i', '0:none',
                    video_file_name]
         elif plat == 'Linux':
-            cmd = []
-
+            cmd = ['ffmpeg', '-f', 'v4l2',
+                   '-framerate', '25',
+                   '-video_size', '1280x720',
+                   '-i', '/dev/video2',
+                   video_file_name]
         self.video_process = Popen(cmd)
 
     def stop(self):

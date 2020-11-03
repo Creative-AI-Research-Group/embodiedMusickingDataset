@@ -203,6 +203,15 @@ class MainWindow(QWidget):
         else:
             # it is not yet recording
             # we will start the session
+
+            # on MacOs is possible to keep showing the camera
+            # on GUI while it is recording the SAME camera.
+            # Unfortunately, it is not possible neither on Linux
+            # nor on Windows. This is the reason why we are
+            # stopping the camera here and restarting it
+            # after the recording is finished
+            self.camera.stop()
+
             self.recording_label.setPixmap(self.ASSETS_IMAGES_FOLDER + 'red_rec.png')
             self.record_stop_button.setText('Recording… Press here to stop')
             # disable fields
