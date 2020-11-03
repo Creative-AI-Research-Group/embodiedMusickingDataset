@@ -7,6 +7,8 @@
 # Craig Vear - cvear@dmu.ac.uk
 #
 
+from PySide2.QtMultimedia import QAudioRecorder, QAudioEncoderSettings, QMultimedia
+from PySide2.QtCore import QUrl
 
 from checkPlatform import *
 from subprocess import Popen
@@ -27,10 +29,14 @@ class RecordSession:
         self.session_name = None
         self.video_audio_path = None
         self.video_process = None
+        self.audio_interface = None
+
+        self.audio_recorder = QAudioRecorder()
 
     def start_recording(self,
                         session_name,
-                        video_audio_path):
+                        video_audio_path,
+                        audio_interface):
         self.session_id = shortuuid.uuid()
         self.session_date = time.strftime('%Y%m%d')
         self.session_time_start = current_milli_time()
@@ -38,7 +44,9 @@ class RecordSession:
                                               session_name,
                                               self.session_id)
         self.video_audio_path = video_audio_path
+        self.audio_interface = audio_interface
         self.video_recording()
+        self.audio_recording()
 
     def video_recording(self):
         # this is an ugly workaround
@@ -70,9 +78,21 @@ class RecordSession:
                    video_file_name]
         self.video_process = Popen(cmd)
 
-    # I know Python is not Java, but...
+    def audio_recording(self):
+        sound_file_name = '{}/{}'.format(self.video_audio_path,
+                                              self.session_name)
+        audio_settings = QAudioEncoderSettings()
+        audio_settings.setCodec('audio/FLAC')
+        audio_settings.setQuality(QMultimedia.VeryHighQuality)
+        self.audio_recorder.setEncodingSettings(audio_settings)
+        self.audio_recorder.setOutputLocation(QUrl(sound_file_name))
+        self.audio_recorder.setAudioInput(self.audio_interface.deviceName())
+        self.audio_recorder.record()
+
     def stop(self):
+        self.audio_recorder.stop()
         self.video_process.terminate()
 
+    # I know Python is not Java, but...
     def check_status(self):
         return self.video_process.poll()

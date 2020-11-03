@@ -212,7 +212,7 @@ class MainWindow(QWidget):
             # it is not yet recording
             # we will start the session
 
-            # on MacOs is possible to keep showing the camera
+            # on MacOs it is possible to keep showing the camera
             # on GUI while it is recording the SAME camera.
             # Unfortunately, it is not possible neither on Linux
             # nor on Windows. This is the reason why we are
@@ -231,7 +231,8 @@ class MainWindow(QWidget):
             self.list_backing_tracks.setEnabled(False)
             # start session
             self.record_session.start_recording(self.session_name.text(),
-                                                self.video_file_path.text())
+                                                self.video_file_path.text(),
+                                                self.list_audio_devices.currentData())
         self.recording = not self.recording
 
     @Slot()
@@ -288,7 +289,6 @@ class MainWindow(QWidget):
             if self.record_session.check_status() is not None:
                 break
         self.change_camera()
-
 
     def start_camera(self):
         self.camera.setViewfinder(self.view_finder)
@@ -350,6 +350,7 @@ class MainWindow(QWidget):
 
     def skeleton_terminate(self):
         self.skeleton.terminate()
+
 
 if __name__ == '__main__':
     # Initialise running vars
