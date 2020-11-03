@@ -9,7 +9,7 @@
 from PySide2.QtWidgets import *
 from PySide2.QtMultimedia import *
 from PySide2.QtMultimediaWidgets import QCameraViewfinder
-from PySide2.QtCore import Slot, Qt, QThread, QDir, QUrl
+from PySide2.QtCore import Slot, Qt, QThread, QDir
 from glob import glob
 from playBackTrack import PlayBackTrack
 from recordSession import RecordSession
@@ -280,8 +280,8 @@ class MainWindow(QWidget):
 
     def wait_for_video_process(self):
         loop = asyncio.get_event_loop()
-        cors = asyncio.wait([self.check_video_process_terminate()])
-        loop.run_until_complete(cors)
+        async_function = asyncio.wait([self.check_video_process_terminate()])
+        loop.run_until_complete(async_function)
 
     async def check_video_process_terminate(self):
         while True:
@@ -379,4 +379,3 @@ if __name__ == '__main__':
 
     # Close UI
     sys.exit(app.exec_())
-

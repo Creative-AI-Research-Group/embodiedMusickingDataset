@@ -70,6 +70,7 @@ class RecordSession:
                    video_file_name]
         self.video_process = Popen(cmd)
 
+    # I know Python is not Java, but...
     def stop(self):
         self.video_process.terminate()
 
