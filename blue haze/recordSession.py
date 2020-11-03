@@ -73,3 +73,5 @@ class RecordSession:
     def stop(self):
         self.video_process.terminate()
 
+    def check_status(self):
+        return self.video_process.poll()

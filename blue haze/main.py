@@ -13,9 +13,11 @@ from PySide2.QtCore import Slot, Qt, QThread, QDir, QUrl
 from glob import glob
 from playBackTrack import PlayBackTrack
 from recordSession import RecordSession
+from checkPlatform import *
 
 import os
 import sys
+import asyncio
 
 # from bitalinoReader import BITalino
 # from time import sleep, localtime
@@ -39,6 +41,9 @@ class MainWindow(QWidget):
         self.recording = False
 
         self.record_session = RecordSession()
+
+        # platform
+        self.plat = check_platform()
 
         # folders
         self.ASSETS_IMAGES_FOLDER = 'assets/images/'
@@ -200,6 +205,9 @@ class MainWindow(QWidget):
             self.list_backing_tracks.setEnabled(True)
             # stop session
             self.record_session.stop()
+            # restart camera
+            if self.plat == 'Windows' or self.plat == 'Linux':
+                self.wait_for_video_process()
         else:
             # it is not yet recording
             # we will start the session
@@ -210,7 +218,8 @@ class MainWindow(QWidget):
             # nor on Windows. This is the reason why we are
             # stopping the camera here and restarting it
             # after the recording is finished
-            self.camera.stop()
+            if self.plat == 'Windows' or self.plat == 'Linux':
+                self.camera.stop()
 
             self.recording_label.setPixmap(self.ASSETS_IMAGES_FOLDER + 'red_rec.png')
             self.record_stop_button.setText('Recording… Press here to stop')
@@ -268,6 +277,18 @@ class MainWindow(QWidget):
             self.play_stop_backing_track_button.setText('Stop backing track')
             # enable field
             self.list_backing_tracks.setEnabled(False)
+
+    def wait_for_video_process(self):
+        loop = asyncio.get_event_loop()
+        cors = asyncio.wait([self.check_video_process_terminate()])
+        loop.run_until_complete(cors)
+
+    async def check_video_process_terminate(self):
+        while True:
+            if self.record_session.check_status() is not None:
+                break
+        self.change_camera()
+
 
     def start_camera(self):
         self.camera.setViewfinder(self.view_finder)
