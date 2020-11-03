@@ -100,6 +100,3 @@ class RecordSession:
         self.audio_recorder.stop()
         self.video_process.terminate()
 
-    # I know Python is not Java, but...
-    def check_status(self):
-        return self.video_process.poll()

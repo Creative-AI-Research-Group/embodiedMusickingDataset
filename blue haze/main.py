@@ -286,7 +286,7 @@ class MainWindow(QWidget):
 
     async def check_video_process_terminate(self):
         while True:
-            if self.record_session.check_status() is not None:
+            if self.record_session.video_process.poll() is not None:
                 break
         self.change_camera()
 
