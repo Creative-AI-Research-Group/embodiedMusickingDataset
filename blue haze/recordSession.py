@@ -41,7 +41,9 @@ class RecordSession:
         self.video_recording()
 
     def video_recording(self):
-        print('recording')
+        # this is an ugly workaround
+        # because QMediarecorder
+        # doesn't work on Windows
         video_file_name = '{}/{}.mp4'.format(self.video_audio_path,
                                              self.session_name)
         # see:
