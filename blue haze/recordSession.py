@@ -7,6 +7,9 @@
 # Craig Vear - cvear@dmu.ac.uk
 #
 
+# todo: 'unduplicate' audio inputs
+# todo: improve video quality (change codec)
+
 from PySide2.QtMultimedia import QAudioRecorder, QAudioEncoderSettings, QMultimedia
 from PySide2.QtCore import QUrl
 
@@ -53,7 +56,7 @@ class RecordSession:
         # this is an ugly workaround
         # because QMediarecorder
         # doesn't work on Windows
-        video_file_name = '{}/{}.mp4'.format(self.video_audio_path,
+        video_file_name = '{}/{}.avi'.format(self.video_audio_path,
                                              self.session_name)
         # see:
         # https://trac.ffmpeg.org/wiki/Capture/Webcam
@@ -64,7 +67,9 @@ class RecordSession:
         # what is not good…
         if self.plat == 'Windows':
             cmd = ['ffmpeg', '-f', 'dshow',
-                   '-i', 'video=HUE HD Camera',
+                   '-framerate', '30',
+                   '-video_size', '1184x656',
+                   '-i', 'video=HUE HD Pro Camera',
                    video_file_name]
         elif self.plat == 'Darwin':
             # for Mac, we can chenge it to:
@@ -93,10 +98,14 @@ class RecordSession:
         elif self.plat == 'Linux':
             audio_settings.setCodec('audio/x-flac')
             sound_file_name = '{}/{}.wav'.format(self.video_audio_path,
-                                             self.session_name)
+                                                 self.session_name)
+        elif self.plat == 'Windows':
+            audio_settings.setCodec('audio/pcm')
+            sound_file_name = '{}/{}.wav'.format(self.video_audio_path,
+                                                 self.session_name)
         audio_settings.setQuality(QMultimedia.VeryHighQuality)
         self.audio_recorder.setEncodingSettings(audio_settings)
-        self.audio_recorder.setOutputLocation(QUrl(sound_file_name))
+        self.audio_recorder.setOutputLocation(QUrl.fromLocalFile(sound_file_name))
         self.audio_recorder.setAudioInput(self.audio_interface.deviceName())
         self.audio_recorder.record()
 
