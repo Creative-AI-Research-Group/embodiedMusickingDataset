@@ -30,6 +30,7 @@ class RecordSession:
         self.video_audio_path = None
         self.video_process = None
         self.audio_interface = None
+        self.plat = check_platform()
 
         self.audio_recorder = QAudioRecorder()
 
@@ -58,19 +59,18 @@ class RecordSession:
         # https://trac.ffmpeg.org/wiki/Capture/Webcam
 
         cmd = None
-        plat = check_platform()
 
-        if plat == 'Windows':
+        if self.plat == 'Windows':
             cmd = ['ffmpeg', '-f', 'dshow',
                    '-i', 'video=HUE HD Camera',
                    video_file_name]
-        elif plat == 'Darwin':
+        elif self.plat == 'Darwin':
             cmd = ['ffmpeg', '-f', 'avfoundation',
                    '-framerate', '30',
                    '-video_size', '1280x720',
                    '-i', '0:none',
                    video_file_name]
-        elif plat == 'Linux':
+        elif self.plat == 'Linux':
             cmd = ['ffmpeg', '-f', 'v4l2',
                    '-framerate', '25',
                    '-video_size', '1280x720',
@@ -79,10 +79,17 @@ class RecordSession:
         self.video_process = Popen(cmd)
 
     def audio_recording(self):
-        sound_file_name = '{}/{}'.format(self.video_audio_path,
-                                              self.session_name)
+        sound_file_name = None
         audio_settings = QAudioEncoderSettings()
-        audio_settings.setCodec('audio/FLAC')
+        print(self.audio_recorder.supportedAudioCodecs())
+        if self.plat == 'Darwin':
+            audio_settings.setCodec('audio/FLAC')
+            sound_file_name = '{}/{}'.format(self.video_audio_path,
+                                             self.session_name)
+        elif self.plat == 'Linux':
+            audio_settings.setCodec('audio/x-flac')
+            sound_file_name = '{}/{}.wav'.format(self.video_audio_path,
+                                             self.session_name)
         audio_settings.setQuality(QMultimedia.VeryHighQuality)
         self.audio_recorder.setEncodingSettings(audio_settings)
         self.audio_recorder.setOutputLocation(QUrl(sound_file_name))
