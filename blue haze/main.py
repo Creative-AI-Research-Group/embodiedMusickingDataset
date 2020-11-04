@@ -19,7 +19,6 @@ import os
 import sys
 import asyncio
 
-# from bitalinoReader import BITalino
 # from time import sleep, localtime
 # from skeletontracker import SkeletonReader
 # from brainbitReader import BrainbitReader
@@ -49,16 +48,7 @@ class MainWindow(QWidget):
         self.ASSETS_IMAGES_FOLDER = 'assets/images/'
         self.ASSETS_BACKING_AUDIO_FOLDER = 'assets/audio_backing/'
 
-        # # BITalino instantiate object
-        # bitalino_macAddress = "98:D3:B1:FD:3D:1F"
-        # self.nSamples = 10
-        # self.digitalOutput = [1, 1]
-        # # Connect to BITalino
-        # self.bitalino = BITalino(bitalino_macAddress)
-        # # Set battery threshold
-        # self.bitalino.battery(30)
-        # # Read BITalino version
-        # print(self.bitalino.version())
+
         #
         # # BrainBit instantiate object
         # self.brainbit = BrainbitReader()
@@ -328,20 +318,6 @@ class MainWindow(QWidget):
 
     def brainbit_terminate(self):
         self.brainbit.terminate()
-
-    # Read data from buffer
-    def bitalino_read(self):
-        # Read samples
-        bitalino_data = self.bitalino.read(self.nSamples)
-        print('BITalino data  =  ', bitalino_data)
-        # Turn BITalino led on
-        self.bitalino.trigger(self.digitalOutput)
-
-    def bitalino_terminate(self):
-        # Stop Bitalino acquisition
-        self.bitalino.stop()
-        # Close Bitalino connection
-        self.bitalino.close()
 
     # Read data from buffer
     def skeleton_read(self):
