@@ -16,9 +16,10 @@ from PySide2.QtCore import QUrl
 from checkPlatform import *
 from subprocess import Popen
 
-from bitalino import *
-from brainbit import *
-from RealSenseSkeleton import *
+
+from bitalinoReader import *
+from brainbitReader import *
+from skeletontracker import *
 
 import shortuuid
 import time
@@ -44,13 +45,29 @@ class RecordSession:
 
         self.BITALINO_BAUDRATE = 10
         self.BITALINO_ACQ_CHANNELS = [0]
-        self.bitalino = Bitalino()
+        self.bitalino = BITalino()
+        self.setup_bitalino()
 
-        self.brainbit = Brainbit()
-        self.realsense = RealSenseSkeleton()
+        self.brainbit = BrainbitReader()
+        self.realsense = skeletontracker()
 
         self.thread_get_data = None
         self.GET_DATA_INTERVAL = self.BITALINO_BAUDRATE / 1000
+
+    def setup_bitalino(self):
+        # BITalino instantiate object
+        bitalino_mac_address = "98:D3:B1:FD:3D:1F"
+        self.n_samples = 10
+        self.digital_output = [1, 1]
+
+        # Connect to BITalino
+        self.bitalino = BITalino(bitalino_mac_address)
+
+        # Set battery threshold
+        self.bitalino.battery(30)
+
+        # Read BITalino version
+        print(self.bitalino.version())
 
     def start_recording(self,
                         session_name,
@@ -132,9 +149,9 @@ class RecordSession:
 
     def get_data(self, stop_thread_get_data):
         print('TIMESTAMP: '.format(current_milli_time - self.session_time_start))
-        print('BITALINO: '.format(self.bitalino.bitalino_read()))
-        print('BRAINBIT: '.format(self.brainbit.brainbit_read()))
-        print('REALSENSE: '.format(self.realsense.skeleton_read()))
+        print('BITALINO: '.format(self.bitalino.read()))
+        print('BRAINBIT: '.format(self.brainbit.read()))
+        print('REALSENSE: '.format(self.realsense.read()))
         if not stop_thread_get_data.is_set():
             # call it again
             threading.Timer(self.GET_DATA_INTERVAL, self.get_data, [self.thread_get_data]).start()
@@ -143,7 +160,7 @@ class RecordSession:
         self.thread_get_data.set()
         self.audio_recorder.stop()
         self.video_process.terminate()
-        self.bitalino.bitalino_terminate()
-        self.brainbit.brainbit_terminate()
-        self.realsense.skeleton_terminate()
+        self.bitalino.terminate()
+        self.brainbit.terminate()
+        self.realsense.terminate()
 
