@@ -10,7 +10,7 @@
 from bitalinoReader import BITalino
 
 
-class Bitalino():
+class Bitalino:
     def __init__(self):
         # BITalino instantiate object
         bitalino_mac_address = "98:D3:B1:FD:3D:1F"

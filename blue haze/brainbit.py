@@ -9,7 +9,8 @@
 
 from brainbitReader import BrainbitReader
 
-class Brainbit():
+
+class Brainbit:
     def __init__(self):
         self.brainbit = BrainbitReader()
 

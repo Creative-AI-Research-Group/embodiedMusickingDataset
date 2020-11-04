@@ -19,8 +19,6 @@ import os
 import sys
 import asyncio
 
-# from skeletontracker import SkeletonReader
-
 
 class MainWindow(QWidget):
     def __init__(self):
@@ -308,12 +306,7 @@ class MainWindow(QWidget):
 
 
     # Read data from buffer
-    def skeleton_read(self):
-        skeleton_data = self.skeleton.read()
-        print('Skeleton data  =  ', skeleton_data)
 
-    def skeleton_terminate(self):
-        self.skeleton.terminate()
 
 
 if __name__ == '__main__':
