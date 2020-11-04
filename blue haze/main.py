@@ -9,7 +9,7 @@
 from PySide2.QtWidgets import *
 from PySide2.QtMultimedia import *
 from PySide2.QtMultimediaWidgets import QCameraViewfinder
-from PySide2.QtCore import Slot, Qt, QThread, QDir
+from PySide2.QtCore import Slot, Qt, QDir
 from glob import glob
 from playBackTrack import PlayBackTrack
 from recordSession import RecordSession

@@ -18,6 +18,7 @@ from subprocess import Popen
 
 import shortuuid
 import time
+import threading
 
 
 def current_milli_time():
@@ -37,6 +38,9 @@ class RecordSession:
 
         self.audio_recorder = QAudioRecorder()
 
+        self.thread_get_data = None
+        self.GET_DATA_INTERVAL = 1
+
     def start_recording(self,
                         session_name,
                         video_audio_path,
@@ -49,6 +53,9 @@ class RecordSession:
                                               self.session_id)
         self.video_audio_path = video_audio_path
         self.audio_interface = audio_interface
+
+        self.thread_get_data = threading.Event()
+        self.get_data(self.thread_get_data)
         self.video_recording()
         self.audio_recording()
 
@@ -72,7 +79,7 @@ class RecordSession:
                    '-i', 'video=HUE HD Pro Camera',
                    video_file_name]
         elif self.plat == 'Darwin':
-            # for Mac, we can chenge it to:
+            # for Mac, we can change it to:
             # ffmpeg -f avfoundation -framerate 30 -video_size 1280x720 -i "Microsoft":none out.avi
             cmd = ['ffmpeg', '-f', 'avfoundation',
                    '-framerate', '30',
@@ -90,7 +97,6 @@ class RecordSession:
     def audio_recording(self):
         sound_file_name = None
         audio_settings = QAudioEncoderSettings()
-        print(self.audio_recorder.supportedAudioCodecs())
         if self.plat == 'Darwin':
             audio_settings.setCodec('audio/FLAC')
             sound_file_name = '{}/{}'.format(self.video_audio_path,
@@ -109,7 +115,14 @@ class RecordSession:
         self.audio_recorder.setAudioInput(self.audio_interface.deviceName())
         self.audio_recorder.record()
 
+    def get_data(self, stop_thread_get_data):
+        print('getting data…')
+        if not stop_thread_get_data.is_set():
+            # call it again
+            threading.Timer(self.GET_DATA_INTERVAL, self.get_data, [self.thread_get_data]).start()
+
     def stop(self):
+        self.thread_get_data.set()
         self.audio_recorder.stop()
         self.video_process.terminate()
 
