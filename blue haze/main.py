@@ -19,9 +19,7 @@ import os
 import sys
 import asyncio
 
-# from time import sleep, localtime
 # from skeletontracker import SkeletonReader
-# from brainbitReader import BrainbitReader
 
 
 class MainWindow(QWidget):
@@ -48,11 +46,6 @@ class MainWindow(QWidget):
         self.ASSETS_IMAGES_FOLDER = 'assets/images/'
         self.ASSETS_BACKING_AUDIO_FOLDER = 'assets/audio_backing/'
 
-
-        #
-        # # BrainBit instantiate object
-        # self.brainbit = BrainbitReader()
-        #
         # # RealSense & Skeleton startup
         # self.skeleton = SkeletonReader()
 
@@ -312,12 +305,7 @@ class MainWindow(QWidget):
 
     # Threading Functions
     # Read data from buffer
-    def brainbit_read(self):
-        brainbit_data = self.brainbit.read()
-        print('BrainBit data  =  ', brainbit_data)
 
-    def brainbit_terminate(self):
-        self.brainbit.terminate()
 
     # Read data from buffer
     def skeleton_read(self):
