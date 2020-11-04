@@ -44,9 +44,6 @@ class MainWindow(QWidget):
         self.ASSETS_IMAGES_FOLDER = 'assets/images/'
         self.ASSETS_BACKING_AUDIO_FOLDER = 'assets/audio_backing/'
 
-        # # RealSense & Skeleton startup
-        # self.skeleton = SkeletonReader()
-
         self.view_finder = QCameraViewfinder()
 
         self.get_list_cameras()
@@ -57,13 +54,6 @@ class MainWindow(QWidget):
 
         self.camera = QCamera(self.list_cameras.currentData())
         self.start_camera()
-
-        # # Start HW device streams
-        # acqChannels = [0]  # removed, 1, 2, 3, 4, 5]
-        # samplingRate = baudrate
-        # self.bitalino.start(samplingRate, acqChannels)
-        # self.brainbit.start()
-        # self.skeleton.start()
 
     def setup_ui(self):
         # fields
@@ -301,19 +291,8 @@ class MainWindow(QWidget):
         error_dialog.setStandardButtons(QMessageBox.Ok)
         error_dialog.exec_()
 
-    # Threading Functions
-    # Read data from buffer
-
-
-    # Read data from buffer
-
-
 
 if __name__ == '__main__':
-    # Initialise running vars
-    running = True
-    baudrate = 10 # Bitalino is 1, 10, 100, 1000
-
     # UI startup
     app = QApplication(sys.argv)
 
@@ -321,19 +300,6 @@ if __name__ == '__main__':
     widget.setWindowTitle('Blue Haze')
     widget.setFixedSize(1350, 950)
     widget.show()
-
-    # for i in range (100):
-    #     print('Time  =  ', localtime())
-    #     widget.brainbit_read()
-    #     widget.bitalino_read()
-    #     widget.skeleton_read()
-    #     # control reading inline with project baudrate
-    #     sleep(baudrate / 1000)
-    #
-    # # Terminations
-    # widget.brainbit_terminate()
-    # widget.bitalino_terminate()
-    # widget.skeleton_terminate()
 
     # Close UI
     sys.exit(app.exec_())

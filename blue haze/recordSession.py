@@ -16,6 +16,10 @@ from PySide2.QtCore import QUrl
 from checkPlatform import *
 from subprocess import Popen
 
+from bitalino import *
+from brainbit import *
+from RealSenseSkeleton import *
+
 import shortuuid
 import time
 import threading
@@ -38,8 +42,15 @@ class RecordSession:
 
         self.audio_recorder = QAudioRecorder()
 
+        self.BITALINO_BAUDRATE = 10
+        self.BITALINO_ACQ_CHANNELS = [0]
+        self.bitalino = Bitalino()
+
+        self.brainbit = Brainbit()
+        self.realsense = RealSenseSkeleton()
+
         self.thread_get_data = None
-        self.GET_DATA_INTERVAL = 1
+        self.GET_DATA_INTERVAL = self.BITALINO_BAUDRATE / 1000
 
     def start_recording(self,
                         session_name,
@@ -53,6 +64,10 @@ class RecordSession:
                                               self.session_id)
         self.video_audio_path = video_audio_path
         self.audio_interface = audio_interface
+
+        self.bitalino.start(self.BITALINO_BAUDRATE, self.BITALINO_ACQ_CHANNELS)
+        self.brainbit.start()
+        self.realsense.start()
 
         self.thread_get_data = threading.Event()
         self.get_data(self.thread_get_data)
@@ -116,7 +131,10 @@ class RecordSession:
         self.audio_recorder.record()
 
     def get_data(self, stop_thread_get_data):
-        print('getting data…')
+        print('TIMESTAMP: '.format(current_milli_time - self.session_time_start))
+        print('BITALINO: '.format(self.bitalino.bitalino_read()))
+        print('BRAINBIT: '.format(self.brainbit.brainbit_read()))
+        print('REALSENSE: '.format(self.realsense.skeleton_read()))
         if not stop_thread_get_data.is_set():
             # call it again
             threading.Timer(self.GET_DATA_INTERVAL, self.get_data, [self.thread_get_data]).start()
@@ -125,4 +143,7 @@ class RecordSession:
         self.thread_get_data.set()
         self.audio_recorder.stop()
         self.video_process.terminate()
+        self.bitalino.bitalino_terminate()
+        self.brainbit.brainbit_terminate()
+        self.realsense.skeleton_terminate()
 
