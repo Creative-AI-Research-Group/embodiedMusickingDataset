@@ -48,7 +48,7 @@ class RecordSession:
         # self.setup_bitalino()
 
         # self.brainbit = BrainbitReader()
-        # self.realsense = skeletontracker()
+        # self.realsense = SkeletonReader()
 
         self.thread_get_data = None
         self.GET_DATA_INTERVAL = self.BITALINO_BAUDRATE / 1000
@@ -159,7 +159,7 @@ class RecordSession:
         self.thread_get_data.set()
         self.audio_recorder.stop()
         self.video_process.terminate()
-        # self.bitalino.terminate()
+        # self.bitalino.stop()
         # self.brainbit.terminate()
         # self.realsense.terminate()
 
