@@ -129,7 +129,7 @@ class BITalino(object):
         self.isBitalino2 = True if version_nbr >= 4.2 else False
         print('Bitalino ready')
 
-    def start(self, SamplingRate = 100, analogChannels = [0, 1, 2, 3, 4, 5]):
+    def start(self, SamplingRate = 10, analogChannels = [0, 1, 2, 3, 4, 5]):
         """
         :param SamplingRate: sampling frequency (Hz)
         :type SamplingRate: int    

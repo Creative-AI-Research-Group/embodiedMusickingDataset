@@ -16,9 +16,9 @@ from PySide2.QtCore import QUrl
 from checkPlatform import *
 from subprocess import Popen
 
-# from bitalinoReader import *
-# from brainbitReader import *
-# from skeletontracker import *
+from bitalinoReader import *
+from brainbitReader import *
+from skeletontracker import *
 
 import shortuuid
 import time
@@ -44,11 +44,11 @@ class RecordSession:
 
         self.BITALINO_BAUDRATE = 10
         self.BITALINO_ACQ_CHANNELS = [0]
-        # self.bitalino = BITalino()
-        # self.setup_bitalino()
+        self.bitalino = None
+        self.setup_bitalino()
 
-        # self.brainbit = BrainbitReader()
-        # self.realsense = SkeletonReader()
+        self.brainbit = BrainbitReader()
+        self.realsense = SkeletonReader()
 
         self.thread_get_data = None
         self.GET_DATA_INTERVAL = self.BITALINO_BAUDRATE / 1000
@@ -56,7 +56,7 @@ class RecordSession:
     def setup_bitalino(self):
         # BITalino instantiate object
         bitalino_mac_address = "98:D3:B1:FD:3D:1F"
-        self.n_samples = 10
+        self.n_samples = 1
         self.digital_output = [1, 1]
 
         # Connect to BITalino
@@ -81,9 +81,9 @@ class RecordSession:
         self.video_audio_path = video_audio_path
         self.audio_interface = audio_interface
 
-        # self.bitalino.start(self.BITALINO_BAUDRATE, self.BITALINO_ACQ_CHANNELS)
-        # self.brainbit.start()
-        # self.realsense.start()
+        self.bitalino.start(self.BITALINO_BAUDRATE, self.BITALINO_ACQ_CHANNELS)
+        self.brainbit.start()
+        self.realsense.start()
 
         self.thread_get_data = threading.Event()
         self.get_data(self.thread_get_data)
@@ -148,9 +148,9 @@ class RecordSession:
 
     def get_data(self, stop_thread_get_data):
         print('TIMESTAMP: {}'.format(current_milli_time() - self.session_time_start))
-        # print('BITALINO: {}'.format(self.bitalino.read()))
-        # print('BRAINBIT: {}'.format(self.brainbit.read()))
-        # print('REALSENSE: {}'.format(self.realsense.read()))
+        print('BITALINO: {}'.format(self.bitalino.read(self.n_samples)))
+        print('BRAINBIT: {}'.format(self.brainbit.read()))
+        print('REALSENSE: {}'.format(self.realsense.read()))
         if not stop_thread_get_data.is_set():
             # call it again
             threading.Timer(self.GET_DATA_INTERVAL, self.get_data, [self.thread_get_data]).start()
@@ -159,7 +159,7 @@ class RecordSession:
         self.thread_get_data.set()
         self.audio_recorder.stop()
         self.video_process.terminate()
-        # self.bitalino.stop()
-        # self.brainbit.terminate()
-        # self.realsense.terminate()
+        self.bitalino.stop()
+        self.brainbit.terminate()
+        self.realsense.terminate()
 
