@@ -10,19 +10,23 @@
 # todo: 'unduplicate' audio inputs
 # todo: improve video quality (change codec)
 
+NO_HARDWARE = True
+
 from PySide2.QtMultimedia import QAudioRecorder, QAudioEncoderSettings, QMultimedia
 from PySide2.QtCore import QUrl
 
 from checkPlatform import *
+from database import *
 from subprocess import Popen
-
-from bitalinoReader import *
-from brainbitReader import *
-from skeletontracker import *
 
 import shortuuid
 import time
 import threading
+
+if not NO_HARDWARE:
+    from bitalinoReader import *
+    from brainbitReader import *
+    from skeletontracker import *
 
 
 def current_milli_time():
@@ -36,19 +40,24 @@ class RecordSession:
         self.session_time_start = None
         self.session_name = None
         self.video_audio_path = None
+        self.audio_file_name = None
+        self.video_file_name = None
         self.video_process = None
         self.audio_interface = None
         self.plat = check_platform()
 
         self.audio_recorder = QAudioRecorder()
 
+        self.database = None
+
         self.BITALINO_BAUDRATE = 10
         self.BITALINO_ACQ_CHANNELS = [0]
         self.bitalino = None
-        self.setup_bitalino()
 
-        self.brainbit = BrainbitReader()
-        self.realsense = SkeletonReader()
+        if not NO_HARDWARE:
+            self.setup_bitalino()
+            self.brainbit = BrainbitReader()
+            self.realsense = SkeletonReader()
 
         self.thread_get_data = None
         self.GET_DATA_INTERVAL = self.BITALINO_BAUDRATE / 1000
@@ -81,20 +90,27 @@ class RecordSession:
         self.video_audio_path = video_audio_path
         self.audio_interface = audio_interface
 
-        self.bitalino.start(self.BITALINO_BAUDRATE, self.BITALINO_ACQ_CHANNELS)
-        self.brainbit.start()
-        self.realsense.start()
+        if not NO_HARDWARE:
+            self.bitalino.start(self.BITALINO_BAUDRATE, self.BITALINO_ACQ_CHANNELS)
+            self.brainbit.start()
+            self.realsense.start()
+
+        self.video_recording()
+        self.audio_recording()
+
+        self.database = Database(self.session_id,
+                                 self.session_name,
+                                 self.audio_file_name,
+                                 self.video_file_name)
 
         self.thread_get_data = threading.Event()
         self.get_data(self.thread_get_data)
-        self.video_recording()
-        self.audio_recording()
 
     def video_recording(self):
         # this is an ugly workaround
         # because QMediarecorder
         # doesn't work on Windows
-        video_file_name = '{}/{}.avi'.format(self.video_audio_path,
+        self.video_file_name = '{}/{}.avi'.format(self.video_audio_path,
                                              self.session_name)
         # see:
         # https://trac.ffmpeg.org/wiki/Capture/Webcam
@@ -108,7 +124,7 @@ class RecordSession:
                    '-framerate', '30',
                    '-video_size', '1184x656',
                    '-i', 'video=HUE HD Pro Camera',
-                   video_file_name]
+                   self.video_file_name]
         elif self.plat == 'Darwin':
             # for Mac, we can change it to:
             # ffmpeg -f avfoundation -framerate 30 -video_size 1280x720 -i "Microsoft":none out.avi
@@ -116,41 +132,54 @@ class RecordSession:
                    '-framerate', '30',
                    '-video_size', '1280x720',
                    '-i', '0:none',
-                   video_file_name]
+                   self.video_file_name]
         elif self.plat == 'Linux':
             cmd = ['ffmpeg', '-f', 'v4l2',
                    '-framerate', '25',
                    '-video_size', '1280x720',
                    '-i', '/dev/video2',
-                   video_file_name]
+                   self.video_file_name]
         self.video_process = Popen(cmd)
 
     def audio_recording(self):
-        sound_file_name = None
         audio_settings = QAudioEncoderSettings()
         if self.plat == 'Darwin':
             audio_settings.setCodec('audio/FLAC')
-            sound_file_name = '{}/{}'.format(self.video_audio_path,
+            self.audio_file_name = '{}/{}'.format(self.video_audio_path,
                                              self.session_name)
         elif self.plat == 'Linux':
             audio_settings.setCodec('audio/x-flac')
-            sound_file_name = '{}/{}.wav'.format(self.video_audio_path,
+            self.audio_file_name = '{}/{}.wav'.format(self.video_audio_path,
                                                  self.session_name)
         elif self.plat == 'Windows':
             audio_settings.setCodec('audio/pcm')
-            sound_file_name = '{}/{}.wav'.format(self.video_audio_path,
+            self.audio_file_name = '{}/{}.wav'.format(self.video_audio_path,
                                                  self.session_name)
         audio_settings.setQuality(QMultimedia.VeryHighQuality)
         self.audio_recorder.setEncodingSettings(audio_settings)
-        self.audio_recorder.setOutputLocation(QUrl.fromLocalFile(sound_file_name))
+        self.audio_recorder.setOutputLocation(QUrl.fromLocalFile(self.audio_file_name))
         self.audio_recorder.setAudioInput(self.audio_interface.deviceName())
         self.audio_recorder.record()
 
     def get_data(self, stop_thread_get_data):
-        print('TIMESTAMP: {}'.format(current_milli_time() - self.session_time_start))
-        print('BITALINO: {}'.format(self.bitalino.read(self.n_samples)))
-        print('BRAINBIT: {}'.format(self.brainbit.read()))
-        print('REALSENSE: {}'.format(self.realsense.read()))
+        timestamp = current_milli_time() - self.session_time_start
+        bitalino_data = ['bitalino data here']
+        brainbit_data = ['brainbit data here']
+        skeleton_data = ['skeleton data here']
+        print('TIMESTAMP: {}'.format(timestamp))
+        if not NO_HARDWARE:
+            bitalino_data = self.bitalino.read(self.n_samples)
+            brainbit_data = self.brainbit.read()
+            skeleton_data = self.realsense.read()
+            print('BITALINO: {}'.format(bitalino_data))
+            print('BRAINBIT: {}'.format(brainbit_data))
+            print('REALSENSE: {}'.format(skeleton_data))
+
+        # insert data in the database
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(self.database.insert(timestamp, bitalino_data, brainbit_data, skeleton_data))
+
         if not stop_thread_get_data.is_set():
             # call it again
             threading.Timer(self.GET_DATA_INTERVAL, self.get_data, [self.thread_get_data]).start()
@@ -159,7 +188,9 @@ class RecordSession:
         self.thread_get_data.set()
         self.audio_recorder.stop()
         self.video_process.terminate()
-        self.bitalino.stop()
-        self.brainbit.terminate()
-        self.realsense.terminate()
+        self.database.close()
+        if not NO_HARDWARE:
+            self.bitalino.stop()
+            self.brainbit.terminate()
+            self.realsense.terminate()
 
