@@ -7,10 +7,6 @@
 # Craig Vear - cvear@dmu.ac.uk
 #
 
-# to perform async mongoDB operations
-# see:
-# https://api.mongodb.com/python/current/examples/gevent.html
-# https://api.mongodb.com/python/current/faq.html#does-pymongo-support-asynchronous-frameworks-like-gevent-asyncio-tornado-or-twisted
 import motor.motor_asyncio
 import datetime
 import asyncio
