@@ -22,6 +22,7 @@ from subprocess import Popen
 import shortuuid
 import time
 import threading
+import asyncio
 
 if not NO_HARDWARE:
     from bitalinoReader import *
@@ -62,6 +63,8 @@ class RecordSession:
         self.thread_get_data = None
         self.GET_DATA_INTERVAL = self.BITALINO_BAUDRATE / 1000
 
+        self.loop = None
+
     def setup_bitalino(self):
         # BITalino instantiate object
         bitalino_mac_address = "98:D3:B1:FD:3D:1F"
@@ -81,6 +84,8 @@ class RecordSession:
                         session_name,
                         video_audio_path,
                         audio_interface):
+        self.loop = asyncio.get_event_loop()
+
         self.session_id = shortuuid.uuid()
         self.session_date = time.strftime('%Y%m%d')
         self.session_time_start = current_milli_time()
@@ -137,7 +142,7 @@ class RecordSession:
             cmd = ['ffmpeg', '-f', 'v4l2',
                    '-framerate', '25',
                    '-video_size', '1280x720',
-                   '-i', '/dev/video2',
+                   '-i', '/dev/video0',
                    self.video_file_name]
         self.video_process = Popen(cmd)
 
@@ -176,9 +181,10 @@ class RecordSession:
             print('REALSENSE: {}'.format(skeleton_data))
 
         # insert data in the database
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        loop.run_until_complete(self.database.insert(timestamp, bitalino_data, brainbit_data, skeleton_data))
+        self.loop.run_until_complete(self.database.insert_document(timestamp,
+                                                                   bitalino_data,
+                                                                   brainbit_data,
+                                                                   skeleton_data))
 
         if not stop_thread_get_data.is_set():
             # call it again
