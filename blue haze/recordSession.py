@@ -116,7 +116,7 @@ class RecordSession:
         # because QMediarecorder
         # doesn't work on Windows
         self.video_file_name = '{}/{}.avi'.format(self.video_audio_path,
-                                             self.session_name)
+                                                  self.session_name)
         # see:
         # https://trac.ffmpeg.org/wiki/Capture/Webcam
 
@@ -148,18 +148,17 @@ class RecordSession:
 
     def audio_recording(self):
         audio_settings = QAudioEncoderSettings()
+        self.audio_file_name = '{}/{}.wav'.format(self.video_audio_path,
+                                                  self.session_name)
         if self.plat == 'Darwin':
+            # MacOs automatically adds .wav by itself
             audio_settings.setCodec('audio/FLAC')
             self.audio_file_name = '{}/{}'.format(self.video_audio_path,
-                                             self.session_name)
+                                                  self.session_name)
         elif self.plat == 'Linux':
             audio_settings.setCodec('audio/x-flac')
-            self.audio_file_name = '{}/{}.wav'.format(self.video_audio_path,
-                                                 self.session_name)
         elif self.plat == 'Windows':
             audio_settings.setCodec('audio/pcm')
-            self.audio_file_name = '{}/{}.wav'.format(self.video_audio_path,
-                                                 self.session_name)
         audio_settings.setQuality(QMultimedia.VeryHighQuality)
         self.audio_recorder.setEncodingSettings(audio_settings)
         self.audio_recorder.setOutputLocation(QUrl.fromLocalFile(self.audio_file_name))
