@@ -9,6 +9,7 @@
 
 # todo: 'unduplicate' audio inputs
 # todo: improve video quality (change codec)
+# todo: create a config file (ex. self.ASSETS_BACKING_AUDIO_FOLDER = 'assets/audio_backing/')
 
 NO_HARDWARE = False
 
@@ -17,6 +18,7 @@ from PySide2.QtCore import QUrl
 
 from checkPlatform import *
 from database import *
+from playBackTrack import PlayBackTrack
 from subprocess import Popen
 
 import shortuuid
@@ -48,6 +50,9 @@ class RecordSession:
         self.plat = check_platform()
 
         self.audio_recorder = QAudioRecorder()
+
+        self.ASSETS_BACKING_AUDIO_FOLDER = 'assets/audio_backing/'
+        self.backing_track_player = PlayBackTrack()
 
         self.database = None
 
@@ -83,7 +88,8 @@ class RecordSession:
     def start_recording(self,
                         session_name,
                         video_audio_path,
-                        audio_interface):
+                        audio_interface,
+                        back_track):
         self.loop = asyncio.get_event_loop()
 
         self.session_id = shortuuid.uuid()
@@ -102,6 +108,10 @@ class RecordSession:
 
         self.video_recording()
         self.audio_recording()
+
+        # play the backtrack
+        backing_track_file = '{}{}'.format(self.ASSETS_BACKING_AUDIO_FOLDER, back_track)
+        self.backing_track_player.play(backing_track_file)
 
         self.database = Database(self.session_id,
                                  self.session_name,
@@ -194,6 +204,7 @@ class RecordSession:
             threading.Timer(self.GET_DATA_INTERVAL, self.get_data, [self.thread_get_data]).start()
 
     def stop(self):
+        self.backing_track_player.stop()
         self.thread_get_data.set()
         self.audio_recorder.stop()
         self.video_process.terminate()

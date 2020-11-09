@@ -6,6 +6,8 @@
 # Craig Vear - cvear@dmu.ac.uk
 #
 
+# todo: fix the backtrack button status when playing
+
 from PySide2.QtWidgets import *
 from PySide2.QtMultimedia import *
 from PySide2.QtMultimediaWidgets import QCameraViewfinder
@@ -201,9 +203,13 @@ class MainWindow(QWidget):
             self.list_audio_devices.setEnabled(False)
             self.list_backing_tracks.setEnabled(False)
             # start session
+            if self.backing_track_player.player.isPlaying():
+                self.backing_track_player.stop()
+                self.backing_track_player.player.isPlaying = False
             self.record_session.start_recording(self.session_name.text(),
                                                 self.video_file_path.text(),
-                                                self.list_audio_devices.currentData())
+                                                self.list_audio_devices.currentData(),
+                                                self.list_backing_tracks.currentText())
         self.recording = not self.recording
 
     @Slot()
