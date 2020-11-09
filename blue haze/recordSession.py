@@ -24,9 +24,6 @@ import time
 import threading
 import asyncio
 
-from bson.binary import Binary
-import pickle
-
 if not NO_HARDWARE:
     from bitalinoReader import *
     from brainbitReader import *
@@ -182,10 +179,9 @@ class RecordSession:
             print('BRAINBIT: {}'.format(brainbit_data))
             print('REALSENSE: {}'.format(skeleton_data))
 
-            # convert ndarrays into pickle for MongDB format
-            bitalino_data = Binary(pickle.dumps(bitalino_data, protocol=2), subtype=128)
-            brainbit_data = Binary(pickle.dumps(brainbit_data, protocol=2), subtype=128)
-            skeleton_data = Binary(pickle.dumps(skeleton_data, protocol=2), subtype=128)
+            # convert ndarrays into lists for MongDB format
+            bitalino_data = bitalino_data.tolist()
+            brainbit_data = brainbit_data.tolist()
 
         # insert data in the database
         self.loop.run_until_complete(self.database.insert_document(timestamp,

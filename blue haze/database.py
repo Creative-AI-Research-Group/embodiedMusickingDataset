@@ -12,7 +12,6 @@ import datetime
 import asyncio
 
 
-
 class Database:
     def __init__(self, session_id, session_name, audio_file, video_file):
         self.session_id = session_id
@@ -37,7 +36,7 @@ class Database:
                 'bitalino': bitalino_data,
                 'brainbit': brainbit_data,
                 'skeleton_data': skeleton_data,
-                'flow_level': 0,
+                'flow_level': None,
                 'date': datetime.datetime.utcnow()}
         result = await self.collection.insert_one(post)
 
