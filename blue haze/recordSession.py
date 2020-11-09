@@ -182,10 +182,10 @@ class RecordSession:
             print('BRAINBIT: {}'.format(brainbit_data))
             print('REALSENSE: {}'.format(skeleton_data))
 
-        # convert ndarrays into pickle for MongDB format
-        bitalino_data = Binary(pickle.dumps(bitalino_data, protocol=2), subtype=128)
-        brainbit_data = Binary(pickle.dumps(brainbit_data, protocol=2), subtype=128)
-        skeleton_data = Binary(pickle.dumps(skeleton_data, protocol=2), subtype=128)
+            # convert ndarrays into pickle for MongDB format
+            bitalino_data = Binary(pickle.dumps(bitalino_data, protocol=2), subtype=128)
+            brainbit_data = Binary(pickle.dumps(brainbit_data, protocol=2), subtype=128)
+            skeleton_data = Binary(pickle.dumps(skeleton_data, protocol=2), subtype=128)
 
         # insert data in the database
         self.loop.run_until_complete(self.database.insert_document(timestamp,
