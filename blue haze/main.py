@@ -141,16 +141,25 @@ class MainWindow(QMainWindow):
         record_button_layout.addWidget(self.record_stop_button, 0, 4)
         record_button_group_box.setLayout(record_button_layout)
 
-        # layout
-        layout = QVBoxLayout()
-        layout.addWidget(fields_group_box)
-        layout.addWidget(view_finder_group_box)
-        layout.addWidget(record_button_group_box)
+        # layouts
+        record_tab_layout = QVBoxLayout()
+        record_tab_layout.addWidget(fields_group_box)
+        record_tab_layout.addWidget(view_finder_group_box)
+        record_tab_layout.addWidget(record_button_group_box)
 
-        widget = QWidget()
-        widget.setLayout(layout)
+        record_tab_widget = QWidget()
+        record_tab_widget.setLayout(record_tab_layout)
 
-        self.setCentralWidget(widget)
+        edit_tab_widget = QWidget()
+
+        feedback_tab_widget = QWidget()
+
+        tab_widget = QTabWidget()
+        tab_widget.addTab(record_tab_widget, 'Record')
+        tab_widget.addTab(edit_tab_widget, 'Edit')
+        tab_widget.addTab(feedback_tab_widget, 'Feedback')
+
+        self.setCentralWidget(tab_widget)
 
         # connect the record/stop button signal
         self.record_stop_button.clicked.connect(self.action_record_stop_button)
