@@ -22,9 +22,12 @@ import sys
 import asyncio
 
 
-class MainWindow(QWidget):
+class MainWindow(QMainWindow):
     def __init__(self):
-        QWidget.__init__(self)
+        super().__init__()
+
+        self.setWindowTitle('Blue Haze')
+        self.setFixedSize(1350, 950)
 
         self.session_name = QLineEdit()
         self.video_file_path = QLineEdit()
@@ -143,7 +146,11 @@ class MainWindow(QWidget):
         layout.addWidget(fields_group_box)
         layout.addWidget(view_finder_group_box)
         layout.addWidget(record_button_group_box)
-        self.setLayout(layout)
+
+        widget = QWidget()
+        widget.setLayout(layout)
+
+        self.setCentralWidget(widget)
 
         # connect the record/stop button signal
         self.record_stop_button.clicked.connect(self.action_record_stop_button)
@@ -300,12 +307,10 @@ class MainWindow(QWidget):
 
 if __name__ == '__main__':
     # UI startup
-    app = QApplication(sys.argv)
+    app = QApplication()
 
-    widget = MainWindow()
-    widget.setWindowTitle('Blue Haze')
-    widget.setFixedSize(1350, 950)
-    widget.show()
+    window = MainWindow()
+    window.show()
 
     # Close UI
     sys.exit(app.exec_())
