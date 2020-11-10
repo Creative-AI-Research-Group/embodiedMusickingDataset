@@ -159,6 +159,10 @@ class MainWindow(QMainWindow):
         tab_widget.addTab(edit_tab_widget, 'Edit')
         tab_widget.addTab(feedback_tab_widget, 'Feedback')
 
+        # disable Edit & Feedback for now
+        tab_widget.setTabEnabled(1, False)
+        tab_widget.setTabEnabled(2, False)
+
         self.setCentralWidget(tab_widget)
 
         # connect the record/stop button signal
