@@ -92,12 +92,11 @@ class MainWindow(QMainWindow):
 
     def ui_tab_record_tab_widget(self):
         # fields & hardware
-        fields_and_hardware = QHBoxLayout()
+        fields_and_hardware = QGridLayout()
 
         # hardware
         hardware_group_box = QGroupBox()
         hardware_list = QGridLayout()
-        hardware_list.setSpacing(8)
 
         # fields
         fields_group_box = QGroupBox()
@@ -159,6 +158,28 @@ class MainWindow(QMainWindow):
 
         fields_group_box.setLayout(fields)
 
+        # hardware
+        bullet_bitalino_label = QLabel('•')
+        bitalino_label = QLabel('Bitalino')
+
+        bullet_brainbit_label = QLabel('•')
+        brainbit_label = QLabel('Brainbit')
+
+        bullet_realsense_label = QLabel('•')
+        realsense_label = QLabel('RealSense camera')
+
+        hardware_list.addWidget(bullet_bitalino_label, 0, 0)
+        hardware_list.addWidget(bitalino_label, 0, 1)
+        hardware_list.addWidget(bullet_brainbit_label, 1, 0)
+        hardware_list.addWidget(brainbit_label, 1, 1)
+        hardware_list.addWidget(bullet_realsense_label, 2, 0)
+        hardware_list.addWidget(realsense_label, 2, 1)
+
+        hardware_group_box.setLayout(hardware_list)
+
+        fields_and_hardware.addWidget(fields_group_box, 0, 0)
+        fields_and_hardware.addWidget(hardware_group_box, 0, 1)
+
         # viewfinder
         view_finder_group_box = QGroupBox()
         view_finder_layout = QGridLayout()
@@ -178,7 +199,7 @@ class MainWindow(QMainWindow):
 
         # layout
         record_tab_layout = QVBoxLayout()
-        record_tab_layout.addWidget(fields_group_box)
+        record_tab_layout.addLayout(fields_and_hardware)
         record_tab_layout.addWidget(view_finder_group_box)
         record_tab_layout.addWidget(record_button_group_box)
 
