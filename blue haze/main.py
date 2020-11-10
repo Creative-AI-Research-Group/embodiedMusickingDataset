@@ -97,6 +97,7 @@ class MainWindow(QMainWindow):
         # hardware
         hardware_group_box = QGroupBox()
         hardware_list = QGridLayout()
+        hardware_list.setSpacing(5)
 
         # fields
         fields_group_box = QGroupBox()
@@ -168,12 +169,16 @@ class MainWindow(QMainWindow):
         bullet_realsense_label = QLabel('•')
         realsense_label = QLabel('RealSense camera')
 
+        refresh_hardware_button = QPushButton('Refresh hardware')
+
         hardware_list.addWidget(bullet_bitalino_label, 0, 0)
         hardware_list.addWidget(bitalino_label, 0, 1)
         hardware_list.addWidget(bullet_brainbit_label, 1, 0)
         hardware_list.addWidget(brainbit_label, 1, 1)
         hardware_list.addWidget(bullet_realsense_label, 2, 0)
         hardware_list.addWidget(realsense_label, 2, 1)
+        hardware_list.addWidget(refresh_hardware_button, 3, 1, 2, 2)
+        hardware_list.setRowStretch(4, 1)
 
         hardware_group_box.setLayout(hardware_list)
 
