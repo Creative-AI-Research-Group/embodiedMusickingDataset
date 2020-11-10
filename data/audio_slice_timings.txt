@@ -1,0 +1,7 @@
+Name                min:secs:ms
+
+chorus 1 (head)     0:04:000
+chorus 2            1:08:000
+chorus 3            2:12:000
+chorus 4            3:16:000
+chorus 5 (head)     4:20:000
