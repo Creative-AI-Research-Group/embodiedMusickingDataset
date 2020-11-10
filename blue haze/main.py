@@ -60,7 +60,7 @@ class MainWindow(QMainWindow):
         self.camera = QCamera(self.list_cameras.currentData())
         self.start_camera()
 
-    def setup_ui(self):
+    def ui_tab_record_tab_widget(self):
         # fields
         fields_group_box = QGroupBox()
         fields = QGridLayout()
@@ -141,14 +141,17 @@ class MainWindow(QMainWindow):
         record_button_layout.addWidget(self.record_stop_button, 0, 4)
         record_button_group_box.setLayout(record_button_layout)
 
-        # layouts
+        # layout
         record_tab_layout = QVBoxLayout()
         record_tab_layout.addWidget(fields_group_box)
         record_tab_layout.addWidget(view_finder_group_box)
         record_tab_layout.addWidget(record_button_group_box)
 
+        return record_tab_layout
+
+    def setup_ui(self):
         record_tab_widget = QWidget()
-        record_tab_widget.setLayout(record_tab_layout)
+        record_tab_widget.setLayout(self.ui_tab_record_tab_widget())
 
         edit_tab_widget = QWidget()
 
