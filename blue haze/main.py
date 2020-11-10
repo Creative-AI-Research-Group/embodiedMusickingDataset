@@ -91,6 +91,14 @@ class MainWindow(QMainWindow):
         self.record_stop_button.clicked.connect(self.action_record_stop_button)
 
     def ui_tab_record_tab_widget(self):
+        # fields & hardware
+        fields_and_hardware = QHBoxLayout()
+
+        # hardware
+        hardware_group_box = QGroupBox()
+        hardware_list = QGridLayout()
+        hardware_list.setSpacing(8)
+
         # fields
         fields_group_box = QGroupBox()
         fields = QGridLayout()
@@ -159,16 +167,13 @@ class MainWindow(QMainWindow):
 
         # record/stop button
         record_button_group_box = QGroupBox()
-        record_button_layout = QGridLayout()
+        record_button_layout = QHBoxLayout()
+
         # rec image
         self.recording_label.setPixmap(self.ASSETS_IMAGES_FOLDER + 'gray_rec.png')
-        # need to find a better solution
-        # this is a workaround
-        empty_label = QLabel(' ')
-        record_button_layout.addWidget(empty_label, 0, 1)
-        record_button_layout.addWidget(empty_label, 0, 2)
-        record_button_layout.addWidget(self.recording_label, 0, 3, alignment=Qt.AlignRight)
-        record_button_layout.addWidget(self.record_stop_button, 0, 4)
+        record_button_layout.addStretch(1)
+        record_button_layout.addWidget(self.recording_label)
+        record_button_layout.addWidget(self.record_stop_button)
         record_button_group_box.setLayout(record_button_layout)
 
         # layout
