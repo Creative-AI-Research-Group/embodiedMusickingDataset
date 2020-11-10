@@ -60,6 +60,36 @@ class MainWindow(QMainWindow):
         self.camera = QCamera(self.list_cameras.currentData())
         self.start_camera()
 
+    def setup_ui(self):
+        record_tab_widget = QWidget()
+        record_tab_widget.setLayout(self.ui_tab_record_tab_widget())
+
+        edit_tab_widget = QWidget()
+
+        feedback_tab_widget = QWidget()
+
+        tab_widget = QTabWidget()
+        tab_widget.addTab(record_tab_widget, 'Record')
+        tab_widget.addTab(edit_tab_widget, 'Edit')
+        tab_widget.addTab(feedback_tab_widget, 'Feedback')
+
+        # disable Edit & Feedback for now
+        tab_widget.setTabEnabled(1, False)
+        tab_widget.setTabEnabled(2, False)
+
+        # let's add some margin/breathing space to it!
+        main_layout = QHBoxLayout()
+        main_layout.setContentsMargins(20, 25, 20, 20)
+        main_layout.addWidget(tab_widget)
+
+        main_widget = QWidget()
+        main_widget.setLayout(main_layout)
+
+        self.setCentralWidget(main_widget)
+
+        # connect the record/stop button signal
+        self.record_stop_button.clicked.connect(self.action_record_stop_button)
+
     def ui_tab_record_tab_widget(self):
         # fields
         fields_group_box = QGroupBox()
@@ -148,28 +178,6 @@ class MainWindow(QMainWindow):
         record_tab_layout.addWidget(record_button_group_box)
 
         return record_tab_layout
-
-    def setup_ui(self):
-        record_tab_widget = QWidget()
-        record_tab_widget.setLayout(self.ui_tab_record_tab_widget())
-
-        edit_tab_widget = QWidget()
-
-        feedback_tab_widget = QWidget()
-
-        tab_widget = QTabWidget()
-        tab_widget.addTab(record_tab_widget, 'Record')
-        tab_widget.addTab(edit_tab_widget, 'Edit')
-        tab_widget.addTab(feedback_tab_widget, 'Feedback')
-
-        # disable Edit & Feedback for now
-        tab_widget.setTabEnabled(1, False)
-        tab_widget.setTabEnabled(2, False)
-
-        self.setCentralWidget(tab_widget)
-
-        # connect the record/stop button signal
-        self.record_stop_button.clicked.connect(self.action_record_stop_button)
 
     @Slot()
     def action_record_stop_button(self):
