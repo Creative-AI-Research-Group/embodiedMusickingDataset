@@ -160,13 +160,16 @@ class MainWindow(QMainWindow):
         fields_group_box.setLayout(fields)
 
         # hardware
-        bullet_bitalino_label = QLabel('•')
+        bullet_bitalino_label = QLabel()
+        bullet_bitalino_label.setPixmap(self.ASSETS_IMAGES_FOLDER + 'hardware_idle.png')
         bitalino_label = QLabel('Bitalino')
 
-        bullet_brainbit_label = QLabel('•')
+        bullet_brainbit_label = QLabel()
+        bullet_brainbit_label.setPixmap(self.ASSETS_IMAGES_FOLDER + 'hardware_idle.png')
         brainbit_label = QLabel('Brainbit')
 
-        bullet_realsense_label = QLabel('•')
+        bullet_realsense_label = QLabel()
+        bullet_realsense_label.setPixmap(self.ASSETS_IMAGES_FOLDER + 'hardware_idle.png')
         realsense_label = QLabel('RealSense camera')
 
         refresh_hardware_button = QPushButton('Refresh hardware')
