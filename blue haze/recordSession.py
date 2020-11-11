@@ -11,7 +11,7 @@
 # todo: improve video quality (change codec)
 # todo: create a config file (ex. self.ASSETS_BACKING_AUDIO_FOLDER = 'assets/audio_backing/')
 
-NO_HARDWARE = False
+NO_HARDWARE = True
 
 from PySide2.QtMultimedia import QAudioRecorder, QAudioEncoderSettings, QMultimedia
 from PySide2.QtCore import QUrl

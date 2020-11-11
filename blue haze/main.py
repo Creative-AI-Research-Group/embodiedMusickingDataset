@@ -22,9 +22,12 @@ import sys
 import asyncio
 
 
-class MainWindow(QWidget):
+class MainWindow(QMainWindow):
     def __init__(self):
-        QWidget.__init__(self)
+        super().__init__()
+
+        self.setWindowTitle('Blue Haze')
+        self.setFixedSize(1350, 950)
 
         self.session_name = QLineEdit()
         self.video_file_path = QLineEdit()
@@ -58,6 +61,44 @@ class MainWindow(QWidget):
         self.start_camera()
 
     def setup_ui(self):
+        record_tab_widget = QWidget()
+        record_tab_widget.setLayout(self.ui_tab_record_tab_widget())
+
+        edit_tab_widget = QWidget()
+
+        feedback_tab_widget = QWidget()
+
+        tab_widget = QTabWidget()
+        tab_widget.addTab(record_tab_widget, 'Record')
+        tab_widget.addTab(edit_tab_widget, 'Edit')
+        tab_widget.addTab(feedback_tab_widget, 'Feedback')
+
+        # disable Edit & Feedback for now
+        tab_widget.setTabEnabled(1, False)
+        tab_widget.setTabEnabled(2, False)
+
+        # let's add some margin/breathing space to it!
+        main_layout = QHBoxLayout()
+        main_layout.setContentsMargins(20, 25, 20, 20)
+        main_layout.addWidget(tab_widget)
+
+        main_widget = QWidget()
+        main_widget.setLayout(main_layout)
+
+        self.setCentralWidget(main_widget)
+
+        # connect the record/stop button signal
+        self.record_stop_button.clicked.connect(self.action_record_stop_button)
+
+    def ui_tab_record_tab_widget(self):
+        # fields & hardware
+        fields_and_hardware = QGridLayout()
+
+        # hardware
+        hardware_group_box = QGroupBox()
+        hardware_list = QGridLayout()
+        hardware_list.setSpacing(5)
+
         # fields
         fields_group_box = QGroupBox()
         fields = QGridLayout()
@@ -118,6 +159,35 @@ class MainWindow(QWidget):
 
         fields_group_box.setLayout(fields)
 
+        # hardware
+        bullet_bitalino_label = QLabel()
+        bullet_bitalino_label.setPixmap(self.ASSETS_IMAGES_FOLDER + 'hardware_idle.png')
+        bitalino_label = QLabel('Bitalino')
+
+        bullet_brainbit_label = QLabel()
+        bullet_brainbit_label.setPixmap(self.ASSETS_IMAGES_FOLDER + 'hardware_idle.png')
+        brainbit_label = QLabel('Brainbit')
+
+        bullet_realsense_label = QLabel()
+        bullet_realsense_label.setPixmap(self.ASSETS_IMAGES_FOLDER + 'hardware_idle.png')
+        realsense_label = QLabel('RealSense camera')
+
+        refresh_hardware_button = QPushButton('Refresh hardware')
+
+        hardware_list.addWidget(bullet_bitalino_label, 0, 0)
+        hardware_list.addWidget(bitalino_label, 0, 1)
+        hardware_list.addWidget(bullet_brainbit_label, 1, 0)
+        hardware_list.addWidget(brainbit_label, 1, 1)
+        hardware_list.addWidget(bullet_realsense_label, 2, 0)
+        hardware_list.addWidget(realsense_label, 2, 1)
+        hardware_list.addWidget(refresh_hardware_button, 3, 1, 2, 2)
+        hardware_list.setRowStretch(4, 1)
+
+        hardware_group_box.setLayout(hardware_list)
+
+        fields_and_hardware.addWidget(fields_group_box, 0, 0)
+        fields_and_hardware.addWidget(hardware_group_box, 0, 1)
+
         # viewfinder
         view_finder_group_box = QGroupBox()
         view_finder_layout = QGridLayout()
@@ -126,27 +196,22 @@ class MainWindow(QWidget):
 
         # record/stop button
         record_button_group_box = QGroupBox()
-        record_button_layout = QGridLayout()
+        record_button_layout = QHBoxLayout()
+
         # rec image
         self.recording_label.setPixmap(self.ASSETS_IMAGES_FOLDER + 'gray_rec.png')
-        # need to find a better solution
-        # this is a workaround
-        empty_label = QLabel(' ')
-        record_button_layout.addWidget(empty_label, 0, 1)
-        record_button_layout.addWidget(empty_label, 0, 2)
-        record_button_layout.addWidget(self.recording_label, 0, 3, alignment=Qt.AlignRight)
-        record_button_layout.addWidget(self.record_stop_button, 0, 4)
+        record_button_layout.addStretch(1)
+        record_button_layout.addWidget(self.recording_label)
+        record_button_layout.addWidget(self.record_stop_button)
         record_button_group_box.setLayout(record_button_layout)
 
         # layout
-        layout = QVBoxLayout()
-        layout.addWidget(fields_group_box)
-        layout.addWidget(view_finder_group_box)
-        layout.addWidget(record_button_group_box)
-        self.setLayout(layout)
+        record_tab_layout = QVBoxLayout()
+        record_tab_layout.addLayout(fields_and_hardware)
+        record_tab_layout.addWidget(view_finder_group_box)
+        record_tab_layout.addWidget(record_button_group_box)
 
-        # connect the record/stop button signal
-        self.record_stop_button.clicked.connect(self.action_record_stop_button)
+        return record_tab_layout
 
     @Slot()
     def action_record_stop_button(self):
@@ -300,12 +365,10 @@ class MainWindow(QWidget):
 
 if __name__ == '__main__':
     # UI startup
-    app = QApplication(sys.argv)
+    app = QApplication()
 
-    widget = MainWindow()
-    widget.setWindowTitle('Blue Haze')
-    widget.setFixedSize(1350, 950)
-    widget.show()
+    window = MainWindow()
+    window.show()
 
     # Close UI
     sys.exit(app.exec_())
