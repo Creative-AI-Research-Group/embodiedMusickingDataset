@@ -196,6 +196,8 @@ class RecordSession:
 
             # slicing usable data
             bitalino_data = bitalino_data[0, -1]
+            brainbit_data = brainbit_data[1:5,]
+
 
         # insert data in the database
         self.loop.run_until_complete(self.database.insert_document(timestamp,

@@ -48,7 +48,9 @@ if __name__ == "__main__":
 
     for i in range(100):
         data = board.read()
-        print(data)
+        # print(data)
+        slice = data[1:5,]
+        print(slice)
         time.sleep(0.01)
 
     board.terminate()
