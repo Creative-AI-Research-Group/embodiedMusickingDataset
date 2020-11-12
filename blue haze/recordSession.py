@@ -7,11 +7,7 @@
 # Craig Vear - cvear@dmu.ac.uk
 #
 
-# todo: 'unduplicate' audio inputs
-# todo: improve video quality (change codec)
-# todo: create a config file (ex. self.ASSETS_BACKING_AUDIO_FOLDER = 'assets/audio_backing/')
-
-NO_HARDWARE = True
+NO_HARDWARE = False
 
 from PySide2.QtMultimedia import QAudioRecorder, QAudioEncoderSettings, QMultimedia
 from PySide2.QtCore import QUrl
@@ -175,6 +171,7 @@ class RecordSession:
             audio_settings.setCodec('audio/pcm')
         audio_settings.setQuality(QMultimedia.VeryHighQuality)
         self.audio_recorder.setEncodingSettings(audio_settings)
+        self.audio_recorder.setVolume(0.3)
         self.audio_recorder.setOutputLocation(QUrl.fromLocalFile(self.audio_file_name))
         self.audio_recorder.setAudioInput(self.audio_interface.deviceName())
         self.audio_recorder.record()

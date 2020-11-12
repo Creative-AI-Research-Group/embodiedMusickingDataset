@@ -7,6 +7,13 @@
 #
 
 # todo: fix the backtrack button status when playing
+# todo: 'unduplicate' audio inputs
+# todo: improve video quality (change codec)
+# todo: create a config file (ex. self.ASSETS_BACKING_AUDIO_FOLDER = 'assets/audio_backing/')
+# todo: autostop of 3-5 seconds following backing track end
+# todo: insert field in UI for input of audio record level (1-100)
+# todo: press stop record temp freezes UI. this is released once record button is pressed.
+
 
 from PySide2.QtWidgets import *
 from PySide2.QtMultimedia import *
