@@ -579,6 +579,7 @@ if __name__ == '__main__':
     while (end - start) < running_time:
         # Read samples
         data = device.read(nSamples)
+        data.tolist()
         # print(data)
         slice = data[0, -1]
         print (slice)

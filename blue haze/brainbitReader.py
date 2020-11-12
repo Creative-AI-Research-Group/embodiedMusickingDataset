@@ -48,6 +48,7 @@ if __name__ == "__main__":
 
     for i in range(100):
         data = board.read()
+        data.tolist()
         # print(data)
         slice = data[1:5,]
         print(slice)

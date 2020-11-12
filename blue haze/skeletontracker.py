@@ -142,7 +142,15 @@ if __name__ == '__main__':
 
     for i in range(10):
         data = skeleton.read()
+        # slice_1 = data[0, 1:]
+        # slice_2 = data[-4:-1]
+        # slice_1.append(slice_2)
+
+        # print(slice_1)
         print(data)
+
+
+
         sleep(0.1)
 
     skeleton.terminate()
