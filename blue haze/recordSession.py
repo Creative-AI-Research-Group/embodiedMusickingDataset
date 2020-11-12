@@ -125,11 +125,15 @@ class RecordSession:
         # this is an ugly workaround
         # because QMediarecorder
         # doesn't work on Windows
+        # keep an eye regularly on:
+        # https://doc.qt.io/qt-5/qtmultimedia-windows.html
+        # to see if it gets supported
+        # on Windows
         self.video_file_name = '{}/{}.avi'.format(self.video_audio_path,
                                                   self.session_name)
+
         # see:
         # https://trac.ffmpeg.org/wiki/Capture/Webcam
-
         cmd = None
 
         # everything is hard-coded here
