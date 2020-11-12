@@ -557,9 +557,9 @@ if __name__ == '__main__':
     running_time = 5
     
     batteryThreshold = 30
-    acqChannels = [0, 1, 2, 3, 4, 5]
-    samplingRate = 1000
-    nSamples = 10
+    acqChannels = [0]
+    samplingRate = 10
+    nSamples = 1
     digitalOutput = [1,1]
     
     # Connect to BITalino
@@ -578,7 +578,10 @@ if __name__ == '__main__':
     end = time.time()
     while (end - start) < running_time:
         # Read samples
-        print(device.read(nSamples))
+        data = device.read(nSamples)
+        # print(data)
+        slice = data[0, -1]
+        print (slice)
         end = time.time()
 
     # Turn BITalino led on
