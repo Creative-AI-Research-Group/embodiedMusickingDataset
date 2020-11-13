@@ -13,6 +13,7 @@
 # todo: autostop of 3-5 seconds following backing track end
 # todo: insert field in UI for input of audio record level (1-100)
 # todo: press stop record temp freezes UI. this is released once record button is pressed. TO MONITOR, AS IT SEEMS IT GOT FIXED
+# todo: include backing track name in mongoDB
 
 
 from PySide2.QtWidgets import *
