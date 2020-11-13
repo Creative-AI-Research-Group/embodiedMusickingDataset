@@ -188,20 +188,21 @@ class RecordSession:
             bitalino_data = self.bitalino.read(self.n_samples)
             brainbit_data = self.brainbit.read()
             raw_skeleton_data = self.realsense.read()
-            print('BITALINO: {}'.format(bitalino_data))
-            print('BRAINBIT: {}'.format(brainbit_data))
-            print('REALSENSE: {}'.format(skeleton_data))
+
+            # parse raw skeleton data
+            skeleton_data = self.skeleton_parse(raw_skeleton_data)
+
+            # slicing usable data
+            bitalino_data = bitalino_data[0, -1]
+            brainbit_data = brainbit_data[1:5, ]
 
             # convert ndarrays into lists for MongDB format
             bitalino_data = bitalino_data.tolist()
             brainbit_data = brainbit_data.tolist()
 
-            # slicing usable data
-            bitalino_data = bitalino_data[0, -1]
-            brainbit_data = brainbit_data[1:5,]
-
-            # parse raw skeleton data
-            skeleton_data = self.skeleton_parse(raw_skeleton_data)
+            print('BITALINO: {}'.format(bitalino_data))
+            print('BRAINBIT: {}'.format(brainbit_data))
+            print('REALSENSE: {}'.format(skeleton_data))
 
         # insert data in the database
         self.loop.run_until_complete(self.database.insert_document(timestamp,
