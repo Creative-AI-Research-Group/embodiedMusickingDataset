@@ -55,6 +55,8 @@ class RecordSession:
         self.BITALINO_BAUDRATE = 10
         self.BITALINO_ACQ_CHANNELS = [0]
         self.bitalino = None
+        self.body_parts_list = ['nose', 'neck', 'r_shoudler', 'r_elbow', 'r_wrist', 'l_shoudler',
+                                'l_elbow', 'l_wrist', 'r_eye', 'l_eye', 'r_ear', 'l_ear']
 
         if not NO_HARDWARE:
             self.setup_bitalino()
@@ -185,7 +187,7 @@ class RecordSession:
         if not NO_HARDWARE:
             bitalino_data = self.bitalino.read(self.n_samples)
             brainbit_data = self.brainbit.read()
-            skeleton_data = self.realsense.read()
+            raw_skeleton_data = self.realsense.read()
             print('BITALINO: {}'.format(bitalino_data))
             print('BRAINBIT: {}'.format(brainbit_data))
             print('REALSENSE: {}'.format(skeleton_data))
@@ -198,6 +200,8 @@ class RecordSession:
             bitalino_data = bitalino_data[0, -1]
             brainbit_data = brainbit_data[1:5,]
 
+            # parse raw skeleton data
+            skeleton_data = self.skeleton_parse(raw_skeleton_data)
 
         # insert data in the database
         self.loop.run_until_complete(self.database.insert_document(timestamp,
@@ -208,6 +212,35 @@ class RecordSession:
         if not stop_thread_get_data.is_set():
             # call it again
             threading.Timer(self.GET_DATA_INTERVAL, self.get_data, [self.thread_get_data]).start()
+
+    def skeleton_parse(self, raw_skeleton_data):
+        # create temp lists
+        joint_coord_list = []
+        coord_conf_list = []
+
+        # parse iterables to lists
+        for keypoint in raw_skeleton_data:
+            # extract joint coords for 1st 8 & last 4 joints
+            for joint in keypoint[0:1]:
+                # 1st 8
+                for coords in joint[:8]:
+                    joint_coord_list.append(coords[0:2])
+                # last 4
+                for coords in joint[-4:]:
+                    joint_coord_list.append(coords[0:2])
+
+            # extract coord confidences for  1st 8 & last 4 joints
+            for conf in keypoint[1:2]:
+                # 1st 8
+                for value in conf[:8]:
+                    coord_conf_list.append(value)
+                # last 4
+                for value in conf[-4:]:
+                    coord_conf_list.append(value)
+
+        # zip all arrays and return
+        skeleton_data = list(zip(self.body_parts_list, joint_coord_list, coord_conf_list))
+        return skeleton_data
 
     def stop(self):
         self.backing_track_player.stop()
