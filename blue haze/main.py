@@ -14,6 +14,7 @@
 # todo: insert field in UI for input of audio record level (1-100)
 # todo: press stop record temp freezes UI. this is released once record button is pressed. TO MONITOR, AS IT SEEMS IT GOT FIXED
 # todo: include backing track ID in mongoDB
+# todo: add timestamp delta between ts(n) and ts(n-1)
 
 
 from PySide2.QtWidgets import *
