@@ -51,11 +51,14 @@ if __name__ == "__main__":
         data = board.read()
 
         for raw in data[1:5]:
-            temp_list.append(raw)
+            temp_eeg_list = []
+            for eeg in raw:
+                temp_eeg_list.append(eeg)
+            temp_list.append(temp_eeg_list)
 
         brainbit_data = list(zip(brainbit_eeg_labels, temp_list))
 
         print(brainbit_data)
-        time.sleep(0.001)
+        time.sleep(0.1)
 
     board.terminate()
