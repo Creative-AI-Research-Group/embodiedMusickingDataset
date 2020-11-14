@@ -43,15 +43,19 @@ class BrainbitReader():
 
 if __name__ == "__main__":
     board = BrainbitReader()
-
+    brainbit_eeg_labels = ['T3', 'T4', 'O1', 'O2']
     board.start()
 
     for i in range(100):
+        temp_list = []
         data = board.read()
-        data.tolist()
-        # print(data)
-        slice = data[1:5,]
-        print(slice)
-        time.sleep(0.01)
+
+        for raw in data[1:5]:
+            temp_list.append(raw)
+
+        brainbit_data = list(zip(brainbit_eeg_labels, temp_list))
+
+        print(brainbit_data)
+        time.sleep(0.001)
 
     board.terminate()

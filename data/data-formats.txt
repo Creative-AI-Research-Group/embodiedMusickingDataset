@@ -39,7 +39,19 @@ and so on, check docs for full list
 get_sampling_rate (board_id)
 get_timestamp_channel (board_id)
 # and so on
+return data for BrainBit single channel of eeg=
+10 hz = ('O2', array([93549.81760961, 93468.94595046, 96727.84493241, 95683.379825  ,
+       93650.14424338, 92623.60823022, 95794.3876213 , 95904.63247741,
+       94862.45619054, 93849.65310064, 94033.52168419, 94639.29618768,
+       94661.42145292, 95635.69606371, 94562.23922943, 93481.53446344,
+       93429.65453115, 96658.79884605, 95608.61168729, 93593.30519991,
+       92520.22983573, 95720.38242377, 95842.45285268, 94561.09481916,
+       93463.60536919, 94411.17707365, 94618.6968028 , 94586.65331521,
+       95529.64737859, 94436.7355697 ]))]
+1000hz = ('O2', array([98690.12707722, 98623.7512815 ]))]
 
+CONCLUSOIN = the headband nodes are being parsed into aggragate data, with mulitple time reads packed into the array, hence field[0] is a timestamp
+BrainBit fields are: timestamp, eeg T3, eeg T4, eeg 01, eeg 02, x, x, x, x, x, x, board ID, battery level.
 
 Skeleton
 Skeleton data  =   [SkeletonKeypoints(joints=[Coordinate(x=364.1055603027344, y=144.375), Coordinate(x=390.3812255859375, y=316.875), Coordinate(x=270.263916015625, y=301.875), Coordinate(x=-1.0, y=-1.0), Coordinate(x=-1.0, y=-1.0), Coordinate(x=540.52783203125, y=301.875), Coordinate(x=-1.0, y=-1.0), Coordinate(x=-1.0, y=-1.0), Coordinate(x=-1.0, y=-1.0), Coordinate(x=-1.0, y=-1.0), Coordinate(x=-1.0, y=-1.0), Coordinate(x=-1.0, y=-1.0), Coordinate(x=-1.0, y=-1.0), Coordinate(x=-1.0, y=-1.0), Coordinate(x=337.8299255371094, y=118.125), Coordinate(x=397.8885498046875, y=118.125), Coordinate(x=307.80059814453125, y=140.625), Coordinate(x=442.93255615234375, y=140.625)], confidences=[0.8627133369445801, 0.4271840751171112, 0.28388893604278564, 0.0, 0.0, 0.49805599451065063, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.8855968713760376, 0.8579847812652588, 0.769591748714447, 0.753663957118988], id=1, id_confirmed_on_cloud=False)]

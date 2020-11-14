@@ -57,6 +57,7 @@ class RecordSession:
         self.bitalino = None
         self.body_parts_list = ['nose', 'neck', 'r_shoudler', 'r_elbow', 'r_wrist', 'l_shoudler',
                                 'l_elbow', 'l_wrist', 'r_eye', 'l_eye', 'r_ear', 'l_ear']
+        self.brainbit_eeg_labels = ['eeg-T3', 'eeg-T4', 'eeg-O1', 'eeg-O2']
 
         if not NO_HARDWARE:
             self.setup_bitalino()
@@ -186,19 +187,18 @@ class RecordSession:
         print('TIMESTAMP: {}'.format(timestamp))
         if not NO_HARDWARE:
             bitalino_data = self.bitalino.read(self.n_samples)
-            brainbit_data = self.brainbit.read()
+            raw_brainbit_data = self.brainbit.read()
             raw_skeleton_data = self.realsense.read()
 
             # parse raw skeleton data
             skeleton_data = self.skeleton_parse(raw_skeleton_data)
 
-            # slicing usable data
+            # slicing usable bitalino data and convert to list
             bitalino_data = bitalino_data[0, -1]
-            brainbit_data = brainbit_data[1:5, ]
-
-            # convert ndarrays into lists for MongDB format
             bitalino_data = bitalino_data.tolist()
-            brainbit_data = brainbit_data.tolist()
+
+            # parse and label brainbit data
+            brainbit_data = self.brainbit_parse(raw_brainbit_data)
 
             print('BITALINO: {}'.format(bitalino_data))
             print('BRAINBIT: {}'.format(brainbit_data))
@@ -213,6 +213,18 @@ class RecordSession:
         if not stop_thread_get_data.is_set():
             # call it again
             threading.Timer(self.GET_DATA_INTERVAL, self.get_data, [self.thread_get_data]).start()
+
+    def brainbit_parse(self, raw_brainbit_data):
+        # setup a temp list for each parse
+        temp_list = []
+
+        # parse only the fields we need from timestamp, eegt2, eegt4, eeg01, eeg02, X, X, X, X, X, X, boardID, battery
+        for raw in raw_brainbit_data[1:5]:
+            temp_list.append(raw)
+
+        # zip and return
+        brainbit_data = list(zip(self.brainbit_eeg_labels, temp_list))
+        return brainbit_data
 
     def skeleton_parse(self, raw_skeleton_data):
         # create temp lists
