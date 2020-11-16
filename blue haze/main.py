@@ -10,7 +10,6 @@
 # todo: 'unduplicate' audio inputs
 # todo: autostop of 3-5 seconds following backing track end
 # todo: insert field in UI for input of audio record level (1-100)
-# todo: include backing track ID in mongoDB
 # todo: add timestamp delta between ts(n) and ts(n-1)
 
 from PySide2.QtWidgets import *

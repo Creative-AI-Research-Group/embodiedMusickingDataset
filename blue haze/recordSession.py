@@ -121,7 +121,8 @@ class RecordSession:
         self.database = Database(self.session.id,
                                  self.session.name,
                                  self.session.audio_file_name,
-                                 self.video_file_name)
+                                 self.video_file_name,
+                                 back_track)
 
         self.thread_get_data = threading.Event()
         self.get_data(self.thread_get_data)

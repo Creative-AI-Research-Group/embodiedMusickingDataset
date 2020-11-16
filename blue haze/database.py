@@ -13,11 +13,17 @@ import asyncio
 
 
 class Database:
-    def __init__(self, session_id, session_name, audio_file, video_file):
+    def __init__(self,
+                 session_id,
+                 session_name,
+                 audio_file,
+                 video_file,
+                 backing_track_file):
         self.session_id = session_id
         self.session_name = session_name
         self.audio_file = audio_file
         self.video_file = video_file
+        self.backing_track_file = backing_track_file
 
         self.client = motor.motor_asyncio.AsyncIOMotorClient()
         db = self.client.blue_haze_database
@@ -33,6 +39,7 @@ class Database:
                 'timestamp': timestamp,
                 'audio_file': self.audio_file,
                 'video_file': self.video_file,
+                'backing_track_file': self.backing_track_file,
                 'bitalino': bitalino_data,
                 'brainbit': brainbit_data,
                 'skeleton_data': skeleton_data,
