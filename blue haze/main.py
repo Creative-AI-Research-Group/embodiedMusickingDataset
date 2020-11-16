@@ -8,7 +8,7 @@
 
 # todo: fix the backtrack button status when playing
 # todo: 'unduplicate' audio inputs
-# todo: create a config file (ex. self.ASSETS_BACKING_AUDIO_FOLDER = 'assets/audio_backing/')
+# todo: create a config file (ex. cfg.ASSETS_BACKING_AUDIO_FOLDER = 'assets/audio_backing/')
 # todo: autostop of 3-5 seconds following backing track end
 # todo: insert field in UI for input of audio record level (1-100)
 # todo: press stop record temp freezes UI. this is released once record button is pressed. TO MONITOR, AS IT SEEMS IT GOT FIXED
@@ -50,9 +50,6 @@ class MainWindow(QMainWindow):
         self.recording = False
 
         self.record_session = RecordSession()
-
-        # folders
-        self.ASSETS_BACKING_AUDIO_FOLDER = 'assets/audio_backing/'
 
         self.view_finder = QCameraViewfinder()
 
@@ -238,7 +235,7 @@ class MainWindow(QMainWindow):
         if self.recording:
             # it is already recording
             # we will stop the session
-            self.recording_label.setPixmap(cfg.ASSETS_IMAGE_FOLDER + 'gray_rec.png')
+            self.recording_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'gray_rec.png')
             self.record_stop_button.setText('Record session')
             # enable fields
             self.session_name.setEnabled(True)
@@ -321,7 +318,7 @@ class MainWindow(QMainWindow):
             # disable field
             self.list_backing_tracks.setEnabled(True)
         else:
-            backing_track_file = '{}{}'.format(self.ASSETS_BACKING_AUDIO_FOLDER, self.list_backing_tracks.currentText())
+            backing_track_file = '{}{}'.format(cfg.ASSETS_BACKING_AUDIO_FOLDER, self.list_backing_tracks.currentText())
             self.backing_track_player.play(backing_track_file)
             self.play_stop_backing_track_button.setText('Stop backing track')
             # enable field
@@ -355,7 +352,7 @@ class MainWindow(QMainWindow):
 
     def get_list_backing_tracks(self):
         # list the available audio_backing tracks
-        backing_tracks_folder = '{}*wav'.format(self.ASSETS_BACKING_AUDIO_FOLDER)
+        backing_tracks_folder = '{}*wav'.format(cfg.ASSETS_BACKING_AUDIO_FOLDER)
         for backing_track in glob(backing_tracks_folder):
             trackname = os.path.basename(backing_track)
             self.list_backing_tracks.addItem(trackname)
