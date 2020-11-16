@@ -61,6 +61,8 @@ class MainWindow(QMainWindow):
         self.camera = QCamera(self.list_cameras.currentData())
         self.start_camera()
 
+        # see
+        # https://stackoverflow.com/questions/46827007/runtimeerror-this-event-loop-is-already-running-in-python
         nest_asyncio.apply()
 
     def setup_ui(self):
