@@ -7,7 +7,7 @@
 # Craig Vear - cvear@dmu.ac.uk
 #
 
-NO_HARDWARE = False
+NO_HARDWARE = True
 
 from PySide2.QtMultimedia import QAudioRecorder, QAudioEncoderSettings, QMultimedia
 from PySide2.QtCore import QUrl
@@ -43,6 +43,7 @@ class RecordSession:
         self.video_file_name = None
         self.video_process = None
         self.audio_interface = None
+        self.video_source = None
         self.plat = check_platform()
 
         self.audio_recorder = QAudioRecorder()
@@ -87,6 +88,7 @@ class RecordSession:
     def start_recording(self,
                         session_name,
                         video_audio_path,
+                        video_source,
                         audio_interface,
                         back_track):
         self.loop = asyncio.get_event_loop()
@@ -98,6 +100,7 @@ class RecordSession:
                                               session_name,
                                               self.session_id)
         self.video_audio_path = video_audio_path
+        self.video_source = video_source
         self.audio_interface = audio_interface
 
         if not NO_HARDWARE:
@@ -135,23 +138,29 @@ class RecordSession:
         # https://trac.ffmpeg.org/wiki/Capture/Webcam
         cmd = None
 
-        # everything is hard-coded here
-        # what is not good…
+        # list video and audio devices on Windows:
+        # https://trac.ffmpeg.org/wiki/DirectShow
+        # ffmpeg -list_devices true -f dshow -i dummy
         if self.plat == 'Windows':
             cmd = ['ffmpeg', '-f', 'dshow',
                    '-framerate', '30',
-                   '-video_size', '1184x656',
-                   '-i', 'video=HUE HD Pro Camera',
+                   '-i', 'video={}'.format(self.video_source),
+                   '-q:v', '3',
+                   '-b:v', '2M',
                    self.video_file_name]
         elif self.plat == 'Darwin':
             # for Mac, we can change it to:
             # ffmpeg -f avfoundation -framerate 30 -video_size 1280x720 -i "Microsoft":none out.avi
+            # https://trac.ffmpeg.org/wiki/Capture/Webcam
+            # ffmpeg -f avfoundation -list_devices true -i ""
             cmd = ['ffmpeg', '-f', 'avfoundation',
                    '-framerate', '30',
                    '-video_size', '1280x720',
                    '-i', '0:none',
                    self.video_file_name]
         elif self.plat == 'Linux':
+            # https://trac.ffmpeg.org/wiki/Capture/Webcam
+            # v4l2-ctl --list-devices
             cmd = ['ffmpeg', '-f', 'v4l2',
                    '-framerate', '25',
                    '-video_size', '1280x720',

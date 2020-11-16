@@ -8,7 +8,6 @@
 
 # todo: fix the backtrack button status when playing
 # todo: 'unduplicate' audio inputs
-# todo: improve video quality (change codec)
 # todo: create a config file (ex. self.ASSETS_BACKING_AUDIO_FOLDER = 'assets/audio_backing/')
 # todo: autostop of 3-5 seconds following backing track end
 # todo: insert field in UI for input of audio record level (1-100)
@@ -282,6 +281,7 @@ class MainWindow(QMainWindow):
                 self.backing_track_player.player.isPlaying = False
             self.record_session.start_recording(self.session_name.text(),
                                                 self.video_file_path.text(),
+                                                self.list_cameras.currentData().description(),
                                                 self.list_audio_devices.currentData(),
                                                 self.list_backing_tracks.currentText())
         self.recording = not self.recording
