@@ -36,6 +36,8 @@ class RecordSession:
     def __init__(self):
         self.session = datastr.RecordSessionData()
 
+        self.video_process = None
+
         self.audio_recorder = QAudioRecorder()
         self.backing_track_player = PlayBackTrack()
 
@@ -164,7 +166,7 @@ class RecordSession:
                    '-video_size', '1280x720',
                    '-i', '/dev/video0',
                    self.video_file_name]
-        self.session.video_process = Popen(cmd)
+        self.video_process = Popen(cmd)
 
     def audio_recording(self):
         audio_settings = QAudioEncoderSettings()
@@ -206,9 +208,9 @@ class RecordSession:
             # parse and label brainbit data
             brainbit_data = self.brainbit_parse(raw_brainbit_data)
 
-            logging.debug('BITALINO: {}'.format(bitalino_data))
-            logging.debug('BRAINBIT: {}'.format(brainbit_data))
-            logging.debug('REALSENSE: {}'.format(skeleton_data))
+            logger.debug('BITALINO: {}'.format(bitalino_data))
+            logger.debug('BRAINBIT: {}'.format(brainbit_data))
+            logger.debug('REALSENSE: {}'.format(skeleton_data))
 
         # insert data in the database
         self.loop.run_until_complete(self.database.insert_document(timestamp,
@@ -268,7 +270,7 @@ class RecordSession:
         self.backing_track_player.stop()
         self.thread_get_data.set()
         self.audio_recorder.stop()
-        self.session.video_process.terminate()
+        self.video_process.terminate()
         self.database.close()
         if cfg.HARDWARE:
             self.bitalino.stop()

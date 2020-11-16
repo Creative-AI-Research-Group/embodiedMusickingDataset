@@ -329,9 +329,11 @@ class MainWindow(QMainWindow):
         loop.run_until_complete(async_function)
 
     async def check_video_process_terminate(self):
+        utls.logger.debug('Trying to stop the video')
         while True:
             if self.record_session.video_process.poll() is not None:
                 break
+        utls.logger.debug('Video has stopped')
         self.change_camera()
 
     def start_camera(self):
