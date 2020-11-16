@@ -28,7 +28,7 @@ class BrainbitReader():
         self.board.prepare_session ()
 
         # board.start_stream () # use this for default options
-        self.board.start_stream() # removed 48000
+        self.board.start_stream(2) # removed 48000
         print ('BrainBit stream started')
 
     def read(self):
