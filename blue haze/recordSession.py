@@ -152,8 +152,6 @@ class RecordSession:
                    '-b:v', '2M',
                    self.video_file_name]
         elif utls.PLATFORM == 'Darwin':
-            # for Mac, we can change it to:
-            # ffmpeg -f avfoundation -framerate 30 -video_size 1280x720 -i "Microsoft":none out.avi
             # https://trac.ffmpeg.org/wiki/Capture/Webcam
             # ffmpeg -f avfoundation -list_devices true -i ""
             cmd = ['ffmpeg', '-f', 'avfoundation',
@@ -279,4 +277,3 @@ class RecordSession:
             self.bitalino.stop()
             self.brainbit.terminate()
             self.realsense.terminate()
-
