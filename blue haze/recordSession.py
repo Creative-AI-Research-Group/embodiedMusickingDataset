@@ -11,8 +11,6 @@ NO_HARDWARE = True
 
 from PySide2.QtMultimedia import QAudioRecorder, QAudioEncoderSettings, QMultimedia
 from PySide2.QtCore import QUrl
-
-from checkPlatform import *
 from database import *
 from playBackTrack import PlayBackTrack
 from subprocess import Popen
@@ -21,6 +19,8 @@ import shortuuid
 import time
 import threading
 import asyncio
+
+import modules.utils
 
 if not NO_HARDWARE:
     from bitalinoReader import *
@@ -44,7 +44,6 @@ class RecordSession:
         self.video_process = None
         self.audio_interface = None
         self.video_source = None
-        self.plat = check_platform()
 
         self.audio_recorder = QAudioRecorder()
 
@@ -141,14 +140,14 @@ class RecordSession:
         # list video and audio devices on Windows:
         # https://trac.ffmpeg.org/wiki/DirectShow
         # ffmpeg -list_devices true -f dshow -i dummy
-        if self.plat == 'Windows':
+        if modules.utils.PLATFORM == 'Windows':
             cmd = ['ffmpeg', '-f', 'dshow',
                    '-framerate', '30',
                    '-i', 'video={}'.format(self.video_source),
                    '-q:v', '3',
                    '-b:v', '2M',
                    self.video_file_name]
-        elif self.plat == 'Darwin':
+        elif modules.utils.PLATFORM == 'Darwin':
             # for Mac, we can change it to:
             # ffmpeg -f avfoundation -framerate 30 -video_size 1280x720 -i "Microsoft":none out.avi
             # https://trac.ffmpeg.org/wiki/Capture/Webcam
@@ -158,7 +157,7 @@ class RecordSession:
                    '-video_size', '1280x720',
                    '-i', '0:none',
                    self.video_file_name]
-        elif self.plat == 'Linux':
+        elif modules.utils.PLATFORM == 'Linux':
             # https://trac.ffmpeg.org/wiki/Capture/Webcam
             # v4l2-ctl --list-devices
             cmd = ['ffmpeg', '-f', 'v4l2',
@@ -172,14 +171,14 @@ class RecordSession:
         audio_settings = QAudioEncoderSettings()
         self.audio_file_name = '{}/{}.wav'.format(self.video_audio_path,
                                                   self.session_name)
-        if self.plat == 'Darwin':
+        if modules.utils.PLATFORM == 'Darwin':
             # MacOs automatically adds .wav by itself
             audio_settings.setCodec('audio/FLAC')
             self.audio_file_name = '{}/{}'.format(self.video_audio_path,
                                                   self.session_name)
-        elif self.plat == 'Linux':
+        elif modules.utils.PLATFORM == 'Linux':
             audio_settings.setCodec('audio/x-flac')
-        elif self.plat == 'Windows':
+        elif modules.utils.PLATFORM == 'Windows':
             audio_settings.setCodec('audio/pcm')
         audio_settings.setQuality(QMultimedia.VeryHighQuality)
         self.audio_recorder.setEncodingSettings(audio_settings)

@@ -22,11 +22,12 @@ from PySide2.QtCore import Slot, Qt, QDir
 from glob import glob
 from playBackTrack import PlayBackTrack
 from recordSession import RecordSession
-from checkPlatform import *
 
 import os
 import sys
 import asyncio
+
+import modules.utils
 
 
 class MainWindow(QMainWindow):
@@ -48,9 +49,6 @@ class MainWindow(QMainWindow):
         self.recording = False
 
         self.record_session = RecordSession()
-
-        # platform
-        self.plat = check_platform()
 
         # folders
         self.ASSETS_IMAGES_FOLDER = 'assets/images/'
@@ -251,7 +249,7 @@ class MainWindow(QMainWindow):
             # stop session
             self.record_session.stop()
             # restart camera
-            if self.plat == 'Windows' or self.plat == 'Linux':
+            if modules.utils.PLATFORM == 'Windows' or modules.utils.PLATFORM == 'Linux':
                 self.wait_for_video_process()
         else:
             # it is not yet recording
@@ -263,7 +261,7 @@ class MainWindow(QMainWindow):
             # nor on Windows. This is the reason why we are
             # stopping the camera here and restarting it
             # after the recording is finished
-            if self.plat == 'Windows' or self.plat == 'Linux':
+            if modules.utils.PLATFORM == 'Windows' or modules.utils.PLATFORM == 'Linux':
                 self.camera.stop()
 
             self.recording_label.setPixmap(self.ASSETS_IMAGES_FOLDER + 'red_rec.png')
