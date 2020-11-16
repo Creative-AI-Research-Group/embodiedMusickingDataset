@@ -65,8 +65,6 @@ class RecordSession:
 
         self.loop = None
 
-        utls.logger.debug('TESTE')
-
     def setup_bitalino(self):
         # BITalino instantiate object
         self.n_samples = 1
