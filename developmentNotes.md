@@ -1,2 +1,2 @@
 # Windows
-[How to install FFmpeg on Windows 10](https://www.thewindowsclub.com/how-to-install-ffmpeg-on-windows-10)
+[Use _Chocolatey_ to install stuff on Windows](https://chocolatey.org/)
