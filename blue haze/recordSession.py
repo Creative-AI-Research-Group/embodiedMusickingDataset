@@ -48,13 +48,10 @@ class RecordSession:
 
         self.audio_recorder = QAudioRecorder()
 
-        self.ASSETS_BACKING_AUDIO_FOLDER = 'assets/audio_backing/'
         self.backing_track_player = PlayBackTrack()
 
         self.database = None
 
-        self.BITALINO_BAUDRATE = 10
-        self.BITALINO_ACQ_CHANNELS = [0]
         self.bitalino = None
         self.body_parts_list = ['nose', 'neck', 'r_shoudler', 'r_elbow', 'r_wrist', 'l_shoudler',
                                 'l_elbow', 'l_wrist', 'r_eye', 'l_eye', 'r_ear', 'l_ear']
@@ -66,18 +63,17 @@ class RecordSession:
             self.realsense = SkeletonReader()
 
         self.thread_get_data = None
-        self.GET_DATA_INTERVAL = self.BITALINO_BAUDRATE / 1000
+        self.GET_DATA_INTERVAL = cfg.BITALINO_BAUDRATE / 1000
 
         self.loop = None
 
     def setup_bitalino(self):
         # BITalino instantiate object
-        bitalino_mac_address = "98:D3:B1:FD:3D:1F"
         self.n_samples = 1
         self.digital_output = [1, 1]
 
         # Connect to BITalino
-        self.bitalino = BITalino(bitalino_mac_address)
+        self.bitalino = BITalino(cfg.BITALINO_MAC_ADDRESS)
 
         # Set battery threshold
         self.bitalino.battery(30)
@@ -104,7 +100,7 @@ class RecordSession:
         self.audio_interface = audio_interface
 
         if cfg.HARDWARE:
-            self.bitalino.start(self.BITALINO_BAUDRATE, self.BITALINO_ACQ_CHANNELS)
+            self.bitalino.start(cfg.BITALINO_BAUDRATE, cfg.BITALINO_ACQ_CHANNELS)
             self.brainbit.start()
             self.realsense.start()
 
@@ -112,7 +108,7 @@ class RecordSession:
         self.audio_recording()
 
         # play the backtrack
-        backing_track_file = '{}{}'.format(self.ASSETS_BACKING_AUDIO_FOLDER, back_track)
+        backing_track_file = '{}{}'.format(cfg.ASSETS_BACKING_AUDIO_FOLDER, back_track)
         self.backing_track_player.play(backing_track_file)
 
         self.database = Database(self.session_id,
