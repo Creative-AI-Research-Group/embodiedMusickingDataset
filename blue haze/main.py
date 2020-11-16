@@ -15,7 +15,6 @@
 # todo: include backing track ID in mongoDB
 # todo: add timestamp delta between ts(n) and ts(n-1)
 
-
 from PySide2.QtWidgets import *
 from PySide2.QtMultimedia import *
 from PySide2.QtMultimediaWidgets import QCameraViewfinder
