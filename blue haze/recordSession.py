@@ -86,7 +86,7 @@ class RecordSession:
         self.bitalino.battery(30)
 
         # Read BITalino version
-        logging.info(self.bitalino.version())
+        utls.logger.info(self.bitalino.version())
 
     def start_recording(self,
                         session_name,
@@ -211,9 +211,9 @@ class RecordSession:
             # parse and label brainbit data
             brainbit_data = self.brainbit_parse(raw_brainbit_data)
 
-            logger.debug('BITALINO: {}'.format(bitalino_data))
-            logger.debug('BRAINBIT: {}'.format(brainbit_data))
-            logger.debug('REALSENSE: {}'.format(skeleton_data))
+            utls.logger.debug('BITALINO: {}'.format(bitalino_data))
+            utls.logger.debug('BRAINBIT: {}'.format(brainbit_data))
+            utls.logger.debug('REALSENSE: {}'.format(skeleton_data))
 
         # insert data in the database
         self.loop.run_until_complete(self.database.insert_document(timestamp,
