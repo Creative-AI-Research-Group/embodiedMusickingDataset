@@ -52,7 +52,6 @@ class MainWindow(QMainWindow):
         self.record_session = RecordSession()
 
         # folders
-        self.ASSETS_IMAGES_FOLDER = 'assets/images/'
         self.ASSETS_BACKING_AUDIO_FOLDER = 'assets/audio_backing/'
 
         self.view_finder = QCameraViewfinder()
@@ -167,15 +166,15 @@ class MainWindow(QMainWindow):
 
         # hardware
         bullet_bitalino_label = QLabel()
-        bullet_bitalino_label.setPixmap(self.ASSETS_IMAGES_FOLDER + 'hardware_idle.png')
+        bullet_bitalino_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_idle.png')
         bitalino_label = QLabel('Bitalino')
 
         bullet_brainbit_label = QLabel()
-        bullet_brainbit_label.setPixmap(self.ASSETS_IMAGES_FOLDER + 'hardware_idle.png')
+        bullet_brainbit_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_idle.png')
         brainbit_label = QLabel('Brainbit')
 
         bullet_realsense_label = QLabel()
-        bullet_realsense_label.setPixmap(self.ASSETS_IMAGES_FOLDER + 'hardware_idle.png')
+        bullet_realsense_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_idle.png')
         realsense_label = QLabel('RealSense camera')
 
         refresh_hardware_button = QPushButton('Refresh hardware')
@@ -205,7 +204,7 @@ class MainWindow(QMainWindow):
         record_button_layout = QHBoxLayout()
 
         # rec image
-        self.recording_label.setPixmap(self.ASSETS_IMAGES_FOLDER + 'gray_rec.png')
+        self.recording_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'gray_rec.png')
         record_button_layout.addStretch(1)
         record_button_layout.addWidget(self.recording_label)
         record_button_layout.addWidget(self.record_stop_button)
@@ -239,7 +238,7 @@ class MainWindow(QMainWindow):
         if self.recording:
             # it is already recording
             # we will stop the session
-            self.recording_label.setPixmap(self.ASSETS_IMAGES_FOLDER + 'gray_rec.png')
+            self.recording_label.setPixmap(cfg.ASSETS_IMAGE_FOLDER + 'gray_rec.png')
             self.record_stop_button.setText('Record session')
             # enable fields
             self.session_name.setEnabled(True)
@@ -265,7 +264,7 @@ class MainWindow(QMainWindow):
             if modules.utils.PLATFORM == 'Windows' or modules.utils.PLATFORM == 'Linux':
                 self.camera.stop()
 
-            self.recording_label.setPixmap(self.ASSETS_IMAGES_FOLDER + 'red_rec.png')
+            self.recording_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'red_rec.png')
             self.record_stop_button.setText('Recording… Press here to stop')
             # disable fields
             self.session_name.setEnabled(False)

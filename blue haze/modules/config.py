@@ -12,5 +12,8 @@ from configparser import ConfigParser
 config_object = ConfigParser()
 config_object.read('config.ini')
 
-UI_WIDTH = int(config_object["UI"]["size_w"])
-UI_HEIGHT = int(config_object["UI"]["size_h"])
+UI_WIDTH = int(config_object['UI']['size_w'])
+UI_HEIGHT = int(config_object['UI']['size_h'])
+
+ASSETS_IMAGES_FOLDER = config_object['FOLDERS']['images']
+ASSETS_BACKING_AUDIO_FOLDER = config_object['FOLDERS']['backing_audio']
