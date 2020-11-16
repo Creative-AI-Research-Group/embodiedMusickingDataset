@@ -334,7 +334,6 @@ class MainWindow(QMainWindow):
         while True:
             if self.record_session.video_process.poll() is not None:
                 break
-        utls.logger.debug('Video has stopped')
         self.change_camera()
 
     def start_camera(self):
