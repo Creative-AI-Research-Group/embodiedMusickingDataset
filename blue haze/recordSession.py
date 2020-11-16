@@ -20,9 +20,10 @@ import time
 import threading
 import asyncio
 
-import modules.utils
+import modules.utils as utls
+import modules.config as cfg
 
-if not NO_HARDWARE:
+if cfg.HARDWARE:
     from bitalinoReader import *
     from brainbitReader import *
     from skeletontracker import *
@@ -59,7 +60,7 @@ class RecordSession:
                                 'l_elbow', 'l_wrist', 'r_eye', 'l_eye', 'r_ear', 'l_ear']
         self.brainbit_eeg_labels = ['eeg-T3', 'eeg-T4', 'eeg-O1', 'eeg-O2']
 
-        if not NO_HARDWARE:
+        if cfg.HARDWARE:
             self.setup_bitalino()
             self.brainbit = BrainbitReader()
             self.realsense = SkeletonReader()
@@ -102,7 +103,7 @@ class RecordSession:
         self.video_source = video_source
         self.audio_interface = audio_interface
 
-        if not NO_HARDWARE:
+        if cfg.HARDWARE:
             self.bitalino.start(self.BITALINO_BAUDRATE, self.BITALINO_ACQ_CHANNELS)
             self.brainbit.start()
             self.realsense.start()
@@ -140,14 +141,14 @@ class RecordSession:
         # list video and audio devices on Windows:
         # https://trac.ffmpeg.org/wiki/DirectShow
         # ffmpeg -list_devices true -f dshow -i dummy
-        if modules.utils.PLATFORM == 'Windows':
+        if utls.PLATFORM == 'Windows':
             cmd = ['ffmpeg', '-f', 'dshow',
                    '-framerate', '30',
                    '-i', 'video={}'.format(self.video_source),
                    '-q:v', '3',
                    '-b:v', '2M',
                    self.video_file_name]
-        elif modules.utils.PLATFORM == 'Darwin':
+        elif utls.PLATFORM == 'Darwin':
             # for Mac, we can change it to:
             # ffmpeg -f avfoundation -framerate 30 -video_size 1280x720 -i "Microsoft":none out.avi
             # https://trac.ffmpeg.org/wiki/Capture/Webcam
@@ -157,7 +158,7 @@ class RecordSession:
                    '-video_size', '1280x720',
                    '-i', '0:none',
                    self.video_file_name]
-        elif modules.utils.PLATFORM == 'Linux':
+        elif utls.PLATFORM == 'Linux':
             # https://trac.ffmpeg.org/wiki/Capture/Webcam
             # v4l2-ctl --list-devices
             cmd = ['ffmpeg', '-f', 'v4l2',
@@ -171,14 +172,14 @@ class RecordSession:
         audio_settings = QAudioEncoderSettings()
         self.audio_file_name = '{}/{}.wav'.format(self.video_audio_path,
                                                   self.session_name)
-        if modules.utils.PLATFORM == 'Darwin':
+        if utls.PLATFORM == 'Darwin':
             # MacOs automatically adds .wav by itself
             audio_settings.setCodec('audio/FLAC')
             self.audio_file_name = '{}/{}'.format(self.video_audio_path,
                                                   self.session_name)
-        elif modules.utils.PLATFORM == 'Linux':
+        elif utls.PLATFORM == 'Linux':
             audio_settings.setCodec('audio/x-flac')
-        elif modules.utils.PLATFORM == 'Windows':
+        elif utls.PLATFORM == 'Windows':
             audio_settings.setCodec('audio/pcm')
         audio_settings.setQuality(QMultimedia.VeryHighQuality)
         self.audio_recorder.setEncodingSettings(audio_settings)
@@ -193,7 +194,7 @@ class RecordSession:
         brainbit_data = ['brainbit data here']
         skeleton_data = ['skeleton data here']
         print('TIMESTAMP: {}'.format(timestamp))
-        if not NO_HARDWARE:
+        if cfg.HARDWARE:
             bitalino_data = self.bitalino.read(self.n_samples)
             raw_brainbit_data = self.brainbit.read()
             raw_skeleton_data = self.realsense.read()
@@ -272,7 +273,7 @@ class RecordSession:
         self.audio_recorder.stop()
         self.video_process.terminate()
         self.database.close()
-        if not NO_HARDWARE:
+        if cfg.HARDWARE:
             self.bitalino.stop()
             self.brainbit.terminate()
             self.realsense.terminate()

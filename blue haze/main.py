@@ -8,7 +8,6 @@
 
 # todo: fix the backtrack button status when playing
 # todo: 'unduplicate' audio inputs
-# todo: create a config file (ex. cfg.ASSETS_BACKING_AUDIO_FOLDER = 'assets/audio_backing/')
 # todo: autostop of 3-5 seconds following backing track end
 # todo: insert field in UI for input of audio record level (1-100)
 # todo: press stop record temp freezes UI. this is released once record button is pressed. TO MONITOR, AS IT SEEMS IT GOT FIXED
@@ -27,7 +26,7 @@ import os
 import sys
 import asyncio
 
-import modules.utils
+import modules.utils as utls
 import modules.config as cfg
 
 
@@ -246,7 +245,7 @@ class MainWindow(QMainWindow):
             # stop session
             self.record_session.stop()
             # restart camera
-            if modules.utils.PLATFORM == 'Windows' or modules.utils.PLATFORM == 'Linux':
+            if utls.PLATFORM == 'Windows' or utls.PLATFORM == 'Linux':
                 self.wait_for_video_process()
         else:
             # it is not yet recording
@@ -258,7 +257,7 @@ class MainWindow(QMainWindow):
             # nor on Windows. This is the reason why we are
             # stopping the camera here and restarting it
             # after the recording is finished
-            if modules.utils.PLATFORM == 'Windows' or modules.utils.PLATFORM == 'Linux':
+            if utls.PLATFORM == 'Windows' or utls.PLATFORM == 'Linux':
                 self.camera.stop()
 
             self.recording_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'red_rec.png')
