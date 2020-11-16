@@ -28,6 +28,7 @@ import sys
 import asyncio
 
 import modules.utils
+import modules.config as cfg
 
 
 class MainWindow(QMainWindow):
@@ -35,7 +36,7 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.setWindowTitle('Blue Haze')
-        self.setFixedSize(1350, 950)
+        self.setFixedSize(cfg.UI_WIDTH, cfg.UI_HEIGHT)
 
         self.session_name = QLineEdit()
         self.video_file_path = QLineEdit()
