@@ -20,6 +20,7 @@ import asyncio
 
 import modules.utils as utls
 import modules.config as cfg
+import modules.datastructures as datastr
 
 if cfg.HARDWARE:
     from bitalinoReader import *
@@ -33,27 +34,30 @@ def current_milli_time():
 
 class RecordSession:
     def __init__(self):
-        self.session_id = None
-        self.session_date = None
-        self.session_time_start = None
-        self.session_name = None
-        self.video_audio_path = None
-        self.audio_file_name = None
-        self.video_file_name = None
-        self.video_process = None
-        self.audio_interface = None
-        self.video_source = None
+        self.session = datastr.RecordSessionData()
 
         self.audio_recorder = QAudioRecorder()
-
         self.backing_track_player = PlayBackTrack()
 
         self.database = None
 
         self.bitalino = None
-        self.body_parts_list = ['nose', 'neck', 'r_shoudler', 'r_elbow', 'r_wrist', 'l_shoudler',
-                                'l_elbow', 'l_wrist', 'r_eye', 'l_eye', 'r_ear', 'l_ear']
-        self.brainbit_eeg_labels = ['eeg-T3', 'eeg-T4', 'eeg-O1', 'eeg-O2']
+        self.body_parts_list = ['nose',
+                                'neck',
+                                'r_shoudler',
+                                'r_elbow',
+                                'r_wrist',
+                                'l_shoudler',
+                                'l_elbow',
+                                'l_wrist',
+                                'r_eye',
+                                'l_eye',
+                                'r_ear',
+                                'l_ear']
+        self.brainbit_eeg_labels = ['eeg-T3',
+                                    'eeg-T4',
+                                    'eeg-O1',
+                                    'eeg-O2']
 
         if cfg.HARDWARE:
             self.setup_bitalino()
@@ -87,15 +91,15 @@ class RecordSession:
                         back_track):
         self.loop = asyncio.get_event_loop()
 
-        self.session_id = shortuuid.uuid()
-        self.session_date = time.strftime('%Y%m%d')
-        self.session_time_start = current_milli_time()
-        self.session_name = '{}_{}_{}'.format(self.session_date,
+        self.session.id = shortuuid.uuid()
+        self.session.date = time.strftime('%Y%m%d')
+        self.session.time_start = current_milli_time()
+        self.session.name = '{}_{}_{}'.format(self.session.date,
                                               session_name,
-                                              self.session_id)
-        self.video_audio_path = video_audio_path
-        self.video_source = video_source
-        self.audio_interface = audio_interface
+                                              self.session.id)
+        self.session.video_audio_path = video_audio_path
+        self.session.video_source = video_source
+        self.session.audio_interface = audio_interface
 
         if cfg.HARDWARE:
             self.bitalino.start(cfg.BITALINO_BAUDRATE, cfg.BITALINO_ACQ_CHANNELS)
@@ -109,9 +113,9 @@ class RecordSession:
         backing_track_file = '{}{}'.format(cfg.ASSETS_BACKING_AUDIO_FOLDER, back_track)
         self.backing_track_player.play(backing_track_file)
 
-        self.database = Database(self.session_id,
-                                 self.session_name,
-                                 self.audio_file_name,
+        self.database = Database(self.session.id,
+                                 self.session.name,
+                                 self.session.audio_file_name,
                                  self.video_file_name)
 
         self.thread_get_data = threading.Event()
@@ -125,8 +129,8 @@ class RecordSession:
         # https://doc.qt.io/qt-5/qtmultimedia-windows.html
         # to see if it gets supported
         # on Windows
-        self.video_file_name = '{}/{}.avi'.format(self.video_audio_path,
-                                                  self.session_name)
+        self.video_file_name = '{}/{}.avi'.format(self.session.video_audio_path,
+                                                  self.session.name)
 
         # see:
         # https://trac.ffmpeg.org/wiki/Capture/Webcam
@@ -138,7 +142,7 @@ class RecordSession:
         if utls.PLATFORM == 'Windows':
             cmd = ['ffmpeg', '-f', 'dshow',
                    '-framerate', '30',
-                   '-i', 'video={}'.format(self.video_source),
+                   '-i', 'video={}'.format(self.session.video_source),
                    '-q:v', '3',
                    '-b:v', '2M',
                    self.video_file_name]
@@ -160,17 +164,17 @@ class RecordSession:
                    '-video_size', '1280x720',
                    '-i', '/dev/video0',
                    self.video_file_name]
-        self.video_process = Popen(cmd)
+        self.session.video_process = Popen(cmd)
 
     def audio_recording(self):
         audio_settings = QAudioEncoderSettings()
-        self.audio_file_name = '{}/{}.wav'.format(self.video_audio_path,
-                                                  self.session_name)
+        self.session.audio_file_name = '{}/{}.wav'.format(self.session.video_audio_path,
+                                                  self.session.name)
         if utls.PLATFORM == 'Darwin':
             # MacOs automatically adds .wav by itself
             audio_settings.setCodec('audio/FLAC')
-            self.audio_file_name = '{}/{}'.format(self.video_audio_path,
-                                                  self.session_name)
+            self.session.audio_file_name = '{}/{}'.format(self.session.video_audio_path,
+                                                  self.session.name)
         elif utls.PLATFORM == 'Linux':
             audio_settings.setCodec('audio/x-flac')
         elif utls.PLATFORM == 'Windows':
@@ -178,12 +182,12 @@ class RecordSession:
         audio_settings.setQuality(QMultimedia.VeryHighQuality)
         self.audio_recorder.setEncodingSettings(audio_settings)
         self.audio_recorder.setVolume(0.3)
-        self.audio_recorder.setOutputLocation(QUrl.fromLocalFile(self.audio_file_name))
-        self.audio_recorder.setAudioInput(self.audio_interface.deviceName())
+        self.audio_recorder.setOutputLocation(QUrl.fromLocalFile(self.session.audio_file_name))
+        self.audio_recorder.setAudioInput(self.session.audio_interface.deviceName())
         self.audio_recorder.record()
 
     def get_data(self, stop_thread_get_data):
-        timestamp = current_milli_time() - self.session_time_start
+        timestamp = current_milli_time() - self.session.time_start
         bitalino_data = ['bitalino data here']
         brainbit_data = ['brainbit data here']
         skeleton_data = ['skeleton data here']
@@ -264,7 +268,7 @@ class RecordSession:
         self.backing_track_player.stop()
         self.thread_get_data.set()
         self.audio_recorder.stop()
-        self.video_process.terminate()
+        self.session.video_process.terminate()
         self.database.close()
         if cfg.HARDWARE:
             self.bitalino.stop()
