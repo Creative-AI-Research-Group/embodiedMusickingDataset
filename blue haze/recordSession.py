@@ -7,8 +7,6 @@
 # Craig Vear - cvear@dmu.ac.uk
 #
 
-NO_HARDWARE = True
-
 from PySide2.QtMultimedia import QAudioRecorder, QAudioEncoderSettings, QMultimedia
 from PySide2.QtCore import QUrl
 from database import *
@@ -67,6 +65,8 @@ class RecordSession:
 
         self.loop = None
 
+        utls.logger.debug('TESTE')
+
     def setup_bitalino(self):
         # BITalino instantiate object
         self.n_samples = 1
@@ -79,7 +79,7 @@ class RecordSession:
         self.bitalino.battery(30)
 
         # Read BITalino version
-        print(self.bitalino.version())
+        logging.info(self.bitalino.version())
 
     def start_recording(self,
                         session_name,
@@ -189,7 +189,6 @@ class RecordSession:
         bitalino_data = ['bitalino data here']
         brainbit_data = ['brainbit data here']
         skeleton_data = ['skeleton data here']
-        print('TIMESTAMP: {}'.format(timestamp))
         if cfg.HARDWARE:
             bitalino_data = self.bitalino.read(self.n_samples)
             raw_brainbit_data = self.brainbit.read()
@@ -205,9 +204,9 @@ class RecordSession:
             # parse and label brainbit data
             brainbit_data = self.brainbit_parse(raw_brainbit_data)
 
-            print('BITALINO: {}'.format(bitalino_data))
-            print('BRAINBIT: {}'.format(brainbit_data))
-            print('REALSENSE: {}'.format(skeleton_data))
+            logging.debug('BITALINO: {}'.format(bitalino_data))
+            logging.debug('BRAINBIT: {}'.format(brainbit_data))
+            logging.debug('REALSENSE: {}'.format(skeleton_data))
 
         # insert data in the database
         self.loop.run_until_complete(self.database.insert_document(timestamp,
