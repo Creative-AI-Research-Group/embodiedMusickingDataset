@@ -25,6 +25,7 @@ from recordSession import RecordSession
 import os
 import sys
 import asyncio
+import nest_asyncio
 
 import modules.utils as utls
 import modules.config as cfg
@@ -60,6 +61,8 @@ class MainWindow(QMainWindow):
 
         self.camera = QCamera(self.list_cameras.currentData())
         self.start_camera()
+
+        nest_asyncio.apply()
 
     def setup_ui(self):
         record_tab_widget = QWidget()
@@ -329,7 +332,6 @@ class MainWindow(QMainWindow):
         loop.run_until_complete(async_function)
 
     async def check_video_process_terminate(self):
-        utls.logger.debug('Trying to stop the video')
         while True:
             if self.record_session.video_process.poll() is not None:
                 break

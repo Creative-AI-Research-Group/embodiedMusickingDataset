@@ -17,6 +17,7 @@ import shortuuid
 import time
 import threading
 import asyncio
+import nest_asyncio
 
 import modules.utils as utls
 import modules.config as cfg
@@ -70,6 +71,8 @@ class RecordSession:
         self.GET_DATA_INTERVAL = cfg.BITALINO_BAUDRATE / 1000
 
         self.loop = None
+
+        nest_asyncio.apply()
 
     def setup_bitalino(self):
         # BITalino instantiate object
