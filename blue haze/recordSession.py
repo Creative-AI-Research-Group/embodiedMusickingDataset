@@ -145,44 +145,19 @@ class RecordSession:
         # list video and audio devices on Windows:
         # https://trac.ffmpeg.org/wiki/DirectShow
         # ffmpeg -list_devices true -f dshow -i dummy
-        if utls.PLATFORM == 'Windows':
-            cmd = ['ffmpeg', '-f', 'dshow',
-                   '-framerate', '30',
-                   '-i', 'video={}'.format(self.session.video_source),
-                   '-q:v', '3',
-                   '-b:v', '2M',
-                   self.video_file_name]
-        elif utls.PLATFORM == 'Darwin':
-            # https://trac.ffmpeg.org/wiki/Capture/Webcam
-            # ffmpeg -f avfoundation -list_devices true -i ""
-            cmd = ['ffmpeg', '-f', 'avfoundation',
-                   '-framerate', '30',
-                   '-video_size', '1280x720',
-                   '-i', '0:none',
-                   self.video_file_name]
-        elif utls.PLATFORM == 'Linux':
-            # https://trac.ffmpeg.org/wiki/Capture/Webcam
-            # v4l2-ctl --list-devices
-            cmd = ['ffmpeg', '-f', 'v4l2',
-                   '-framerate', '25',
-                   '-video_size', '1280x720',
-                   '-i', '/dev/video0',
-                   self.video_file_name]
+        cmd = ['ffmpeg', '-f', 'dshow',
+               '-framerate', '30',
+               '-i', 'video={}'.format(self.session.video_source),
+               '-q:v', '3',
+               '-b:v', '2M',
+               self.video_file_name]
         self.video_process = Popen(cmd)
 
     def audio_recording(self):
         audio_settings = QAudioEncoderSettings()
         self.session.audio_file_name = '{}/{}.wav'.format(self.session.video_audio_path,
-                                                  self.session.name)
-        if utls.PLATFORM == 'Darwin':
-            # MacOs automatically adds .wav by itself
-            audio_settings.setCodec('audio/FLAC')
-            self.session.audio_file_name = '{}/{}'.format(self.session.video_audio_path,
-                                                  self.session.name)
-        elif utls.PLATFORM == 'Linux':
-            audio_settings.setCodec('audio/x-flac')
-        elif utls.PLATFORM == 'Windows':
-            audio_settings.setCodec('audio/pcm')
+                                                          self.session.name)
+        audio_settings.setCodec('audio/pcm')
         audio_settings.setQuality(QMultimedia.VeryHighQuality)
         self.audio_recorder.setEncodingSettings(audio_settings)
         self.audio_recorder.setVolume(0.3)

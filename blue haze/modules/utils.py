@@ -7,15 +7,8 @@
 # Craig Vear - cvear@dmu.ac.uk
 #
 
-import platform
 import logging
-
 import modules.config as cfg
-
-# Linux: Linux
-# Mac: Darwin
-# Windows: Windows
-PLATFORM = platform.system()
 
 logger = logging.getLogger('blue_haze')
 

@@ -248,8 +248,7 @@ class MainWindow(QMainWindow):
             # stop session
             self.record_session.stop()
             # restart camera
-            if utls.PLATFORM == 'Windows' or utls.PLATFORM == 'Linux':
-                self.wait_for_video_process()
+            self.wait_for_video_process()
         else:
             # it is not yet recording
             # we will start the session
@@ -260,8 +259,7 @@ class MainWindow(QMainWindow):
             # nor on Windows. This is the reason why we are
             # stopping the camera here and restarting it
             # after the recording is finished
-            if utls.PLATFORM == 'Windows' or utls.PLATFORM == 'Linux':
-                self.camera.stop()
+            self.camera.stop()
 
             self.recording_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'red_rec.png')
             self.record_stop_button.setText('Recording… Press here to stop')
