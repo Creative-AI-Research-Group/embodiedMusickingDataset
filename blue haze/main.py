@@ -295,6 +295,7 @@ class MainWindow(QMainWindow):
             self.list_cameras.setEnabled(True)
             self.list_audio_devices.setEnabled(True)
             self.list_backing_tracks.setEnabled(True)
+            self.volume_slider.setEnabled(True)
             # stop session
             self.record_session.stop()
             # restart camera
@@ -319,6 +320,7 @@ class MainWindow(QMainWindow):
             self.list_cameras.setEnabled(False)
             self.list_audio_devices.setEnabled(False)
             self.list_backing_tracks.setEnabled(False)
+            self.volume_slider.setEnabled(False)
             # start session
             if self.backing_track_player.player.isPlaying():
                 self.backing_track_player.stop()
