@@ -109,13 +109,13 @@ class RecordSession:
         self.session.audio_interface = audio_interface
         self.session.mic_volume = mic_volume / 10
 
+        self.video_recording()
+        self.audio_recording()
+
         if cfg.HARDWARE:
             self.bitalino.start(cfg.BITALINO_BAUDRATE, cfg.BITALINO_ACQ_CHANNELS)
             self.brainbit.start()
             self.realsense.start()
-
-        self.video_recording()
-        self.audio_recording()
 
         # play the backtrack
         backing_track_file = '{}{}'.format(cfg.ASSETS_BACKING_AUDIO_FOLDER, back_track)
