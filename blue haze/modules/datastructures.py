@@ -21,3 +21,4 @@ class RecordSessionData:
     video_file_name: str = None
     audio_interface: str = None
     video_source: str = None
+    mic_volume: float = 3

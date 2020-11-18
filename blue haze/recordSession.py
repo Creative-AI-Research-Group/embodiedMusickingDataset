@@ -43,6 +43,7 @@ class RecordSession:
         self.backing_track_player = PlayBackTrack()
 
         self.database = None
+        self.video_file_name = None
 
         self.bitalino = None
         self.body_parts_list = ['nose',
@@ -93,7 +94,8 @@ class RecordSession:
                         video_audio_path,
                         video_source,
                         audio_interface,
-                        back_track):
+                        back_track,
+                        mic_volume):
         self.loop = asyncio.get_event_loop()
 
         self.session.id = shortuuid.uuid()
@@ -105,6 +107,7 @@ class RecordSession:
         self.session.video_audio_path = video_audio_path
         self.session.video_source = video_source
         self.session.audio_interface = audio_interface
+        self.session.mic_volume = mic_volume / 10
 
         if cfg.HARDWARE:
             self.bitalino.start(cfg.BITALINO_BAUDRATE, cfg.BITALINO_ACQ_CHANNELS)
@@ -121,6 +124,7 @@ class RecordSession:
         self.database = Database(self.session.id,
                                  self.session.name,
                                  self.session.audio_file_name,
+                                 self.session.mic_volume,
                                  self.video_file_name,
                                  back_track)
 
@@ -160,7 +164,7 @@ class RecordSession:
         audio_settings.setCodec('audio/pcm')
         audio_settings.setQuality(QMultimedia.VeryHighQuality)
         self.audio_recorder.setEncodingSettings(audio_settings)
-        self.audio_recorder.setVolume(0.3)
+        self.audio_recorder.setVolume(self.session.mic_volume)
         self.audio_recorder.setOutputLocation(QUrl.fromLocalFile(self.session.audio_file_name))
         self.audio_recorder.setAudioInput(self.session.audio_interface.deviceName())
         self.audio_recorder.record()

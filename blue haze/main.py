@@ -9,7 +9,6 @@
 # todo: fix the backtrack button status when playing
 # todo: 'unduplicate' audio inputs
 # todo: autostop of 3-5 seconds following backing track end
-# todo: insert field in UI for input of audio record level (1-100)
 # todo: add timestamp delta between ts(n) and ts(n-1)
 
 from PySide2.QtWidgets import *
@@ -329,7 +328,8 @@ class MainWindow(QMainWindow):
                                                 self.video_file_path.text(),
                                                 self.list_cameras.currentData().description(),
                                                 self.list_audio_devices.currentData(),
-                                                self.list_backing_tracks.currentText())
+                                                self.list_backing_tracks.currentText(),
+                                                int(self.volume_slider.value()))
         self.recording = not self.recording
 
     @Slot()
