@@ -7,7 +7,6 @@
 #
 
 # todo: fix the backtrack button status when playing
-# todo: 'unduplicate' audio inputs
 # todo: autostop of 3-5 seconds following backing track end
 # todo: add timestamp delta between ts(n) and ts(n-1)
 
@@ -61,6 +60,7 @@ class MainWindow(QMainWindow):
         self.video_file_path = QLineEdit()
         self.list_cameras = QComboBox()
         self.list_audio_devices = QComboBox()
+        self.list_audio_devices.setDuplicatesEnabled(False)
         self.list_backing_tracks = QComboBox()
         self.play_stop_backing_track_button = QPushButton('Play backing track')
 
@@ -398,9 +398,12 @@ class MainWindow(QMainWindow):
             self.list_cameras.addItem(camera_info.description(), camera_info)
 
     def get_list_audio_devices(self):
+        temp_list = []
         # list the available audio devices
         for device_info in QAudioDeviceInfo.availableDevices(QAudio.AudioInput):
-            self.list_audio_devices.addItem(device_info.deviceName(), device_info)
+            if device_info.deviceName() not in temp_list:
+                self.list_audio_devices.addItem(device_info.deviceName(), device_info)
+                temp_list.append(device_info.deviceName())
 
     def get_list_backing_tracks(self):
         # list the available audio_backing tracks
