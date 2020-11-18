@@ -20,6 +20,7 @@ HARDWARE = config_object['HARDWARE'].getboolean('hardware')
 
 UI_WIDTH = config_object['UI'].getint('size_w')
 UI_HEIGHT = config_object['UI'].getint('size_h')
+UI_INITIAL_MIC_VOLUME = config_object['UI'].getint('initial_mic_volume')
 
 ASSETS_IMAGES_FOLDER = config_object['FOLDERS']['images']
 ASSETS_BACKING_AUDIO_FOLDER = config_object['FOLDERS']['backing_audio']

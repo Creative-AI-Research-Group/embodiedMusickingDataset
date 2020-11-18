@@ -31,6 +31,7 @@ import modules.config as cfg
 
 
 def dark_palette():
+    # dark theme
     dark_palette_colours = QPalette()
     dark_palette_colours.setColor(QPalette.Window, QColor(53, 53, 53))
     dark_palette_colours.setColor(QPalette.WindowText, Qt.white)
@@ -52,30 +53,49 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        # window basic properties
         self.setWindowTitle('Blue Haze')
         self.setFixedSize(cfg.UI_WIDTH, cfg.UI_HEIGHT)
 
+        # setup group
         self.session_name = QLineEdit()
         self.video_file_path = QLineEdit()
         self.list_cameras = QComboBox()
         self.list_audio_devices = QComboBox()
         self.list_backing_tracks = QComboBox()
-        self.record_stop_button = QPushButton('Record session')
         self.play_stop_backing_track_button = QPushButton('Play backing track')
-        self.backing_track_player = PlayBackTrack()
+
+        # record bottom area
+        self.record_stop_button = QPushButton('Record session')
         self.recording_label = QLabel()
-        self.recording = False
 
+        # mic volume
+        self.volume_slider = QSlider()
+        self.volume_slider.setOrientation(Qt.Horizontal)
+        self.volume_slider.setTickInterval(1)
+        self.volume_slider.setMinimum(1)
+        self.volume_slider.setMaximum(10)
+        self.volume_slider.setValue(cfg.UI_INITIAL_MIC_VOLUME)
+        self.volume_slider.valueChanged.connect(self.change_value_mic_volume_label)
+        self.volume_slider_label = QLabel('3')
+
+        # objects
+        self.backing_track_player = PlayBackTrack()
         self.record_session = RecordSession()
-
         self.view_finder = QCameraViewfinder()
 
+        # states
+        self.recording = False
+
+        # hardware setup
         self.get_list_cameras()
         self.get_list_audio_devices()
         self.get_list_backing_tracks()
 
+        # ui setup
         self.setup_ui()
 
+        # start the camera
         self.camera = QCamera(self.list_cameras.currentData())
         self.start_camera()
 
@@ -155,6 +175,9 @@ class MainWindow(QMainWindow):
         # connect the play_stop_backing_track_button signal
         self.play_stop_backing_track_button.clicked.connect(self.play_stop_backing_track)
 
+        # mic volume slider
+        mic_volume_slider_label = QLabel('Mic volume: ')
+
         # fields layout
         # session name
         fields.addWidget(session_name_label, 0, 0)
@@ -179,6 +202,11 @@ class MainWindow(QMainWindow):
         fields.addWidget(list_backing_tracks_label, 4, 0)
         fields.addWidget(self.list_backing_tracks, 4, 1)
         fields.addWidget(self.play_stop_backing_track_button, 4, 2)
+
+        # mic volume slider
+        fields.addWidget(mic_volume_slider_label, 5, 0)
+        fields.addWidget(self.volume_slider, 5, 1)
+        fields.addWidget(self.volume_slider_label, 5, 2)
 
         fields_group_box.setLayout(fields)
 
@@ -235,6 +263,9 @@ class MainWindow(QMainWindow):
         record_tab_layout.addWidget(record_button_group_box)
 
         return record_tab_layout
+
+    def change_value_mic_volume_label(self):
+        self.volume_slider_label.setText(str(self.volume_slider.value()))
 
     @Slot()
     def action_record_stop_button(self):
