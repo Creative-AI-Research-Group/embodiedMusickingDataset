@@ -240,6 +240,7 @@ class MainWindow(QMainWindow):
 
         # viewfinder
         view_finder_group_box = QGroupBox()
+        view_finder_group_box.setMinimumHeight(630)
         view_finder_layout = QGridLayout()
         view_finder_layout.addWidget(self.view_finder, 1, 1)
         view_finder_group_box.setLayout(view_finder_layout)
