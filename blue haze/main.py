@@ -394,8 +394,9 @@ class MainWindow(QMainWindow):
     def get_list_cameras(self):
         # list the available cameras
         for camera_info in QCameraInfo.availableCameras():
-            # if 'Intel' not in camera_info.description():
-            self.list_cameras.addItem(camera_info.description(), camera_info)
+            # do not list RealSense Depth Camera with RGB Module Depth
+            if 'RGB Module Depth' not in camera_info.description():
+                self.list_cameras.addItem(camera_info.description(), camera_info)
 
     def get_list_audio_devices(self):
         temp_list = []
