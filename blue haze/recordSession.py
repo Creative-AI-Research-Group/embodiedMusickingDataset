@@ -151,7 +151,8 @@ class RecordSession:
         # ffmpeg -list_devices true -f dshow -i dummy
         cmd = ['ffmpeg', '-f', 'dshow',
                '-framerate', '30',
-               '-i', 'video={}'.format(self.session.video_source),
+               '-i', 'video={}:audio={}'.format(self.session.video_source,
+                                                self.session.audio_interface.deviceName()),
                '-q:v', '3',
                '-b:v', '2M',
                self.video_file_name]
