@@ -23,10 +23,11 @@ import modules.utils as utls
 import modules.config as cfg
 import modules.datastructures as datastr
 
+# from skeletontracker import *
+
 if cfg.HARDWARE:
     from bitalinoReader import *
     from brainbitReader import *
-    from skeletontracker import *
 
 
 def current_milli_time():
@@ -63,10 +64,11 @@ class RecordSession:
                                     'eeg-O1',
                                     'eeg-O2']
 
+        self.realsense = utls.Realsense(False)
+
         if cfg.HARDWARE:
             self.setup_bitalino()
             self.brainbit = BrainbitReader()
-            self.realsense = SkeletonReader()
 
         self.thread_get_data = None
         self.GET_DATA_INTERVAL = cfg.BITALINO_BAUDRATE / 1000
@@ -115,7 +117,6 @@ class RecordSession:
         if cfg.HARDWARE:
             self.bitalino.start(cfg.BITALINO_BAUDRATE, cfg.BITALINO_ACQ_CHANNELS)
             self.brainbit.start()
-            self.realsense.start()
 
         # play the backtrack
         backing_track_file = '{}{}'.format(cfg.ASSETS_BACKING_AUDIO_FOLDER, back_track)
@@ -174,14 +175,16 @@ class RecordSession:
         timestamp = current_milli_time() - self.session.time_start
         bitalino_data = ['bitalino data here']
         brainbit_data = ['brainbit data here']
-        skeleton_data = ['skeleton data here']
+
+        # skeleton data
+        raw_skeleton_data = self.realsense.read_realsense()
+        # parse raw skeleton data
+        skeleton_data = self.skeleton_parse(raw_skeleton_data)
+        utls.logger.debug('REALSENSE: {}'.format(skeleton_data))
+
         if cfg.HARDWARE:
             bitalino_data = self.bitalino.read(self.n_samples)
             raw_brainbit_data = self.brainbit.read()
-            raw_skeleton_data = self.realsense.read()
-
-            # parse raw skeleton data
-            skeleton_data = self.skeleton_parse(raw_skeleton_data)
 
             # slicing usable bitalino data and convert to list
             bitalino_data = bitalino_data[0, -1]
@@ -192,7 +195,6 @@ class RecordSession:
 
             utls.logger.debug('BITALINO: {}'.format(bitalino_data))
             utls.logger.debug('BRAINBIT: {}'.format(brainbit_data))
-            utls.logger.debug('REALSENSE: {}'.format(skeleton_data))
 
         # insert data in the database
         self.loop.run_until_complete(self.database.insert_document(timestamp,
@@ -235,7 +237,7 @@ class RecordSession:
                 for coords in joint[-4:]:
                     joint_coord_list.append(coords[0:2])
 
-            # extract coord confidences for  1st 8 & last 4 joints
+            # extract coord confidences for 1st 8 & last 4 joints
             for conf in keypoint[1:2]:
                 # 1st 8
                 for value in conf[:8]:

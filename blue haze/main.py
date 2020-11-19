@@ -23,6 +23,7 @@ import os
 import sys
 import asyncio
 import nest_asyncio
+import threading
 
 import modules.utils as utls
 import modules.config as cfg
@@ -45,6 +46,19 @@ def dark_palette():
     dark_palette_colours.setColor(QPalette.Highlight, QColor(42, 130, 218))
     dark_palette_colours.setColor(QPalette.HighlightedText, Qt.black)
     return dark_palette_colours
+
+
+# thread slots
+def progress_fn(n):
+    utls.logger.info('{} done'.format(n))
+
+
+def print_output(s):
+    utls.logger.debug(s)
+
+
+def thread_complete():
+    utls.logger.debug('THREAD COMPLETE')
 
 
 class MainWindow(QMainWindow):
@@ -78,13 +92,12 @@ class MainWindow(QMainWindow):
         self.volume_slider.valueChanged.connect(self.change_value_mic_volume_label)
         self.volume_slider_label = QLabel('3')
 
-        # objects
-        self.backing_track_player = PlayBackTrack()
-        self.record_session = RecordSession()
-        self.view_finder = QCameraViewfinder()
-
         # states
         self.recording = False
+
+        # objects
+        self.backing_track_player = PlayBackTrack()
+        self.view_finder = QCameraViewfinder()
 
         # hardware setup
         self.get_list_cameras()
@@ -101,6 +114,14 @@ class MainWindow(QMainWindow):
         # see
         # https://stackoverflow.com/questions/46827007/runtimeerror-this-event-loop-is-already-running-in-python
         nest_asyncio.apply()
+
+        # realsense, bitalino and brainbit init
+        realsense = utls.Realsense()
+        thread = threading.Thread(target=realsense.start_realsense)
+        thread.start()
+
+        # record session object
+        self.record_session = RecordSession()
 
     def setup_ui(self):
         record_tab_widget = QWidget()
