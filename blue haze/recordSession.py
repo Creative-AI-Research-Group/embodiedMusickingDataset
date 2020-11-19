@@ -44,6 +44,7 @@ class RecordSession:
 
         self.database = None
         self.video_file_name = None
+        self.last_time_stamp = 0
 
         self.bitalino = None
         self.body_parts_list = ['nose',
@@ -175,6 +176,7 @@ class RecordSession:
 
     def get_data(self, stop_thread_get_data):
         timestamp = current_milli_time() - self.session.time_start
+        delta_time = self.delta_time(timestamp)
         bitalino_data = ['bitalino data here']
         brainbit_data = ['brainbit data here']
         skeleton_data = ['skeleton data here']
@@ -199,6 +201,7 @@ class RecordSession:
 
         # insert data in the database
         self.loop.run_until_complete(self.database.insert_document(timestamp,
+                                                                   delta_time,
                                                                    bitalino_data,
                                                                    brainbit_data,
                                                                    skeleton_data))
@@ -263,6 +266,12 @@ class RecordSession:
             skeleton_data[self.body_parts_list[d]] = dict_data
 
         return skeleton_data
+
+    def delta_time(self, now_time_stamp):
+        self.now_time_stamp = now_time_stamp
+        delta = self.now_time_stamp - self.last_time_stamp
+        self.last_time_stamp = self.now_time_stamp
+        return delta
 
     def stop(self):
         self.backing_track_player.stop()

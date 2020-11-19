@@ -31,14 +31,15 @@ class Database:
         db = self.client.blue_haze_database
         self.collection = db.blue_haze_posts
 
-    def insert(self, timestamp, bitalino_data, brainbit_data, skeleton_data):
+    def insert(self, timestamp, delta_time, bitalino_data, brainbit_data, skeleton_data):
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(self.insert_document(timestamp, bitalino_data, brainbit_data, skeleton_data))
+        loop.run_until_complete(self.insert_document(timestamp, delta_time, bitalino_data, brainbit_data, skeleton_data))
 
-    async def insert_document(self, timestamp, bitalino_data, brainbit_data, skeleton_data):
+    async def insert_document(self, timestamp, delta_time, bitalino_data, brainbit_data, skeleton_data):
         post = {'session_id': self.session_id,
                 'session_name': self.session_name,
                 'timestamp': timestamp,
+                'delta_time': delta_time,
                 'audio_file': self.audio_file,
                 'mic_volume': self.mic_volume,
                 'video_file': self.video_file,
