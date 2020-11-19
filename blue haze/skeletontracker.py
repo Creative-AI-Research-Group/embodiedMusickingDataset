@@ -143,6 +143,9 @@ if __name__ == '__main__':
     def skeleton_parse(raw_skeleton_data):
         body_parts_list = ['nose', 'neck', 'r_shoudler', 'r_elbow', 'r_wrist', 'l_shoudler',
                            'l_elbow', 'l_wrist', 'r_eye', 'l_eye', 'r_ear', 'l_ear']
+        dict_keys = ['coords', 'conf']
+
+        d = {}
 
         # create an array
         joint_coord_list = []
@@ -175,11 +178,18 @@ if __name__ == '__main__':
                 for value in conf[-4:]:
                     coord_conf_list.append(value)
 
+
         # print('body part list = ', body_parts_list)
         # print('joint coord list = ', joint_coord_list)
         # print('coord conf list = ', coord_conf_list)
 
-        skeleton_data = list(zip(body_parts_list, joint_coord_list, coord_conf_list))
+        data_dict = list(zip(joint_coord_list, coord_conf_list))
+
+        print(data_dict)
+
+        data = dict(zip(dict_keys, data_dict))
+
+        skeleton_data = dict(zip(body_parts_list, data))
 
         return skeleton_data
 
@@ -189,7 +199,7 @@ if __name__ == '__main__':
         raw_skeleton_data = skeleton.read()
         # [SkeletonKeypoints(joints=[Coordinate(x=435.42523193359375, y=148.125), Coordinate(x=379.1202392578125, y=241.875), Coordinate(x=292.7859191894531, y=238.125), Coordinate(x=334.07623291015625, y=380.625), Coordinate(x=424.1642150878906, y=309.375), Coordinate(x=457.94720458984375, y=245.625), Coordinate(x=-1.0, y=-1.0), Coordinate(x=-1.0, y=-1.0), Coordinate(x=-1.0, y=-1.0), Coordinate(x=-1.0, y=-1.0), Coordinate(x=-1.0, y=-1.0), Coordinate(x=472.9618835449219, y=331.875), Coordinate(x=563.0498657226562, y=223.125), Coordinate(x=-1.0, y=-1.0), Coordinate(x=416.6568908691406, y=125.625), Coordinate(x=439.17889404296875, y=129.375), Coordinate(x=349.0909118652344, y=121.875), Coordinate(x=-1.0, y=-1.0)], confidences=[0.6909244656562805, 0.47419416904449463, 0.4924190044403076, 0.5473593473434448, 0.18560904264450073, 0.16309253871440887, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1302783489227295, 0.21635708212852478, 0.0, 0.7184628844261169, 0.5419383645057678, 0.7876936197280884, 0.0], id=1, id_confirmed_on_cloud=False)]
 
-        print('raw data', raw_skeleton_data)
+        # print('raw data', raw_skeleton_data)
 
         # parse data into set arrays
         skeleton_data = skeleton_parse(raw_skeleton_data)

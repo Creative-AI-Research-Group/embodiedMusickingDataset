@@ -205,19 +205,15 @@ class RecordSession:
             threading.Timer(self.GET_DATA_INTERVAL, self.get_data, [self.thread_get_data]).start()
 
     def brainbit_parse(self, raw_brainbit_data):
-        # setup a temp list for each parse
-        temp_list = []
+        # setup dict for each parse
+        d = {}
 
         # parse only the fields we need from timestamp, eegt2, eegt4, eeg01, eeg02, X, X, X, X, X, X, boardID, battery
-        for raw in raw_brainbit_data[1:5]:
-            temp_eeg_list = []
+        for i, raw in enumerate(raw_brainbit_data[1:5]):
             for eeg in raw:
-                temp_eeg_list.append(eeg)
-            temp_list.append(temp_eeg_list)
+                d[self.brainbit_eeg_labels[i]] = eeg
 
-        # zip and return
-        brainbit_data = list(zip(self.brainbit_eeg_labels, temp_list))
-        return brainbit_data
+        return d
 
     def skeleton_parse(self, raw_skeleton_data):
         # create temp lists
