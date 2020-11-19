@@ -6,9 +6,9 @@
 # Craig Vear - cvear@dmu.ac.uk
 #
 
+# todo: link record button to traffic lights system
 # todo: fix the backtrack button status when playing
 # todo: autostop of 3-5 seconds following backing track end
-# todo: add timestamp delta between ts(n) and ts(n-1)
 
 from PySide2.QtWidgets import *
 from PySide2.QtMultimedia import *
@@ -66,6 +66,17 @@ class MainWindow(QMainWindow):
         self.list_audio_devices.setDuplicatesEnabled(False)
         self.list_backing_tracks = QComboBox()
         self.play_stop_backing_track_button = QPushButton('Play backing track')
+
+        # hardware
+        self.bullet_bitalino_label = QLabel()
+        self.bitalino_label = QLabel('Bitalino')
+        self.bullet_brainbit_label = QLabel()
+        self.brainbit_label = QLabel('Brainbit')
+        self.bullet_realsense_label = QLabel()
+        self.realsense_label = QLabel('RealSense camera')
+        self.bitalino_status = False
+        self.brainbit_status = False
+        self.realsense_status = False
 
         # record bottom area
         self.record_stop_button = QPushButton('Record session')
@@ -221,26 +232,18 @@ class MainWindow(QMainWindow):
         fields_group_box.setLayout(fields)
 
         # hardware
-        bullet_bitalino_label = QLabel()
-        bullet_bitalino_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_idle.png')
-        bitalino_label = QLabel('Bitalino')
-
-        bullet_brainbit_label = QLabel()
-        bullet_brainbit_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_idle.png')
-        brainbit_label = QLabel('Brainbit')
-
-        bullet_realsense_label = QLabel()
-        bullet_realsense_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_idle.png')
-        realsense_label = QLabel('RealSense camera')
+        self.bullet_bitalino_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_idle.png')
+        self.bullet_brainbit_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_idle.png')
+        self.bullet_realsense_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_idle.png')
 
         refresh_hardware_button = QPushButton('Refresh hardware')
 
-        hardware_list.addWidget(bullet_bitalino_label, 0, 0)
-        hardware_list.addWidget(bitalino_label, 0, 1)
-        hardware_list.addWidget(bullet_brainbit_label, 1, 0)
-        hardware_list.addWidget(brainbit_label, 1, 1)
-        hardware_list.addWidget(bullet_realsense_label, 2, 0)
-        hardware_list.addWidget(realsense_label, 2, 1)
+        hardware_list.addWidget(self.bullet_bitalino_label, 0, 0)
+        hardware_list.addWidget(self.bitalino_label, 0, 1)
+        hardware_list.addWidget(self.bullet_brainbit_label, 1, 0)
+        hardware_list.addWidget(self.brainbit_label, 1, 1)
+        hardware_list.addWidget(self.bullet_realsense_label, 2, 0)
+        hardware_list.addWidget(self.realsense_label, 2, 1)
         hardware_list.addWidget(refresh_hardware_button, 3, 1, 2, 2)
         hardware_list.setRowStretch(4, 1)
 
@@ -443,10 +446,29 @@ class MainWindow(QMainWindow):
                         False -> Error
         """
         if status['result']:
-            # alles ok
-            pass
+            if status['from'] == 'RealSense':
+                self.bullet_realsense_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_ok.png')
+                self.realsense_label.setStyleSheet('QLabel { color: GreenYellow; }')
+                self.realsense_status = True
+            elif status['from'] == 'Bitalino':
+                self.bullet_bitalino_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_ok.png')
+                self.bitalino_label.setStyleSheet('QLabel { color: GreenYellow; }')
+                self.bitalino_status = True
+            elif status['from'] == 'BrainBit':
+                self.bullet_brainbit_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_ok.png')
+                self.brainbit_label.setStyleSheet('QLabel { color: GreenYellow; }')
+                self.brainbit_status = True
         else:
-            self.error_dialog('Error initializing {}. Please check the connections'
+            if status['from'] == 'RealSense':
+                self.bullet_realsense_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_error.png')
+                self.realsense_label.setStyleSheet('QLabel { color: red; }')
+            elif status['from'] == 'Bitalino':
+                self.bullet_bitalino_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_error.png')
+                self.bitalino_label.setStyleSheet('QLabel { color: red; }')
+            elif status['from'] == 'BrainBit':
+                self.bullet_brainbit_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_error.png')
+                self.brainbit_label.setStyleSheet('QLabel { color: red; }')
+            self.error_dialog('Error initializing {}. Please check the connections.'
                               .format(status['from']))
 
 
