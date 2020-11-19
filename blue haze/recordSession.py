@@ -253,10 +253,10 @@ class RecordSession:
                     # d1[dict_keys[2]] = value
 
         # make dicts
-        dict_data = {}
         skeleton_data = {}
 
         for d, coord in enumerate(coord_conf_list):
+            dict_data = {}
             dict_data[self.dict_keys[0]] = joint_coord_list_x[d][0]
             dict_data[self.dict_keys[1]] = joint_coord_list_y[d][0]
             dict_data[self.dict_keys[2]] = coord

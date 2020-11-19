@@ -178,12 +178,13 @@ if __name__ == '__main__':
                     coord_conf_list.append(value)
                     # d1[dict_keys[2]] = value
 
-
         # make dicts
-        dict_data = {}
+
         skeleton_data = {}
 
         for d, coord in enumerate(coord_conf_list):
+            dict_data = {}
+            print(d, joint_coord_list_x[d][0], joint_coord_list_y[d][0], (coord))
             dict_data[dict_keys[0]] = joint_coord_list_x[d][0]
             dict_data[dict_keys[1]] = joint_coord_list_y[d][0]
             dict_data[dict_keys[2]] = coord
