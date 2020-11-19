@@ -58,6 +58,9 @@ class RecordSession:
                                 'l_eye',
                                 'r_ear',
                                 'l_ear']
+        self.dict_keys = ['x',
+                          'y',
+                          'confidence']
         self.brainbit_eeg_labels = ['eeg-T3',
                                     'eeg-T4',
                                     'eeg-O1',
@@ -206,42 +209,59 @@ class RecordSession:
 
     def brainbit_parse(self, raw_brainbit_data):
         # setup dict for each parse
-        d = {}
+        brainbit_data = {}
 
         # parse only the fields we need from timestamp, eegt2, eegt4, eeg01, eeg02, X, X, X, X, X, X, boardID, battery
         for i, raw in enumerate(raw_brainbit_data[1:5]):
             for eeg in raw:
-                d[self.brainbit_eeg_labels[i]] = eeg
+                brainbit_data[self.brainbit_eeg_labels[i]] = eeg
 
-        return d
+        return brainbit_data
 
     def skeleton_parse(self, raw_skeleton_data):
-        # create temp lists
-        joint_coord_list = []
+        # create an array
+        joint_coord_list_x = []
+        joint_coord_list_y = []
         coord_conf_list = []
 
-        # parse iterables to lists
         for keypoint in raw_skeleton_data:
+
             # extract joint coords for 1st 8 & last 4 joints
             for joint in keypoint[0:1]:
+
                 # 1st 8
                 for coords in joint[:8]:
-                    joint_coord_list.append(coords[0:2])
+                    joint_coord_list_x.append(coords[0:1])
+                    joint_coord_list_y.append(coords[1:2])
+
                 # last 4
                 for coords in joint[-4:]:
-                    joint_coord_list.append(coords[0:2])
+                    joint_coord_list_x.append(coords[0:1])
+                    joint_coord_list_y.append(coords[1:2])
 
             # extract coord confidences for  1st 8 & last 4 joints
             for conf in keypoint[1:2]:
+
                 # 1st 8
                 for value in conf[:8]:
                     coord_conf_list.append(value)
+                    # d1[dict_keys[2]] = value
+
                 # last 4
                 for value in conf[-4:]:
                     coord_conf_list.append(value)
+                    # d1[dict_keys[2]] = value
 
-        # zip all arrays and return
-        skeleton_data = list(zip(self.body_parts_list, joint_coord_list, coord_conf_list))
+        # make dicts
+        dict_data = {}
+        skeleton_data = {}
+
+        for d, coord in enumerate(coord_conf_list):
+            dict_data[self.dict_keys[0]] = joint_coord_list_x[d][0]
+            dict_data[self.dict_keys[1]] = joint_coord_list_y[d][0]
+            dict_data[self.dict_keys[2]] = coord
+            skeleton_data[self.body_parts_list[d]] = dict_data
+
         return skeleton_data
 
     def stop(self):

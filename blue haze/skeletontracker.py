@@ -143,29 +143,27 @@ if __name__ == '__main__':
     def skeleton_parse(raw_skeleton_data):
         body_parts_list = ['nose', 'neck', 'r_shoudler', 'r_elbow', 'r_wrist', 'l_shoudler',
                            'l_elbow', 'l_wrist', 'r_eye', 'l_eye', 'r_ear', 'l_ear']
-        dict_keys = ['coords', 'conf']
-
-        d = {}
+        dict_keys = ['x', 'y', 'confidence']
 
         # create an array
-        joint_coord_list = []
+        joint_coord_list_x = []
+        joint_coord_list_y = []
         coord_conf_list = []
 
         for keypoint in raw_skeleton_data:
-            # print(keypoint)
 
             # extract joint coords for 1st 8 & last 4 joints
             for joint in keypoint[0:1]:
 
                 # 1st 8
                 for coords in joint[:8]:
-                    joint_coord_list.append(coords[0:2])
-                    # print('individual joint coords for 1st 7 fields = ', i, coords[0:2])
+                    joint_coord_list_x.append(coords[0:1])
+                    joint_coord_list_y.append(coords[1:2])
 
                 # last 4
                 for coords in joint[-4:]:
-                    joint_coord_list.append(coords[0:2])
-
+                    joint_coord_list_x.append(coords[0:1])
+                    joint_coord_list_y.append(coords[1:2])
 
             # extract coord confidences for  1st 8 & last 4 joints
             for conf in keypoint[1:2]:
@@ -173,23 +171,24 @@ if __name__ == '__main__':
                 # 1st 8
                 for value in conf[:8]:
                     coord_conf_list.append(value)
+                    # d1[dict_keys[2]] = value
 
                 # last 4
                 for value in conf[-4:]:
                     coord_conf_list.append(value)
+                    # d1[dict_keys[2]] = value
 
 
-        # print('body part list = ', body_parts_list)
-        # print('joint coord list = ', joint_coord_list)
-        # print('coord conf list = ', coord_conf_list)
+        # make dicts
+        dict_data = {}
+        skeleton_data = {}
 
-        data_dict = list(zip(joint_coord_list, coord_conf_list))
+        for d, coord in enumerate(coord_conf_list):
+            dict_data[dict_keys[0]] = joint_coord_list_x[d][0]
+            dict_data[dict_keys[1]] = joint_coord_list_y[d][0]
+            dict_data[dict_keys[2]] = coord
+            skeleton_data[body_parts_list[d]] = dict_data
 
-        print(data_dict)
-
-        data = dict(zip(dict_keys, data_dict))
-
-        skeleton_data = dict(zip(body_parts_list, data))
 
         return skeleton_data
 
