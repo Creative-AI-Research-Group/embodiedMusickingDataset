@@ -7,10 +7,14 @@
 # Craig Vear - cvear@dmu.ac.uk
 #
 
+from PySide2.QtCore import QObject, Signal, Slot
+
 import logging
+import copy
 
 import modules.config as cfg
 import modules.hardware as hw
+
 
 logger = logging.getLogger('blue_haze')
 
@@ -34,15 +38,44 @@ class Borg:
         self.__dict__ = self.__shared_state
 
 
-class Realsense(Borg):
-    def __init__(self, first_time=True):
+class Realsense(Borg, QObject):
+    def __init__(self, parent=None, first_time=False):
+        super().__init__()
         Borg.__init__(self)
+
+        self.result = Result(parent)
+
         if first_time:
             self.realsense = None
+            super.parent = parent
 
     def start_realsense(self):
-        self.realsense = hw.SkeletonReader()
-        self.realsense.start()
+        try:
+            self.realsense = hw.SkeletonReader()
+            self.realsense.start()
+        except:
+            return_dict = {
+                "from": "RealSense",
+                "result": False
+            }
+        else:
+            return_dict = {
+                "from": "RealSense",
+                "result": True
+            }
+        self.result.emit_signal(return_dict)
 
     def read_realsense(self):
         return self.realsense.read()
+
+
+class Result(QObject):
+    signal = Signal(dict)
+
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.signal.connect(super().parent().hw_init_status)
+
+    def emit_signal(self, message_dict):
+        self.signal.emit(message_dict)
+

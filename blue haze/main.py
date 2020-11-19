@@ -14,7 +14,7 @@ from PySide2.QtWidgets import *
 from PySide2.QtMultimedia import *
 from PySide2.QtMultimediaWidgets import QCameraViewfinder
 from PySide2.QtGui import QPalette, QColor
-from PySide2.QtCore import Slot, Qt, QDir
+from PySide2.QtCore import Signal, Slot, Qt, QDir
 from glob import glob
 from playBackTrack import PlayBackTrack
 from recordSession import RecordSession
@@ -48,20 +48,9 @@ def dark_palette():
     return dark_palette_colours
 
 
-# thread slots
-def progress_fn(n):
-    utls.logger.info('{} done'.format(n))
-
-
-def print_output(s):
-    utls.logger.debug(s)
-
-
-def thread_complete():
-    utls.logger.debug('THREAD COMPLETE')
-
-
 class MainWindow(QMainWindow):
+    hw_slot = Signal(dict)
+
     def __init__(self):
         super().__init__()
 
@@ -116,7 +105,8 @@ class MainWindow(QMainWindow):
         nest_asyncio.apply()
 
         # realsense, bitalino and brainbit init
-        realsense = utls.Realsense()
+        self.hw_slot.connect(self.hw_init_status)
+        realsense = utls.Realsense(parent=self)
         thread = threading.Thread(target=realsense.start_realsense)
         thread.start()
 
@@ -442,6 +432,22 @@ class MainWindow(QMainWindow):
         error_dialog.setIcon(QMessageBox.Critical)
         error_dialog.setStandardButtons(QMessageBox.Ok)
         error_dialog.exec_()
+
+    # slot to get info from hardware initialization
+    @Slot(dict)
+    def hw_init_status(self, status):
+        """
+        status:
+            : from : type of hardware
+            : result :  True -> Ok
+                        False -> Error
+        """
+        if status['result']:
+            # alles ok
+            pass
+        else:
+            self.error_dialog('Error initializing {}. Please check the connections'
+                              .format(status['from']))
 
 
 if __name__ == '__main__':

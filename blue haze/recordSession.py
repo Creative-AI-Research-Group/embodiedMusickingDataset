@@ -64,8 +64,6 @@ class RecordSession:
                                     'eeg-O1',
                                     'eeg-O2']
 
-        self.realsense = utls.Realsense(False)
-
         if cfg.HARDWARE:
             self.setup_bitalino()
             self.brainbit = BrainbitReader()
@@ -129,6 +127,7 @@ class RecordSession:
                                  self.video_file_name,
                                  back_track)
 
+        self.realsense = utls.Realsense(first_time=False)
         self.thread_get_data = threading.Event()
         self.get_data(self.thread_get_data)
 
