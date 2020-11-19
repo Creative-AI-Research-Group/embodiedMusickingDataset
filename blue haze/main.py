@@ -9,12 +9,13 @@
 # todo: link record button to traffic lights system
 # todo: fix the backtrack button status when playing
 # todo: autostop of 3-5 seconds following backing track end
+# todo: stop / terminate the hardware when the app closes
 
 from PySide2.QtWidgets import *
 from PySide2.QtMultimedia import *
 from PySide2.QtMultimediaWidgets import QCameraViewfinder
 from PySide2.QtGui import QPalette, QColor
-from PySide2.QtCore import Signal, Slot, Qt, QDir
+from PySide2.QtCore import Slot, Qt, QDir
 from glob import glob
 from playBackTrack import PlayBackTrack
 from recordSession import RecordSession
@@ -49,8 +50,6 @@ def dark_palette():
 
 
 class MainWindow(QMainWindow):
-    hw_slot = Signal(dict)
-
     def __init__(self):
         super().__init__()
 
@@ -116,10 +115,11 @@ class MainWindow(QMainWindow):
         nest_asyncio.apply()
 
         # realsense, bitalino and brainbit init
-        self.hw_slot.connect(self.hw_init_status)
         realsense = utls.Realsense(parent=self)
-        thread = threading.Thread(target=realsense.start_realsense)
-        thread.start()
+        threading.Thread(target=realsense.start_realsense).start()
+
+        brainbit = utls.Brainbit(parent=self)
+        threading.Thread(target=brainbit.start_brainbit).start()
 
         # record session object
         self.record_session = RecordSession()

@@ -47,7 +47,6 @@ class Realsense(Borg, QObject):
 
         if first_time:
             self.realsense = None
-            super.parent = parent
 
     def start_realsense(self):
         try:
@@ -67,6 +66,36 @@ class Realsense(Borg, QObject):
 
     def read_realsense(self):
         return self.realsense.read()
+
+
+class Brainbit(Borg, QObject):
+    def __init__(self, parent=None, first_time=False):
+        super().__init__()
+        Borg.__init__(self)
+
+        self.result = Result(parent)
+
+        if first_time:
+            self.brainbit = None
+
+    def start_brainbit(self):
+        try:
+            self.brainbit = hw.BrainbitReader()
+            self.brainbit.start()
+        except:
+            return_dict = {
+                "from": "BrainBit",
+                "result": False
+            }
+        else:
+            return_dict = {
+                "from": "BrainBit",
+                "result": True
+            }
+        self.result.emit_signal(return_dict)
+
+    def read_brainbit(self):
+        return self.brainbit.read()
 
 
 class Result(QObject):

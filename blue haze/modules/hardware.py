@@ -6,18 +6,23 @@ I explicitly added %CUBEMOS_SKEL_SDK%\bin to my Path environment since I had not
 That got it going. The %CUBEMOS_SKEL_SDK% was set up okay from the start."
 '''
 
-import os
-import platform
 from cubemos.skeletontracking.core_wrapper import CM_TargetComputeDevice
 from cubemos.skeletontracking.core_wrapper import initialise_logging, CM_LogLevel
 from cubemos.skeletontracking.native_wrapper import Api, TrackingContext, SkeletonKeypoints
 from cubemos.skeletontracking.native_wrapper import CM_SKEL_TrackingSimilarityMetric, CM_SKEL_TrackingMethod
+
+# from brainflow.board_shim import BoardShim, BrainFlowInputParams
+
+import os
+import platform
 import pyrealsense2 as rs
 import numpy as np
 
 '''
     REALSENSE SKELETON
 '''
+
+
 def default_log_dir():
     if platform.system() == "Windows":
         return os.path.join(os.environ["LOCALAPPDATA"], "Cubemos", "SkeletonTracking", "logs")
@@ -141,3 +146,40 @@ class SkeletonReader():
 
     def terminate(self):
         self.pipeline.stop()
+
+
+'''
+    BRAINBIT
+'''
+
+
+class BrainbitReader:
+    def __init__(self):
+
+        # Establish all parameters for Brainflow
+        self.params = BrainFlowInputParams()
+
+        # Assign the BrainBit as the board
+        self.params.board_id = 7
+
+        # set it logging
+        BoardShim.enable_dev_board_logger()
+        print('BrainBit reader ready')
+
+    def start(self):
+        # instantiate the board reading
+        self.board = BoardShim(self.params.board_id, self.params)
+
+        self.board.prepare_session ()
+
+        # board.start_stream () # use this for default options
+        self.board.start_stream(2) # removed 48000
+        print ('BrainBit stream started')
+
+    def read(self):
+        self.data = self.board.get_board_data () # get all data and remove it from internal buffer
+        return self.data
+
+    def terminate(self):
+        self.board.stop_stream()
+        self.board.release_session()

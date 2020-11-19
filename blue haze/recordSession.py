@@ -23,11 +23,8 @@ import modules.utils as utls
 import modules.config as cfg
 import modules.datastructures as datastr
 
-# from skeletontracker import *
-
 if cfg.HARDWARE:
     from bitalinoReader import *
-    from brainbitReader import *
 
 
 def current_milli_time():
@@ -46,7 +43,10 @@ class RecordSession:
         self.database = None
         self.video_file_name = None
 
+        self.realsense = None
+        self.brainbit = None
         self.bitalino = None
+
         self.body_parts_list = ['nose',
                                 'neck',
                                 'r_shoudler',
@@ -66,7 +66,6 @@ class RecordSession:
 
         if cfg.HARDWARE:
             self.setup_bitalino()
-            self.brainbit = BrainbitReader()
 
         self.thread_get_data = None
         self.GET_DATA_INTERVAL = cfg.BITALINO_BAUDRATE / 1000
@@ -114,7 +113,6 @@ class RecordSession:
 
         if cfg.HARDWARE:
             self.bitalino.start(cfg.BITALINO_BAUDRATE, cfg.BITALINO_ACQ_CHANNELS)
-            self.brainbit.start()
 
         # play the backtrack
         backing_track_file = '{}{}'.format(cfg.ASSETS_BACKING_AUDIO_FOLDER, back_track)
@@ -128,6 +126,7 @@ class RecordSession:
                                  back_track)
 
         self.realsense = utls.Realsense(first_time=False)
+        self.brainbit = utls.Brainbit(first_time=False)
         self.thread_get_data = threading.Event()
         self.get_data(self.thread_get_data)
 
@@ -181,19 +180,19 @@ class RecordSession:
         skeleton_data = self.skeleton_parse(raw_skeleton_data)
         utls.logger.debug('REALSENSE: {}'.format(skeleton_data))
 
+        # brainbit data
+        raw_brainbit_data = self.brainbit.read_brainbit()
+        # parse and label brainbit data
+        brainbit_data = self.brainbit_parse(raw_brainbit_data)
+        utls.logger.debug('BRAINBIT: {}'.format(brainbit_data))
+
         if cfg.HARDWARE:
             bitalino_data = self.bitalino.read(self.n_samples)
-            raw_brainbit_data = self.brainbit.read()
 
             # slicing usable bitalino data and convert to list
             bitalino_data = bitalino_data[0, -1]
             bitalino_data = bitalino_data.tolist()
-
-            # parse and label brainbit data
-            brainbit_data = self.brainbit_parse(raw_brainbit_data)
-
             utls.logger.debug('BITALINO: {}'.format(bitalino_data))
-            utls.logger.debug('BRAINBIT: {}'.format(brainbit_data))
 
         # insert data in the database
         self.loop.run_until_complete(self.database.insert_document(timestamp,
