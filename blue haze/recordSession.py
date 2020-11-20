@@ -125,8 +125,8 @@ class RecordSession:
                                  self.video_file_name,
                                  back_track)
 
-        self.realsense = utls.Realsense(first_time=False)
-        self.brainbit = utls.Brainbit(first_time=False)
+        self.realsense = utls.Realsense()
+        self.brainbit = utls.Brainbit()
         self.thread_get_data = threading.Event()
         self.get_data(self.thread_get_data)
 

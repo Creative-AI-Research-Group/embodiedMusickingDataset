@@ -7,10 +7,9 @@
 # Craig Vear - cvear@dmu.ac.uk
 #
 
-from PySide2.QtCore import QObject, Signal, Slot
+from PySide2.QtCore import QObject, Signal
 
 import logging
-import copy
 
 import modules.config as cfg
 import modules.hardware as hw
@@ -39,7 +38,7 @@ class Borg:
 
 
 class Realsense(Borg, QObject):
-    def __init__(self, parent=None, first_time=False):
+    def __init__(self, parent=None):
         super().__init__()
         Borg.__init__(self)
 
@@ -68,7 +67,7 @@ class Realsense(Borg, QObject):
 
 
 class Brainbit(Borg, QObject):
-    def __init__(self, parent=None, first_time=False):
+    def __init__(self, parent=None):
         super().__init__()
         Borg.__init__(self)
 

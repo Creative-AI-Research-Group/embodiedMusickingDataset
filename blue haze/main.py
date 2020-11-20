@@ -6,7 +6,6 @@
 # Craig Vear - cvear@dmu.ac.uk
 #
 
-# todo: link record button to traffic lights system
 # todo: fix the backtrack button status when playing
 # todo: autostop of 3-5 seconds following backing track end
 # todo: stop / terminate the hardware when the app closes
@@ -73,12 +72,14 @@ class MainWindow(QMainWindow):
         self.brainbit_label = QLabel('Brainbit')
         self.bullet_realsense_label = QLabel()
         self.realsense_label = QLabel('RealSense camera')
-        self.bitalino_status = False
-        self.brainbit_status = False
-        self.realsense_status = False
+        # order:
+        self.hardware_status = {'Bitalino': True,
+                                'Brainbit': False,
+                                'RealSense': False}
 
         # record bottom area
         self.record_stop_button = QPushButton('Record session')
+        self.record_stop_button.setEnabled(False)
         self.recording_label = QLabel()
 
         # mic volume
@@ -449,15 +450,17 @@ class MainWindow(QMainWindow):
             if status['from'] == 'RealSense':
                 self.bullet_realsense_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_ok.png')
                 self.realsense_label.setStyleSheet('QLabel { color: GreenYellow; }')
-                self.realsense_status = True
+                self.hardware_status['RealSense'] = True
             elif status['from'] == 'Bitalino':
                 self.bullet_bitalino_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_ok.png')
                 self.bitalino_label.setStyleSheet('QLabel { color: GreenYellow; }')
-                self.bitalino_status = True
+                self.hardware_status['Bitalino'] = True
             elif status['from'] == 'BrainBit':
                 self.bullet_brainbit_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_ok.png')
                 self.brainbit_label.setStyleSheet('QLabel { color: GreenYellow; }')
-                self.brainbit_status = True
+                self.hardware_status['Brainbit'] = True
+            if False not in self.hardware_status.values():
+                self.record_stop_button.setEnabled(True)
         else:
             if status['from'] == 'RealSense':
                 self.bullet_realsense_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_error.png')
