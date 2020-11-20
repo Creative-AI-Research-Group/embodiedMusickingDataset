@@ -11,7 +11,7 @@ from cubemos.skeletontracking.core_wrapper import initialise_logging, CM_LogLeve
 from cubemos.skeletontracking.native_wrapper import Api, TrackingContext, SkeletonKeypoints
 from cubemos.skeletontracking.native_wrapper import CM_SKEL_TrackingSimilarityMetric, CM_SKEL_TrackingMethod
 
-# from brainflow.board_shim import BoardShim, BrainFlowInputParams
+from brainflow.board_shim import BoardShim, BrainFlowInputParams
 
 import os
 import platform

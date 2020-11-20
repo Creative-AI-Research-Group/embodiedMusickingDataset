@@ -43,10 +43,9 @@ class Realsense(Borg, QObject):
         super().__init__()
         Borg.__init__(self)
 
-        self.result = Result(parent)
-
-        if first_time:
+        if parent is not None:
             self.realsense = None
+            self.result = Result(parent)
 
     def start_realsense(self):
         try:
@@ -73,20 +72,20 @@ class Brainbit(Borg, QObject):
         super().__init__()
         Borg.__init__(self)
 
-        self.result = Result(parent)
-
-        if first_time:
+        if parent is not None:
             self.brainbit = None
+            self.result = Result(parent)
 
     def start_brainbit(self):
         try:
             self.brainbit = hw.BrainbitReader()
             self.brainbit.start()
-        except:
+        except Exception as err:
             return_dict = {
                 "from": "BrainBit",
                 "result": False
             }
+            logger.error(err)
         else:
             return_dict = {
                 "from": "BrainBit",
