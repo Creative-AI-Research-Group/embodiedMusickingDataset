@@ -195,52 +195,64 @@ class RecordSession:
         return brainbit_data
 
     def skeleton_parse(self, raw_skeleton_data):
-        # create an array
-        joint_coord_list_x = []
-        joint_coord_list_y = []
-        coord_conf_list = []
+        if len(raw_skeleton_data) > 0:
+            # create an array
+            joint_coord_list_x = []
+            joint_coord_list_y = []
+            coord_conf_list = []
 
-        for keypoint in raw_skeleton_data:
+            for keypoint in raw_skeleton_data:
 
-            # extract joint coords for 1st 8 & last 4 joints
-            for joint in keypoint[0:1]:
+                # extract joint coords for 1st 8 & last 4 joints
+                for joint in keypoint[0:1]:
 
-                # 1st 8
-                for coords in joint[:8]:
-                    joint_coord_list_x.append(coords[0:1])
-                    joint_coord_list_y.append(coords[1:2])
+                    # 1st 8
+                    for coords in joint[:8]:
+                        joint_coord_list_x.append(coords[0:1])
+                        joint_coord_list_y.append(coords[1:2])
 
-                # last 4
-                for coords in joint[-4:]:
-                    joint_coord_list_x.append(coords[0:1])
-                    joint_coord_list_y.append(coords[1:2])
+                    # last 4
+                    for coords in joint[-4:]:
+                        joint_coord_list_x.append(coords[0:1])
+                        joint_coord_list_y.append(coords[1:2])
 
-            # extract coord confidences for  1st 8 & last 4 joints
-            for conf in keypoint[1:2]:
+                # extract coord confidences for  1st 8 & last 4 joints
+                for conf in keypoint[1:2]:
 
-                # 1st 8
-                for value in conf[:8]:
-                    coord_conf_list.append(value)
-                    # d1[dict_keys[2]] = value
+                    # 1st 8
+                    for value in conf[:8]:
+                        coord_conf_list.append(value)
+                        # d1[dict_keys[2]] = value
 
-                # last 4
-                for value in conf[-4:]:
-                    coord_conf_list.append(value)
-                    # d1[dict_keys[2]] = value
+                    # last 4
+                    for value in conf[-4:]:
+                        coord_conf_list.append(value)
+                        # d1[dict_keys[2]] = value
 
-        # make dicts
-        skeleton_data = {}
+            # make dicts
+            skeleton_data = {}
 
-        try:
             for d, joint in enumerate(self.body_parts_list):
                 dict_data = {}
                 dict_data[self.dict_keys[0]] = joint_coord_list_x[d][0]
                 dict_data[self.dict_keys[1]] = joint_coord_list_y[d][0]
                 dict_data[self.dict_keys[2]] = coord_conf_list[d]
                 skeleton_data[joint] = dict_data
-        except:
-            print('skeleton AI lost tracking - return empty dict')
 
+        else:
+            skeleton_data = {'nose': {'x': -1, 'y': -1, 'confidence': 0},
+                             'neck': {'x': -1, 'y': -1, 'confidence': 0},
+                             'r_shoudler': {'x': -1, 'y': -1, 'confidence': 0},
+                             'r_elbow': {'x': -1, 'y': -1, 'confidence': 0},
+                             'r_wrist': {'x': -1, 'y': -1, 'confidence': 0},
+                             'l_shoudler': {'x': -1, 'y': -1, 'confidence': 0},
+                             'l_elbow': {'x': -1, 'y': -1, 'confidence': 0},
+                             'l_wrist': {'x': -1, 'y': -1, 'confidence': 0},
+                             'r_eye': {'x': -1, 'y': -1, 'confidence': 0},
+                             'l_eye': {'x': -1, 'y': -1, 'confidence': 0},
+                             'r_ear': {'x': -1, 'y': -1, 'confidence': 0},
+                             'l_ear': {'x': -1, 'y': -1, 'confidence': 0}
+                             }
         return skeleton_data
 
     def delta_time(self, now_time_stamp):
