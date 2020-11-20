@@ -231,12 +231,12 @@ class RecordSession:
         # make dicts
         skeleton_data = {}
 
-        for d, coord in enumerate(coord_conf_list):
+        for d, joint in enumerate(self.body_parts_list):
             dict_data = {}
             dict_data[self.dict_keys[0]] = joint_coord_list_x[d][0]
             dict_data[self.dict_keys[1]] = joint_coord_list_y[d][0]
-            dict_data[self.dict_keys[2]] = coord
-            skeleton_data[self.body_parts_list[d]] = dict_data
+            dict_data[self.dict_keys[2]] = coord_conf_list[d]
+            skeleton_data[joint] = dict_data
 
         return skeleton_data
 

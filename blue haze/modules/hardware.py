@@ -353,7 +353,7 @@ class BITalino(object):
                 analogChannels = analogChannels
             elif isinstance(analogChannels, tuple):
                 analogChannels = list(analogChannels)
-            elif isinstance(analogChannels, numpy.ndarray):
+            elif isinstance(analogChannels, np.ndarray):
                 analogChannels = analogChannels.astype('int').tolist()
             else:
                 raise Exception(ExceptionCode.INVALID_PARAMETER)
@@ -570,7 +570,7 @@ class BITalino(object):
                 digitalArray = digitalArray
             elif isinstance(digitalArray, tuple):
                 digitalArray = list(digitalArray)
-            elif isinstance(digitalArray, numpy.ndarray):
+            elif isinstance(digitalArray, np.ndarray):
                 digitalArray = digitalArray.astype('int').tolist()
             else:
                 raise Exception(ExceptionCode.INVALID_PARAMETER)
@@ -633,7 +633,7 @@ class BITalino(object):
             else:
                 number_bytes = int(math.ceil((52. + 6. * (nChannels - 4)) / 8.))
 
-            dataAcquired = numpy.zeros((nSamples, 5 + nChannels), dtype=int)
+            dataAcquired = np.zeros((nSamples, 5 + nChannels), dtype=int)
             for sample in range(nSamples):
                 Data = self.receive(number_bytes)
                 decodedData = list(struct.unpack(number_bytes * "B ", Data))
