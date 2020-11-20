@@ -239,7 +239,7 @@ class RecordSession:
                 dict_data[self.dict_keys[2]] = coord_conf_list[d]
                 skeleton_data[joint] = dict_data
         except:
-            print('skeleton AI lost tracking')
+            print('skeleton AI lost tracking - return empty dict')
 
         return skeleton_data
 
