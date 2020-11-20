@@ -8,7 +8,8 @@
 
 # todo: fix the backtrack button status when playing
 # todo: autostop of 3-5 seconds following backing track end
-# todo: add timestamp delta between ts(n) and ts(n-1)
+# todo: stop / terminate the hardware when the app closes
+# todo: implement restart hardware button
 
 from PySide2.QtWidgets import *
 from PySide2.QtMultimedia import *
@@ -23,6 +24,7 @@ import os
 import sys
 import asyncio
 import nest_asyncio
+import threading
 
 import modules.utils as utls
 import modules.config as cfg
@@ -64,8 +66,20 @@ class MainWindow(QMainWindow):
         self.list_backing_tracks = QComboBox()
         self.play_stop_backing_track_button = QPushButton('Play backing track')
 
+        # hardware
+        self.bullet_bitalino_label = QLabel()
+        self.bitalino_label = QLabel('Bitalino')
+        self.bullet_brainbit_label = QLabel()
+        self.brainbit_label = QLabel('Brainbit')
+        self.bullet_realsense_label = QLabel()
+        self.realsense_label = QLabel('RealSense camera')
+        self.hardware_status = {'Bitalino': False,
+                                'Brainbit': False,
+                                'RealSense': False}
+
         # record bottom area
         self.record_stop_button = QPushButton('Record session')
+        self.record_stop_button.setEnabled(False)
         self.recording_label = QLabel()
 
         # mic volume
@@ -78,13 +92,12 @@ class MainWindow(QMainWindow):
         self.volume_slider.valueChanged.connect(self.change_value_mic_volume_label)
         self.volume_slider_label = QLabel('3')
 
-        # objects
-        self.backing_track_player = PlayBackTrack()
-        self.record_session = RecordSession()
-        self.view_finder = QCameraViewfinder()
-
         # states
         self.recording = False
+
+        # objects
+        self.backing_track_player = PlayBackTrack()
+        self.view_finder = QCameraViewfinder()
 
         # hardware setup
         self.get_list_cameras()
@@ -101,6 +114,20 @@ class MainWindow(QMainWindow):
         # see
         # https://stackoverflow.com/questions/46827007/runtimeerror-this-event-loop-is-already-running-in-python
         nest_asyncio.apply()
+
+        # hardware setup
+        self.setup_hw()
+
+        # record session object
+        self.record_session = RecordSession()
+
+    def setup_hw(self):
+        init_hardware = utls.Hardware(parent=self)
+
+        # realsense, bitalino and brainbit init
+        threading.Thread(target=init_hardware.start_realsense).start()
+        threading.Thread(target=init_hardware.start_brainbit).start()
+        threading.Thread(target=init_hardware.start_bitalino).start()
 
     def setup_ui(self):
         record_tab_widget = QWidget()
@@ -210,26 +237,18 @@ class MainWindow(QMainWindow):
         fields_group_box.setLayout(fields)
 
         # hardware
-        bullet_bitalino_label = QLabel()
-        bullet_bitalino_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_idle.png')
-        bitalino_label = QLabel('Bitalino')
-
-        bullet_brainbit_label = QLabel()
-        bullet_brainbit_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_idle.png')
-        brainbit_label = QLabel('Brainbit')
-
-        bullet_realsense_label = QLabel()
-        bullet_realsense_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_idle.png')
-        realsense_label = QLabel('RealSense camera')
+        self.bullet_bitalino_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_idle.png')
+        self.bullet_brainbit_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_idle.png')
+        self.bullet_realsense_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_idle.png')
 
         refresh_hardware_button = QPushButton('Refresh hardware')
 
-        hardware_list.addWidget(bullet_bitalino_label, 0, 0)
-        hardware_list.addWidget(bitalino_label, 0, 1)
-        hardware_list.addWidget(bullet_brainbit_label, 1, 0)
-        hardware_list.addWidget(brainbit_label, 1, 1)
-        hardware_list.addWidget(bullet_realsense_label, 2, 0)
-        hardware_list.addWidget(realsense_label, 2, 1)
+        hardware_list.addWidget(self.bullet_bitalino_label, 0, 0)
+        hardware_list.addWidget(self.bitalino_label, 0, 1)
+        hardware_list.addWidget(self.bullet_brainbit_label, 1, 0)
+        hardware_list.addWidget(self.brainbit_label, 1, 1)
+        hardware_list.addWidget(self.bullet_realsense_label, 2, 0)
+        hardware_list.addWidget(self.realsense_label, 2, 1)
         hardware_list.addWidget(refresh_hardware_button, 3, 1, 2, 2)
         hardware_list.setRowStretch(4, 1)
 
@@ -421,6 +440,43 @@ class MainWindow(QMainWindow):
         error_dialog.setIcon(QMessageBox.Critical)
         error_dialog.setStandardButtons(QMessageBox.Ok)
         error_dialog.exec_()
+
+    # slot to get info from hardware initialization
+    @Slot(dict)
+    def hw_init_status(self, status):
+        """
+        status:
+            : from : type of hardware
+            : result :  True -> Ok
+                        False -> Error
+        """
+        if status['result']:
+            if status['from'] == 'RealSense':
+                self.bullet_realsense_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_ok.png')
+                self.realsense_label.setStyleSheet('QLabel { color: GreenYellow; }')
+                self.hardware_status['RealSense'] = True
+            elif status['from'] == 'Bitalino':
+                self.bullet_bitalino_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_ok.png')
+                self.bitalino_label.setStyleSheet('QLabel { color: GreenYellow; }')
+                self.hardware_status['Bitalino'] = True
+            elif status['from'] == 'BrainBit':
+                self.bullet_brainbit_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_ok.png')
+                self.brainbit_label.setStyleSheet('QLabel { color: GreenYellow; }')
+                self.hardware_status['Brainbit'] = True
+            if False not in self.hardware_status.values():
+                self.record_stop_button.setEnabled(True)
+        else:
+            if status['from'] == 'RealSense':
+                self.bullet_realsense_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_error.png')
+                self.realsense_label.setStyleSheet('QLabel { color: red; }')
+            elif status['from'] == 'Bitalino':
+                self.bullet_bitalino_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_error.png')
+                self.bitalino_label.setStyleSheet('QLabel { color: red; }')
+            elif status['from'] == 'BrainBit':
+                self.bullet_brainbit_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_error.png')
+                self.brainbit_label.setStyleSheet('QLabel { color: red; }')
+            self.error_dialog('Error initializing {}. Please check the connections.'
+                              .format(status['from']))
 
 
 if __name__ == '__main__':

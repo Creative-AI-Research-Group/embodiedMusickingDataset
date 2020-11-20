@@ -44,7 +44,6 @@ class RecordSession:
 
         self.database = None
         self.video_file_name = None
-        self.last_time_stamp = 0
 
         self.bitalino = None
         self.body_parts_list = ['nose',
@@ -59,9 +58,6 @@ class RecordSession:
                                 'l_eye',
                                 'r_ear',
                                 'l_ear']
-        self.dict_keys = ['x',
-                          'y',
-                          'confidence']
         self.brainbit_eeg_labels = ['eeg-T3',
                                     'eeg-T4',
                                     'eeg-O1',
@@ -176,7 +172,6 @@ class RecordSession:
 
     def get_data(self, stop_thread_get_data):
         timestamp = current_milli_time() - self.session.time_start
-        delta_time = self.delta_time(timestamp)
         bitalino_data = ['bitalino data here']
         brainbit_data = ['brainbit data here']
         skeleton_data = ['skeleton data here']
@@ -201,7 +196,6 @@ class RecordSession:
 
         # insert data in the database
         self.loop.run_until_complete(self.database.insert_document(timestamp,
-                                                                   delta_time,
                                                                    bitalino_data,
                                                                    brainbit_data,
                                                                    skeleton_data))
@@ -211,67 +205,48 @@ class RecordSession:
             threading.Timer(self.GET_DATA_INTERVAL, self.get_data, [self.thread_get_data]).start()
 
     def brainbit_parse(self, raw_brainbit_data):
-        # setup dict for each parse
-        brainbit_data = {}
+        # setup a temp list for each parse
+        temp_list = []
 
         # parse only the fields we need from timestamp, eegt2, eegt4, eeg01, eeg02, X, X, X, X, X, X, boardID, battery
-        for i, raw in enumerate(raw_brainbit_data[1:5]):
+        for raw in raw_brainbit_data[1:5]:
+            temp_eeg_list = []
             for eeg in raw:
-                brainbit_data[self.brainbit_eeg_labels[i]] = eeg
+                temp_eeg_list.append(eeg)
+            temp_list.append(temp_eeg_list)
 
+        # zip and return
+        brainbit_data = list(zip(self.brainbit_eeg_labels, temp_list))
         return brainbit_data
 
     def skeleton_parse(self, raw_skeleton_data):
-        # create an array
-        joint_coord_list_x = []
-        joint_coord_list_y = []
+        # create temp lists
+        joint_coord_list = []
         coord_conf_list = []
 
+        # parse iterables to lists
         for keypoint in raw_skeleton_data:
-
             # extract joint coords for 1st 8 & last 4 joints
             for joint in keypoint[0:1]:
-
                 # 1st 8
                 for coords in joint[:8]:
-                    joint_coord_list_x.append(coords[0:1])
-                    joint_coord_list_y.append(coords[1:2])
-
+                    joint_coord_list.append(coords[0:2])
                 # last 4
                 for coords in joint[-4:]:
-                    joint_coord_list_x.append(coords[0:1])
-                    joint_coord_list_y.append(coords[1:2])
+                    joint_coord_list.append(coords[0:2])
 
             # extract coord confidences for  1st 8 & last 4 joints
             for conf in keypoint[1:2]:
-
                 # 1st 8
                 for value in conf[:8]:
                     coord_conf_list.append(value)
-                    # d1[dict_keys[2]] = value
-
                 # last 4
                 for value in conf[-4:]:
                     coord_conf_list.append(value)
-                    # d1[dict_keys[2]] = value
 
-        # make dicts
-        skeleton_data = {}
-
-        for d, coord in enumerate(coord_conf_list):
-            dict_data = {}
-            dict_data[self.dict_keys[0]] = joint_coord_list_x[d][0]
-            dict_data[self.dict_keys[1]] = joint_coord_list_y[d][0]
-            dict_data[self.dict_keys[2]] = coord
-            skeleton_data[self.body_parts_list[d]] = dict_data
-
+        # zip all arrays and return
+        skeleton_data = list(zip(self.body_parts_list, joint_coord_list, coord_conf_list))
         return skeleton_data
-
-    def delta_time(self, now_time_stamp):
-        self.now_time_stamp = now_time_stamp
-        delta = self.now_time_stamp - self.last_time_stamp
-        self.last_time_stamp = self.now_time_stamp
-        return delta
 
     def stop(self):
         self.backing_track_player.stop()
