@@ -73,7 +73,7 @@ class MainWindow(QMainWindow):
         self.brainbit_label = QLabel('Brainbit')
         self.bullet_realsense_label = QLabel()
         self.realsense_label = QLabel('RealSense camera')
-        self.hardware_status = {'Bitalino': True,
+        self.hardware_status = {'Bitalino': False,
                                 'Brainbit': False,
                                 'RealSense': False}
 
@@ -127,6 +127,7 @@ class MainWindow(QMainWindow):
         # realsense, bitalino and brainbit init
         threading.Thread(target=init_hardware.start_realsense).start()
         threading.Thread(target=init_hardware.start_brainbit).start()
+        threading.Thread(target=init_hardware.start_bitalino).start()
 
     def setup_ui(self):
         record_tab_widget = QWidget()

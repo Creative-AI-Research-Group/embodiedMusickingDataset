@@ -23,9 +23,6 @@ import modules.utils as utls
 import modules.config as cfg
 import modules.datastructures as datastr
 
-if cfg.HARDWARE:
-    from bitalinoReader import *
-
 
 def current_milli_time():
     return int(round(time.time() * 1000))
@@ -64,29 +61,12 @@ class RecordSession:
                                     'eeg-O1',
                                     'eeg-O2']
 
-        if cfg.HARDWARE:
-            self.setup_bitalino()
-
         self.thread_get_data = None
         self.GET_DATA_INTERVAL = cfg.BITALINO_BAUDRATE / 1000
 
         self.loop = None
 
         nest_asyncio.apply()
-
-    def setup_bitalino(self):
-        # BITalino instantiate object
-        self.n_samples = 1
-        self.digital_output = [1, 1]
-
-        # Connect to BITalino
-        self.bitalino = BITalino(cfg.BITALINO_MAC_ADDRESS)
-
-        # Set battery threshold
-        self.bitalino.battery(30)
-
-        # Read BITalino version
-        utls.logger.info(self.bitalino.version())
 
     def start_recording(self,
                         session_name,
@@ -110,9 +90,6 @@ class RecordSession:
 
         self.video_recording()
         self.audio_recording()
-
-        if cfg.HARDWARE:
-            self.bitalino.start(cfg.BITALINO_BAUDRATE, cfg.BITALINO_ACQ_CHANNELS)
 
         # play the backtrack
         backing_track_file = '{}{}'.format(cfg.ASSETS_BACKING_AUDIO_FOLDER, back_track)
@@ -169,8 +146,6 @@ class RecordSession:
 
     def get_data(self, stop_thread_get_data):
         timestamp = current_milli_time() - self.session.time_start
-        bitalino_data = ['bitalino data here']
-        brainbit_data = ['brainbit data here']
 
         # skeleton data
         raw_skeleton_data = self.hardware.read_realsense()
@@ -184,13 +159,13 @@ class RecordSession:
         brainbit_data = self.brainbit_parse(raw_brainbit_data)
         utls.logger.debug('BRAINBIT: {}'.format(brainbit_data))
 
-        if cfg.HARDWARE:
-            bitalino_data = self.bitalino.read(self.n_samples)
+        # bitalino data
+        bitalino_data = self.hardware.read_bitalino()
 
-            # slicing usable bitalino data and convert to list
-            bitalino_data = bitalino_data[0, -1]
-            bitalino_data = bitalino_data.tolist()
-            utls.logger.debug('BITALINO: {}'.format(bitalino_data))
+        # slicing usable bitalino data and convert to list
+        bitalino_data = bitalino_data[0, -1]
+        bitalino_data = bitalino_data.tolist()
+        utls.logger.debug('BITALINO: {}'.format(bitalino_data))
 
         # insert data in the database
         self.loop.run_until_complete(self.database.insert_document(timestamp,
