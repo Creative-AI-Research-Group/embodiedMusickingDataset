@@ -43,9 +43,9 @@ class RecordSession:
         self.database = None
         self.video_file_name = None
 
-        self.realsense = None
-        self.brainbit = None
         self.bitalino = None
+
+        self.hardware = utls.Hardware()
 
         self.body_parts_list = ['nose',
                                 'neck',
@@ -125,8 +125,6 @@ class RecordSession:
                                  self.video_file_name,
                                  back_track)
 
-        self.realsense = utls.Realsense()
-        self.brainbit = utls.Brainbit()
         self.thread_get_data = threading.Event()
         self.get_data(self.thread_get_data)
 
@@ -175,13 +173,13 @@ class RecordSession:
         brainbit_data = ['brainbit data here']
 
         # skeleton data
-        raw_skeleton_data = self.realsense.read_realsense()
+        raw_skeleton_data = self.hardware.read_realsense()
         # parse raw skeleton data
         skeleton_data = self.skeleton_parse(raw_skeleton_data)
         utls.logger.debug('REALSENSE: {}'.format(skeleton_data))
 
         # brainbit data
-        raw_brainbit_data = self.brainbit.read_brainbit()
+        raw_brainbit_data = self.hardware.read_brainbit()
         # parse and label brainbit data
         brainbit_data = self.brainbit_parse(raw_brainbit_data)
         utls.logger.debug('BRAINBIT: {}'.format(brainbit_data))
@@ -254,7 +252,4 @@ class RecordSession:
         self.audio_recorder.stop()
         self.video_process.terminate()
         self.database.close()
-        if cfg.HARDWARE:
-            self.bitalino.stop()
-            self.brainbit.terminate()
-            self.realsense.terminate()
+        self.hardware.stop()

@@ -9,6 +9,7 @@
 # todo: fix the backtrack button status when playing
 # todo: autostop of 3-5 seconds following backing track end
 # todo: stop / terminate the hardware when the app closes
+# todo: implement restart hardware button
 
 from PySide2.QtWidgets import *
 from PySide2.QtMultimedia import *
@@ -72,7 +73,6 @@ class MainWindow(QMainWindow):
         self.brainbit_label = QLabel('Brainbit')
         self.bullet_realsense_label = QLabel()
         self.realsense_label = QLabel('RealSense camera')
-        # order:
         self.hardware_status = {'Bitalino': True,
                                 'Brainbit': False,
                                 'RealSense': False}
@@ -115,15 +115,18 @@ class MainWindow(QMainWindow):
         # https://stackoverflow.com/questions/46827007/runtimeerror-this-event-loop-is-already-running-in-python
         nest_asyncio.apply()
 
-        # realsense, bitalino and brainbit init
-        realsense = utls.Realsense(parent=self)
-        threading.Thread(target=realsense.start_realsense).start()
-
-        brainbit = utls.Brainbit(parent=self)
-        threading.Thread(target=brainbit.start_brainbit).start()
+        # hardware setup
+        self.setup_hw()
 
         # record session object
         self.record_session = RecordSession()
+
+    def setup_hw(self):
+        init_hardware = utls.Hardware(parent=self)
+
+        # realsense, bitalino and brainbit init
+        threading.Thread(target=init_hardware.start_realsense).start()
+        threading.Thread(target=init_hardware.start_brainbit).start()
 
     def setup_ui(self):
         record_tab_widget = QWidget()

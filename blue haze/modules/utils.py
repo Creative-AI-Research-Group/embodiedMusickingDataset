@@ -37,24 +37,27 @@ class Borg:
         self.__dict__ = self.__shared_state
 
 
-class Realsense(Borg, QObject):
+class Hardware(Borg, QObject):
     def __init__(self, parent=None):
         super().__init__()
         Borg.__init__(self)
 
         if parent is not None:
-            self.realsense = None
             self.result = Result(parent)
+            self.realsense = None
+            self.brainbit = None
+            self.bitalino = None
 
     def start_realsense(self):
         try:
             self.realsense = hw.SkeletonReader()
             self.realsense.start()
-        except:
+        except Exception as err:
             return_dict = {
                 "from": "RealSense",
                 "result": False
             }
+            logger.error(err)
         else:
             return_dict = {
                 "from": "RealSense",
@@ -64,16 +67,6 @@ class Realsense(Borg, QObject):
 
     def read_realsense(self):
         return self.realsense.read()
-
-
-class Brainbit(Borg, QObject):
-    def __init__(self, parent=None):
-        super().__init__()
-        Borg.__init__(self)
-
-        if parent is not None:
-            self.brainbit = None
-            self.result = Result(parent)
 
     def start_brainbit(self):
         try:
@@ -94,6 +87,14 @@ class Brainbit(Borg, QObject):
 
     def read_brainbit(self):
         return self.brainbit.read()
+
+    def stop(self):
+        """
+            bitalino.stop()
+            brainbit.terminate()
+            realsense.terminate()
+        """
+        pass
 
 
 class Result(QObject):
