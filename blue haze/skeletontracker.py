@@ -182,24 +182,26 @@ if __name__ == '__main__':
 
         skeleton_data = {}
 
-        for d, coord in enumerate(coord_conf_list):
-            dict_data = {}
-            print(d, joint_coord_list_x[d][0], joint_coord_list_y[d][0], (coord))
-            dict_data[dict_keys[0]] = joint_coord_list_x[d][0]
-            dict_data[dict_keys[1]] = joint_coord_list_y[d][0]
-            dict_data[dict_keys[2]] = coord
-            skeleton_data[body_parts_list[d]] = dict_data
-
+        try:
+            for d, joint in enumerate(body_parts_list):
+                dict_data = {}
+                print(d, joint_coord_list_x[d][0], joint_coord_list_y[d][0], joint)
+                dict_data[dict_keys[0]] = joint_coord_list_x[d][0]
+                dict_data[dict_keys[1]] = joint_coord_list_y[d][0]
+                dict_data[dict_keys[2]] = coord_conf_list[d]
+                skeleton_data[joint] = dict_data
+        except:
+            print('skeleton AI lost tracking')
 
         return skeleton_data
 
 
 
-    for i in range(10):
+    while True:
         raw_skeleton_data = skeleton.read()
         # [SkeletonKeypoints(joints=[Coordinate(x=435.42523193359375, y=148.125), Coordinate(x=379.1202392578125, y=241.875), Coordinate(x=292.7859191894531, y=238.125), Coordinate(x=334.07623291015625, y=380.625), Coordinate(x=424.1642150878906, y=309.375), Coordinate(x=457.94720458984375, y=245.625), Coordinate(x=-1.0, y=-1.0), Coordinate(x=-1.0, y=-1.0), Coordinate(x=-1.0, y=-1.0), Coordinate(x=-1.0, y=-1.0), Coordinate(x=-1.0, y=-1.0), Coordinate(x=472.9618835449219, y=331.875), Coordinate(x=563.0498657226562, y=223.125), Coordinate(x=-1.0, y=-1.0), Coordinate(x=416.6568908691406, y=125.625), Coordinate(x=439.17889404296875, y=129.375), Coordinate(x=349.0909118652344, y=121.875), Coordinate(x=-1.0, y=-1.0)], confidences=[0.6909244656562805, 0.47419416904449463, 0.4924190044403076, 0.5473593473434448, 0.18560904264450073, 0.16309253871440887, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1302783489227295, 0.21635708212852478, 0.0, 0.7184628844261169, 0.5419383645057678, 0.7876936197280884, 0.0], id=1, id_confirmed_on_cloud=False)]
 
-        # print('raw data', raw_skeleton_data)
+        print('raw data', raw_skeleton_data)
 
         # parse data into set arrays
         skeleton_data = skeleton_parse(raw_skeleton_data)
