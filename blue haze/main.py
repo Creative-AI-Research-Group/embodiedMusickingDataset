@@ -85,12 +85,12 @@ class MainWindow(QMainWindow):
         # mic volume
         self.volume_slider = QSlider()
         self.volume_slider.setOrientation(Qt.Horizontal)
-        self.volume_slider.setTickInterval(1)
+        self.volume_slider.setTickInterval(10)
         self.volume_slider.setMinimum(1)
-        self.volume_slider.setMaximum(10)
+        self.volume_slider.setMaximum(100)
         self.volume_slider.setValue(cfg.UI_INITIAL_MIC_VOLUME)
         self.volume_slider.valueChanged.connect(self.change_value_mic_volume_label)
-        self.volume_slider_label = QLabel('3')
+        self.volume_slider_label = QLabel('30')
 
         # states
         self.recording = False
