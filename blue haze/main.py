@@ -11,6 +11,7 @@
 # todo: stop / terminate the hardware when the app closes
 # todo: implement restart hardware button
 # todo: implement baudrate calc from Bitalino (e.g. 10 = 0.1ms, 100 = 0.01ms)
+# todo: does QSoundEffect for backing track have a duration log? i.e. can the timestamp be driven from the actual play head of the backing track?
 
 from PySide2.QtWidgets import *
 from PySide2.QtMultimedia import *
