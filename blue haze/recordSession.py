@@ -90,7 +90,7 @@ class RecordSession:
         self.session.video_audio_path = video_audio_path
         self.session.video_source = video_source
         self.session.audio_interface = audio_interface
-        self.session.mic_volume = mic_volume / 10
+        self.session.mic_volume = mic_volume / 100
 
         self.video_recording()
         self.audio_recording()
