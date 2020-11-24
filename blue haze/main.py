@@ -10,6 +10,7 @@
 # todo: autostop of 3-5 seconds following backing track end
 # todo: stop / terminate the hardware when the app closes
 # todo: implement restart hardware button
+# todo: implement baudrate calc from Bitalino (e.g. 10 = 0.1ms, 100 = 0.01ms)
 
 from PySide2.QtWidgets import *
 from PySide2.QtMultimedia import *
