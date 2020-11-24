@@ -66,7 +66,7 @@ class RecordSession:
                                     'eeg-O2']
 
         self.thread_get_data = None
-        self.GET_DATA_INTERVAL = cfg.BITALINO_BAUDRATE / 1000
+        self.GET_DATA_INTERVAL = cfg.BITALINO_BAUDRATE / 1000 # todo: this doesnt work correctly
 
         self.loop = None
 
@@ -83,7 +83,7 @@ class RecordSession:
 
         self.session.id = shortuuid.uuid()
         self.session.date = time.strftime('%Y%m%d')
-        self.session.time_start = current_milli_time()
+        #  self.session.time_start = current_milli_time()  ---  moved to after backing track starts
         self.session.name = '{}_{}_{}'.format(self.session.date,
                                               session_name,
                                               self.session.id)
@@ -98,6 +98,9 @@ class RecordSession:
         # play the backtrack
         backing_track_file = '{}{}'.format(cfg.ASSETS_BACKING_AUDIO_FOLDER, back_track)
         self.backing_track_player.play(backing_track_file)
+
+        # start the time stamp
+        self.session.time_start = current_milli_time()
 
         self.database = Database(self.session.id,
                                  self.session.name,
