@@ -155,25 +155,28 @@ class RecordSession:
         timestamp = current_milli_time() - self.session.time_start
         delta_time = self.delta_time(timestamp)
 
-        # skeleton data
-        raw_skeleton_data = self.hardware.read_realsense()
-        # parse raw skeleton data
-        skeleton_data = self.skeleton_parse(raw_skeleton_data)
-        utls.logger.debug('REALSENSE: {}'.format(skeleton_data))
+        if cfg.HARDWARE:
+            # skeleton data
+            raw_skeleton_data = self.hardware.read_realsense()
+            # parse raw skeleton data
+            skeleton_data = self.skeleton_parse(raw_skeleton_data)
+            utls.logger.debug('REALSENSE: {}'.format(skeleton_data))
 
-        # brainbit data
-        raw_brainbit_data = self.hardware.read_brainbit()
-        # parse and label brainbit data
-        brainbit_data = self.brainbit_parse(raw_brainbit_data)
-        utls.logger.debug('BRAINBIT: {}'.format(brainbit_data))
+            # brainbit data
+            raw_brainbit_data = self.hardware.read_brainbit()
+            # parse and label brainbit data
+            brainbit_data = self.brainbit_parse(raw_brainbit_data)
+            utls.logger.debug('BRAINBIT: {}'.format(brainbit_data))
 
-        # bitalino data
-        bitalino_data = self.hardware.read_bitalino()
+            # bitalino data
+            bitalino_data = self.hardware.read_bitalino()
 
-        # slicing usable bitalino data and convert to list
-        bitalino_data = bitalino_data[0, -1]
-        bitalino_data = bitalino_data.tolist()
-        utls.logger.debug('BITALINO: {}'.format(bitalino_data))
+            # slicing usable bitalino data and convert to list
+            bitalino_data = bitalino_data[0, -1]
+            bitalino_data = bitalino_data.tolist()
+            utls.logger.debug('BITALINO: {}'.format(bitalino_data))
+        else:
+            bitalino_data = brainbit_data = skeleton_data = 'no hardware'
 
         # insert data in the database
         self.loop.run_until_complete(self.database.insert_document(timestamp,

@@ -75,13 +75,13 @@ class MainWindow(QMainWindow):
         self.brainbit_label = QLabel('Brainbit')
         self.bullet_realsense_label = QLabel()
         self.realsense_label = QLabel('RealSense camera')
-        self.hardware_status = {'Bitalino': False,
-                                'Brainbit': False,
-                                'RealSense': False}
+        self.hardware_status = {'Bitalino': not cfg.HARDWARE,
+                                'Brainbit': not cfg.HARDWARE,
+                                'RealSense': not cfg.HARDWARE}
 
         # record bottom area
         self.record_stop_button = QPushButton('Record session')
-        self.record_stop_button.setEnabled(False)
+        self.record_stop_button.setEnabled(not cfg.HARDWARE)
         self.recording_label = QLabel()
 
         # mic volume
@@ -118,7 +118,8 @@ class MainWindow(QMainWindow):
         nest_asyncio.apply()
 
         # hardware setup
-        self.setup_hw()
+        if cfg.HARDWARE:
+            self.setup_hw()
 
         # record session object
         self.record_session = RecordSession()
