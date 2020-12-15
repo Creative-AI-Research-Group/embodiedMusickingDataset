@@ -344,7 +344,7 @@ class MainWindow(QMainWindow):
             self.list_backing_tracks.setEnabled(False)
             self.volume_slider.setEnabled(False)
             # start session
-            if self.backing_track_player.player.isPlaying():
+            if self.backing_track_player.is_playing:
                 self.backing_track_player.stop()
                 self.backing_track_player.player.isPlaying = False
             self.record_session.start_recording(self.session_name.text(),
@@ -387,7 +387,7 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def play_stop_backing_track(self):
-        if self.backing_track_player.player.isPlaying():
+        if self.backing_track_player.is_playing:
             self.backing_track_player.stop()
             self.play_stop_backing_track_button.setText('Play backing track')
             # disable field
