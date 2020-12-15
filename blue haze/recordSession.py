@@ -179,11 +179,12 @@ class RecordSession:
             bitalino_data = brainbit_data = skeleton_data = 'no hardware'
 
         # insert data in the database
-        self.loop.run_until_complete(self.database.insert_document(timestamp,
-                                                                   delta_time,
-                                                                   bitalino_data,
-                                                                   brainbit_data,
-                                                                   skeleton_data))
+        self.loop.run_until_complete(self.database.insert_document(timestamp=timestamp,
+                                                                   delta_time=delta_time,
+                                                                   backing_track_position=self.backing_track_player.player.position(),
+                                                                   bitalino_data=bitalino_data,
+                                                                   brainbit_data=brainbit_data,
+                                                                   skeleton_data=skeleton_data))
 
         if not stop_thread_get_data.is_set():
             # call it again

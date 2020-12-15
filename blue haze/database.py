@@ -31,11 +31,28 @@ class Database:
         db = self.client.blue_haze_database
         self.collection = db.blue_haze_posts
 
-    def insert(self, timestamp, delta_time, bitalino_data, brainbit_data, skeleton_data):
+    def insert(self,
+               timestamp,
+               delta_time,
+               backing_track_position,
+               bitalino_data,
+               brainbit_data,
+               skeleton_data):
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(self.insert_document(timestamp, delta_time, bitalino_data, brainbit_data, skeleton_data))
+        loop.run_until_complete(self.insert_document(timestamp=timestamp,
+                                                     delta_time=delta_time,
+                                                     backing_track_position=backing_track_position,
+                                                     bitalino_data=bitalino_data,
+                                                     brainbit_data=brainbit_data,
+                                                     skeleton_data=skeleton_data))
 
-    async def insert_document(self, timestamp, delta_time, bitalino_data, brainbit_data, skeleton_data):
+    async def insert_document(self,
+                              timestamp,
+                              delta_time,
+                              backing_track_position,
+                              bitalino_data,
+                              brainbit_data,
+                              skeleton_data):
         post = {'session_id': self.session_id,
                 'session_name': self.session_name,
                 'timestamp': timestamp,
@@ -44,6 +61,7 @@ class Database:
                 'mic_volume': self.mic_volume,
                 'video_file': self.video_file,
                 'backing_track_file': self.backing_track_file,
+                'backing_track_position': backing_track_position,
                 'bitalino': bitalino_data,
                 'brainbit': brainbit_data,
                 'skeleton_data': skeleton_data,
