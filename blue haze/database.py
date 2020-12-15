@@ -10,6 +10,7 @@
 import motor.motor_asyncio
 import datetime
 import asyncio
+import traceback
 
 
 class Database:
@@ -28,8 +29,7 @@ class Database:
         self.backing_track_file = backing_track_file
 
         self.client = motor.motor_asyncio.AsyncIOMotorClient()
-        db = self.client.blue_haze_database
-        self.collection = db.blue_haze_posts
+        self.db = self.client.blue_haze_database
 
     def insert(self,
                timestamp,
@@ -68,7 +68,8 @@ class Database:
                              'brainbit': brainbit_data,
                              'skeleton': skeleton_data},
                 'flow': None}
-        result = await self.collection.insert_one(post)
+        collection = self.db.get_collection(self.session_name)
+        result = await collection.insert_one(post)
 
     def close(self):
         self.client.close()
