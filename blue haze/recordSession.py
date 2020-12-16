@@ -200,17 +200,17 @@ class RecordSession:
         # 0 = count in; 1 = tune; 2 = improv 1; 3 = improv 2; 4 = improv 3; 5 = recap tune; 999 = ending
         if backing_track_pos < 400:
             return 0
-        elif 400 <= backing_track_pos < 6799:
+        elif 400 <= backing_track_pos < 6800:
             return 1
-        elif 6800 < backing_track_pos < 13199:
+        elif 6800 <= backing_track_pos < 13200:
             return 2
-        elif 13200 < backing_track_pos < 19599:
+        elif 13200 <= backing_track_pos < 19600:
             return 3
-        elif 19600 < backing_track_pos < 25999:
+        elif 19600 <= backing_track_pos < 26000:
             return 4
-        elif 26000 < backing_track_pos < 32399:
+        elif 26000 <= backing_track_pos < 32400:
             return 5
-        elif backing_track_pos > 38800:
+        elif backing_track_pos >= 38800:
             return 999
 
     def brainbit_parse(self, raw_brainbit_data):
