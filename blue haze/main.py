@@ -359,6 +359,7 @@ class MainWindow(QMainWindow):
     def show_folder_browser(self):
         folder_dialog = QFileDialog()
         folder_dialog.setOption(QFileDialog.ShowDirsOnly)
+        folder_dialog.setOption(QFileDialog.DontUseNativeDialog)
         folder_dialog.setFileMode(QFileDialog.Directory)
         if folder_dialog.exec_():
             self.video_file_path.setText(folder_dialog.directory().absolutePath())
