@@ -196,8 +196,22 @@ class RecordSession:
             threading.Timer(self.GET_DATA_INTERVAL, self.get_data, [self.thread_get_data]).start()
 
     def which_chorus(self, backing_track_pos):
-        if backing_track_pos <
-
+        # simple logging of chorus/ loop ID
+        # 0 = count in; 1 = tune; 2 = improv 1; 3 = improv 2; 4 = improv 3; 5 = recap tune; 999 = ending
+        if backing_track_pos < 399:
+            return 0
+        elif 400 > backing_track_pos > 6799:
+            return 1
+        elif 6800 > backing_track_pos > 13199:
+            return 2
+        elif 13200 > backing_track_pos > 19599:
+            return 3
+        elif 19600 > backing_track_pos > 25999:
+            return 4
+        elif 26000 > backing_track_pos > 32399:
+            return 5
+        elif backing_track_pos > 38800:
+            return 999
 
     def brainbit_parse(self, raw_brainbit_data):
         # setup dict for each parse
