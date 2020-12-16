@@ -178,10 +178,15 @@ class RecordSession:
         else:
             bitalino_data = brainbit_data = skeleton_data = 'no hardware'
 
+        # calc chorus of backing track
+        backing_track_pos = self.backing_track_player.player.position()
+        chorus_id = self.which_chorus(backing_track_pos)
+
         # insert data in the database
         self.loop.run_until_complete(self.database.insert_document(timestamp=timestamp,
                                                                    delta_time=delta_time,
-                                                                   backing_track_position=self.backing_track_player.player.position(),
+                                                                   backing_track_position=backing_track_pos,
+                                                                   chorus_id=chorus_id,
                                                                    bitalino_data=bitalino_data,
                                                                    brainbit_data=brainbit_data,
                                                                    skeleton_data=skeleton_data))
@@ -189,6 +194,10 @@ class RecordSession:
         if not stop_thread_get_data.is_set():
             # call it again
             threading.Timer(self.GET_DATA_INTERVAL, self.get_data, [self.thread_get_data]).start()
+
+    def which_chorus(self, backing_track_pos):
+        if backing_track_pos <
+
 
     def brainbit_parse(self, raw_brainbit_data):
         # setup dict for each parse

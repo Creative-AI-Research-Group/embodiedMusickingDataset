@@ -35,6 +35,7 @@ class Database:
                timestamp,
                delta_time,
                backing_track_position,
+               chorus_id,
                bitalino_data,
                brainbit_data,
                skeleton_data):
@@ -42,6 +43,7 @@ class Database:
         loop.run_until_complete(self.insert_document(timestamp=timestamp,
                                                      delta_time=delta_time,
                                                      backing_track_position=backing_track_position,
+                                                     chorus_id=chorus_id,
                                                      bitalino_data=bitalino_data,
                                                      brainbit_data=brainbit_data,
                                                      skeleton_data=skeleton_data))
@@ -50,6 +52,7 @@ class Database:
                               timestamp,
                               delta_time,
                               backing_track_position,
+                              chorus_id,
                               bitalino_data,
                               brainbit_data,
                               skeleton_data):
@@ -59,7 +62,8 @@ class Database:
                             'last_update': None},
                 'sync': {'timestamp': timestamp,
                          'delta': delta_time,
-                         'backing_track_position': backing_track_position},
+                         'backing_track_position': backing_track_position,
+                         'chorus_id': chorus_id},
                 'files': {'audio': {'file': self.audio_file,
                                     'mic_volume': self.mic_volume},
                           'video': self.video_file,
