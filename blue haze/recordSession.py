@@ -181,6 +181,7 @@ class RecordSession:
         # calc chorus of backing track
         backing_track_pos = self.backing_track_player.player.position()
         chorus_id = self.which_chorus(backing_track_pos)
+        utls.logger.debug('Chorus ID: {}'.format(chorus_id))
 
         # insert data in the database
         self.loop.run_until_complete(self.database.insert_document(timestamp=timestamp,
@@ -198,19 +199,19 @@ class RecordSession:
     def which_chorus(self, backing_track_pos):
         # simple logging of chorus/ loop ID
         # 0 = count in; 1 = tune; 2 = improv 1; 3 = improv 2; 4 = improv 3; 5 = recap tune; 999 = ending
-        if backing_track_pos < 400:
+        if backing_track_pos < 4000:
             return 0
-        elif 400 <= backing_track_pos < 6800:
+        elif 4000 <= backing_track_pos < 68000:
             return 1
-        elif 6800 <= backing_track_pos < 13200:
+        elif 68000 <= backing_track_pos < 132000:
             return 2
-        elif 13200 <= backing_track_pos < 19600:
+        elif 132000 <= backing_track_pos < 196000:
             return 3
-        elif 19600 <= backing_track_pos < 26000:
+        elif 196000 <= backing_track_pos < 260000:
             return 4
-        elif 26000 <= backing_track_pos < 32400:
+        elif 260000 <= backing_track_pos < 324000:
             return 5
-        elif backing_track_pos >= 38800:
+        elif backing_track_pos >= 388000:
             return 999
 
     def brainbit_parse(self, raw_brainbit_data):
