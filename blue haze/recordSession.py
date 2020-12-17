@@ -211,7 +211,7 @@ class RecordSession:
             return 4
         elif 260000 <= backing_track_pos < 324000:
             return 5
-        elif backing_track_pos >= 388000:
+        elif backing_track_pos >= 324000:
             return 999
 
     def brainbit_parse(self, raw_brainbit_data):
