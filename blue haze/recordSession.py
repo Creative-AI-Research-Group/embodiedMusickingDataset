@@ -99,9 +99,6 @@ class RecordSession:
         backing_track_file = '{}{}'.format(cfg.ASSETS_BACKING_AUDIO_FOLDER, back_track)
         self.backing_track_player.play(backing_track_file)
 
-        # start the time stamp
-        self.session.time_start = current_milli_time()
-
         self.database = Database(self.session.id,
                                  self.session.name,
                                  self.session.audio_file_name,
@@ -151,50 +148,52 @@ class RecordSession:
         self.audio_recorder.setAudioInput(self.session.audio_interface.deviceName())
         self.audio_recorder.record()
 
-    def get_data(self, stop_thread_get_data):
-        timestamp = current_milli_time() - self.session.time_start
-        delta_time = self.delta_time(timestamp)
-
-        if cfg.HARDWARE:
-            # skeleton data
-            raw_skeleton_data = self.hardware.read_realsense()
-            # parse raw skeleton data
-            skeleton_data = self.skeleton_parse(raw_skeleton_data)
-            utls.logger.debug('REALSENSE: {}'.format(skeleton_data))
-
-            # brainbit data
-            raw_brainbit_data = self.hardware.read_brainbit()
-            # parse and label brainbit data
-            brainbit_data = self.brainbit_parse(raw_brainbit_data)
-            utls.logger.debug('BRAINBIT: {}'.format(brainbit_data))
-
-            # bitalino data
-            bitalino_data = self.hardware.read_bitalino()
-
-            # slicing usable bitalino data and convert to list
-            bitalino_data = bitalino_data[0, -1]
-            bitalino_data = bitalino_data.tolist()
-            utls.logger.debug('BITALINO: {}'.format(bitalino_data))
-        else:
-            bitalino_data = brainbit_data = skeleton_data = 'no hardware'
-
-        # calc chorus of backing track
+    def get_data(self, stop_thread_get_data, old_pos=-1):
+        # backtrack play position
         backing_track_pos = self.backing_track_player.player.position()
-        chorus_id = self.which_chorus(backing_track_pos)
-        utls.logger.debug('Chorus ID: {}'.format(chorus_id))
 
-        # insert data in the database
-        self.loop.run_until_complete(self.database.insert_document(timestamp=timestamp,
-                                                                   delta_time=delta_time,
-                                                                   backing_track_position=backing_track_pos,
-                                                                   chorus_id=chorus_id,
-                                                                   bitalino_data=bitalino_data,
-                                                                   brainbit_data=brainbit_data,
-                                                                   skeleton_data=skeleton_data))
+        if backing_track_pos != old_pos:
+            delta_time = self.delta_time(backing_track_pos)
+
+            if cfg.HARDWARE:
+                # skeleton data
+                raw_skeleton_data = self.hardware.read_realsense()
+                # parse raw skeleton data
+                skeleton_data = self.skeleton_parse(raw_skeleton_data)
+                utls.logger.debug('REALSENSE: {}'.format(skeleton_data))
+
+                # brainbit data
+                raw_brainbit_data = self.hardware.read_brainbit()
+                # parse and label brainbit data
+                brainbit_data = self.brainbit_parse(raw_brainbit_data)
+                utls.logger.debug('BRAINBIT: {}'.format(brainbit_data))
+
+                # bitalino data
+                bitalino_data = self.hardware.read_bitalino()
+
+                # slicing usable bitalino data and convert to list
+                bitalino_data = bitalino_data[0, -1]
+                bitalino_data = bitalino_data.tolist()
+                utls.logger.debug('BITALINO: {}'.format(bitalino_data))
+            else:
+                bitalino_data = brainbit_data = skeleton_data = 'no hardware'
+
+            # calc chorus of backing track
+            chorus_id = self.which_chorus(backing_track_pos)
+
+            # insert data in the database
+            self.loop.run_until_complete(self.database.insert_document(delta_time=delta_time,
+                                                                       backing_track_position=backing_track_pos,
+                                                                       chorus_id=chorus_id,
+                                                                       bitalino_data=bitalino_data,
+                                                                       brainbit_data=brainbit_data,
+                                                                       skeleton_data=skeleton_data))
 
         if not stop_thread_get_data.is_set():
             # call it again
-            threading.Timer(self.GET_DATA_INTERVAL, self.get_data, [self.thread_get_data]).start()
+            threading.Timer(interval=self.GET_DATA_INTERVAL,
+                            function=self.get_data,
+                            args=[self.thread_get_data, backing_track_pos]).start()
 
     def which_chorus(self, backing_track_pos):
         # simple logging of chorus/ loop ID

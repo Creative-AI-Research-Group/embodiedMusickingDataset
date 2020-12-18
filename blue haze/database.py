@@ -32,7 +32,6 @@ class Database:
         self.db = self.client.blue_haze_database
 
     def insert(self,
-               timestamp,
                delta_time,
                backing_track_position,
                chorus_id,
@@ -40,8 +39,7 @@ class Database:
                brainbit_data,
                skeleton_data):
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(self.insert_document(timestamp=timestamp,
-                                                     delta_time=delta_time,
+        loop.run_until_complete(self.insert_document(delta_time=delta_time,
                                                      backing_track_position=backing_track_position,
                                                      chorus_id=chorus_id,
                                                      bitalino_data=bitalino_data,
@@ -49,7 +47,6 @@ class Database:
                                                      skeleton_data=skeleton_data))
 
     async def insert_document(self,
-                              timestamp,
                               delta_time,
                               backing_track_position,
                               chorus_id,
@@ -60,8 +57,7 @@ class Database:
                             'name': self.session_name,
                             'date': datetime.datetime.utcnow(),
                             'last_update': None},
-                'sync': {'timestamp': timestamp,
-                         'delta': delta_time,
+                'sync': {'delta': delta_time,
                          'backing_track_position': backing_track_position,
                          'chorus_id': chorus_id},
                 'files': {'audio': {'file': self.audio_file,
