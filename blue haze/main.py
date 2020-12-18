@@ -16,7 +16,6 @@
 from PySide2.QtWidgets import *
 from PySide2.QtMultimedia import *
 from PySide2.QtMultimediaWidgets import QCameraViewfinder
-from PySide2.QtGui import QPalette, QColor
 from PySide2.QtCore import Slot, Qt, QDir
 from glob import glob
 from playBackTrack import PlayBackTrack
@@ -30,26 +29,7 @@ import threading
 
 import modules.utils as utls
 import modules.config as cfg
-
-
-def dark_palette():
-    # dark theme
-    dark_palette_colours = QPalette()
-    dark_palette_colours.setColor(QPalette.Window, QColor(53, 53, 53))
-    dark_palette_colours.setColor(QPalette.WindowText, Qt.white)
-    dark_palette_colours.setColor(QPalette.Base, QColor(25, 25, 25))
-    dark_palette_colours.setColor(QPalette.AlternateBase, QColor(53, 53, 53))
-    dark_palette_colours.setColor(QPalette.ToolTipBase, Qt.white)
-    dark_palette_colours.setColor(QPalette.ToolTipText, Qt.white)
-    dark_palette_colours.setColor(QPalette.Text, Qt.white)
-    dark_palette_colours.setColor(QPalette.Button, QColor(53, 53, 53))
-    dark_palette_colours.setColor(QPalette.ButtonText, Qt.white)
-    dark_palette_colours.setColor(QPalette.BrightText, Qt.red)
-    dark_palette_colours.setColor(QPalette.Link, QColor(42, 130, 218))
-    dark_palette_colours.setColor(QPalette.Highlight, QColor(42, 130, 218))
-    dark_palette_colours.setColor(QPalette.HighlightedText, Qt.black)
-    return dark_palette_colours
-
+import modules.ui as ui
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -487,7 +467,7 @@ if __name__ == '__main__':
     # UI startup
     app = QApplication()
     app.setStyle('Fusion')
-    app.setPalette(dark_palette())
+    app.setPalette(ui.dark_palette())
 
     window = MainWindow()
     window.show()
