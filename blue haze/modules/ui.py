@@ -28,4 +28,3 @@ def dark_palette():
     dark_palette_colours.setColor(QPalette.Highlight, QColor(42, 130, 218))
     dark_palette_colours.setColor(QPalette.HighlightedText, Qt.black)
     return dark_palette_colours
-

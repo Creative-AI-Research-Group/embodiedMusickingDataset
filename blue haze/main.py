@@ -16,6 +16,7 @@
 from PySide2.QtWidgets import *
 from PySide2.QtMultimedia import *
 from PySide2.QtMultimediaWidgets import QCameraViewfinder
+from PySide2.QtGui import QFont
 from PySide2.QtCore import Slot, Qt, QDir
 from glob import glob
 from playBackTrack import PlayBackTrack
@@ -339,7 +340,6 @@ class MainWindow(QMainWindow):
     def show_folder_browser(self):
         folder_dialog = QFileDialog()
         folder_dialog.setOption(QFileDialog.ShowDirsOnly)
-        folder_dialog.setOption(QFileDialog.DontUseNativeDialog)
         folder_dialog.setFileMode(QFileDialog.Directory)
         if folder_dialog.exec_():
             self.video_file_path.setText(folder_dialog.directory().absolutePath())
@@ -465,7 +465,21 @@ class MainWindow(QMainWindow):
 
 if __name__ == '__main__':
     # UI startup
+    QApplication.setAttribute(Qt.AA_DisableHighDpiScaling)
+
     app = QApplication()
+
+    # this is a workaround to prevent the font
+    # from scaling up when the DPI is increased
+    # for example, when using a 4K monitor
+    # https://wiki.qt.io/Technical_FAQ#How_can_I_prevent_the_font_from_scaling_up_when_the_DPI_is_increased.3F
+    # https://www.charlesodale.com/setting-qt-to-ignore-windows-dpi-text-size-personalization/
+    # it is an ugly fix, as neither DisableHighDpiScaling nor EnableHighDpiScaling are working
+    font = QFont()
+    font.setPixelSize(13)
+    app.setFont(font)
+
+    app.setAttribute(Qt.AA_DontUseNativeDialogs)
     app.setStyle('Fusion')
     app.setPalette(ui.dark_palette())
 
