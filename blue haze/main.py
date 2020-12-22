@@ -21,6 +21,7 @@ from PySide2.QtCore import Slot, Qt, QDir
 from glob import glob
 from playBackTrack import PlayBackTrack
 from recordSession import RecordSession
+from pathlib import Path
 
 import os
 import sys
@@ -48,6 +49,12 @@ class MainWindow(QMainWindow):
         self.list_audio_devices.setDuplicatesEnabled(False)
         self.list_backing_tracks = QComboBox()
         self.play_stop_backing_track_button = QPushButton('Play backing track')
+
+        # check if debug is on & auto set
+        # session name & video file path fields
+        if cfg.DEBUG:
+            self.session_name.setText('test')
+            self.video_file_path.setText(str(Path.home()) + '\Documents')
 
         # hardware
         self.bullet_bitalino_label = QLabel()

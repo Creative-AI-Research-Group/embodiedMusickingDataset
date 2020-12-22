@@ -10,7 +10,6 @@
 import motor.motor_asyncio
 import datetime
 import asyncio
-import traceback
 
 
 class Database:
@@ -69,7 +68,7 @@ class Database:
                              'skeleton': skeleton_data},
                 'flow': None}
         collection = self.db.get_collection(self.session_name)
-        result = await collection.insert_one(post)
+        _ = await collection.insert_one(post)
 
     def close(self):
         self.client.close()

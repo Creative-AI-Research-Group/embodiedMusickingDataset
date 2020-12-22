@@ -43,7 +43,7 @@ class Hardware(Borg, QObject):
         Borg.__init__(self)
 
         if parent is not None:
-            self.result = Result(parent)
+            self.result = EmitSignal(parent, dict(), parent.hw_init_status)
             self.realsense = None
             self.brainbit = None
             self.bitalino = None
@@ -131,12 +131,13 @@ class Hardware(Borg, QObject):
         pass
 
 
-class Result(QObject):
+class EmitSignal(QObject):
     signal = Signal(dict)
 
-    def __init__(self, parent):
+    def __init__(self, parent, signal_type, fn_name):
+        # self.signal = Signal(dict())
         super().__init__(parent)
-        self.signal.connect(super().parent().hw_init_status)
+        self.signal.connect(fn_name)
 
     def emit_signal(self, message_dict):
         self.signal.emit(message_dict)
