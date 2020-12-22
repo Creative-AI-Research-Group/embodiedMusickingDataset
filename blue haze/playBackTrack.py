@@ -10,6 +10,8 @@
 from PySide2.QtMultimedia import QMediaPlayer
 from PySide2.QtCore import QUrl, QObject, Signal
 
+import modules.utils as utls
+
 
 class PlayBackTrack(QObject):
     def __init__(self, parent=None):
@@ -17,6 +19,8 @@ class PlayBackTrack(QObject):
         self.player = QMediaPlayer()
         self.is_playing = False
         self.player.mediaStatusChanged[QMediaPlayer.MediaStatus].connect(self.media_status_changed)
+        if parent is not None:
+            self.result = utls.EmitSignal(parent, parent.back_track_end)
 
     def play(self, file_name):
         self.player.setMedia(QUrl.fromLocalFile(file_name))
@@ -30,6 +34,7 @@ class PlayBackTrack(QObject):
     def media_status_changed(self, status):
         # check if it is the end of the audio file
         if status == QMediaPlayer.EndOfMedia:
-            signal = Signal()
-            signal.connect(super().self.parent().back_track_end)
-            signal.emit()
+            return_dict = {
+                'end_of_audio_file': True
+            }
+            self.result.emit_signal(return_dict)

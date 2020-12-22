@@ -8,7 +8,7 @@
 #
 
 from PySide2.QtMultimedia import QAudioRecorder, QAudioEncoderSettings, QMultimedia
-from PySide2.QtCore import QUrl, Slot
+from PySide2.QtCore import QUrl, Slot, QObject
 from database import *
 from playBackTrack import PlayBackTrack
 from subprocess import Popen
@@ -28,8 +28,10 @@ def current_milli_time():
     return int(round(time.time() * 1000))
 
 
-class RecordSession:
+class RecordSession(QObject):
     def __init__(self):
+        super().__init__()
+
         self.session = datastr.RecordSessionData()
 
         self.video_process = None
@@ -300,6 +302,6 @@ class RecordSession:
         self.hardware.stop()
 
     # slot to get signal when the back track file ends
-    @Slot()
-    def back_track_end(self):
+    @Slot(dict)
+    def back_track_end(self, status):
         utls.logger.info('-- END OF BACK TRACK FILE --')

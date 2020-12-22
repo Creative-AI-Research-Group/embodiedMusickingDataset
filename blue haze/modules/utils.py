@@ -43,7 +43,7 @@ class Hardware(Borg, QObject):
         Borg.__init__(self)
 
         if parent is not None:
-            self.result = EmitSignal(parent, dict(), parent.hw_init_status)
+            self.result = EmitSignal(parent, parent.hw_init_status)
             self.realsense = None
             self.brainbit = None
             self.bitalino = None
@@ -54,14 +54,14 @@ class Hardware(Borg, QObject):
             self.realsense.start()
         except Exception as err:
             return_dict = {
-                "from": "RealSense",
-                "result": False
+                'from': 'RealSense',
+                'result': False
             }
             logger.error(err)
         else:
             return_dict = {
-                "from": "RealSense",
-                "result": True
+                'from': 'RealSense',
+                'result': True
             }
         self.result.emit_signal(return_dict)
 
@@ -74,14 +74,14 @@ class Hardware(Borg, QObject):
             self.brainbit.start()
         except Exception as err:
             return_dict = {
-                "from": "BrainBit",
-                "result": False
+                'from': 'BrainBit',
+                'result': False
             }
             logger.error(err)
         else:
             return_dict = {
-                "from": "BrainBit",
-                "result": True
+                'from': 'BrainBit',
+                'result': True
             }
         self.result.emit_signal(return_dict)
 
@@ -107,14 +107,14 @@ class Hardware(Borg, QObject):
             self.bitalino.start(cfg.BITALINO_BAUDRATE, cfg.BITALINO_ACQ_CHANNELS)
         except Exception as err:
             return_dict = {
-                "from": "Bitalino",
-                "result": False
+                'from': 'Bitalino',
+                'result': False
             }
             logger.error(err)
         else:
             return_dict = {
-                "from": "Bitalino",
-                "result": True
+                'from': 'Bitalino',
+                'result': True
             }
 
         self.result.emit_signal(return_dict)
@@ -123,19 +123,18 @@ class Hardware(Borg, QObject):
         return self.bitalino.read(self.n_samples)
 
     def stop(self):
-        """
+        '''
             bitalino.stop()
             brainbit.terminate()
             realsense.terminate()
-        """
+        '''
         pass
 
 
 class EmitSignal(QObject):
     signal = Signal(dict)
 
-    def __init__(self, parent, signal_type, fn_name):
-        # self.signal = Signal(dict())
+    def __init__(self, parent, fn_name):
         super().__init__(parent)
         self.signal.connect(fn_name)
 
