@@ -9,6 +9,7 @@
 
 from PySide2.QtMultimedia import QAudioRecorder, QAudioEncoderSettings, QMultimedia
 from PySide2.QtCore import QUrl, Slot, QObject
+from PySide2.QtWidgets import QMessageBox
 from database import *
 from playBackTrack import PlayBackTrack
 from subprocess import Popen
@@ -21,6 +22,7 @@ import nest_asyncio
 
 import modules.utils as utls
 import modules.config as cfg
+import modules.ui as ui
 import modules.datastructures as datastr
 
 
@@ -28,7 +30,7 @@ def current_milli_time():
     return int(round(time.time() * 1000))
 
 
-class RecordSession(QObject):
+class RecordSession(QMessageBox, QObject):
     def __init__(self):
         super().__init__()
 
@@ -304,4 +306,9 @@ class RecordSession(QObject):
     # slot to get signal when the back track file ends
     @Slot(dict)
     def back_track_end(self, status):
-        utls.logger.info('-- END OF BACK TRACK FILE --')
+        if status['end_of_audio_file']:
+            message_box = ui.TimerMessageBox(3,
+                                             'Blue Haze - Stopping session',
+                                             'Stopping automatically the session in {} seconds',
+                                             self)
+            message_box.exec_()
