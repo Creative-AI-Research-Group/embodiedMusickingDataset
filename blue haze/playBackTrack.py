@@ -13,7 +13,7 @@ from PySide2.QtCore import QUrl, QObject, Signal
 import modules.utils as utls
 
 
-class PlayBackTrack(QObject):
+class PlayBackTrack():
     def __init__(self, parent=None):
         super().__init__()
         self.player = QMediaPlayer()

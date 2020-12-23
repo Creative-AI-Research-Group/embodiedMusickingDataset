@@ -8,7 +8,7 @@
 #
 
 from PySide2.QtMultimedia import QAudioRecorder, QAudioEncoderSettings, QMultimedia
-from PySide2.QtCore import QUrl, Slot, QObject
+from PySide2.QtCore import QUrl, Slot, QObject, QTimer
 from PySide2.QtWidgets import QMessageBox
 from database import *
 from playBackTrack import PlayBackTrack
@@ -31,8 +31,11 @@ def current_milli_time():
 
 
 class RecordSession(QMessageBox, QObject):
-    def __init__(self):
+    def __init__(self, parent=None):
         super().__init__()
+
+        if parent is not None:
+            self.result_stop_recording = utls.EmitSignal(parent, parent.action_record_stop_button)
 
         self.session = datastr.RecordSessionData()
 
@@ -307,8 +310,19 @@ class RecordSession(QMessageBox, QObject):
     @Slot(dict)
     def back_track_end(self, status):
         if status['end_of_audio_file']:
-            message_box = ui.TimerMessageBox(3,
-                                             'Blue Haze - Stopping session',
-                                             'Stopping automatically the session in {} seconds',
-                                             self)
-            message_box.exec_()
+            # # timer to send the stop signal
+            # timer = QTimer(self)
+            # timer.setInterval(3500)
+            # timer.timeout.connect(self.back_track_end_after_three_seconds(timer))
+
+            # show the message box warning about the end of the session in 3 seconds
+            _ = ui.TimerMessageBox(3,
+                                   'Blue Haze - Stopping session',
+                                   'Stopping automatically the session in {} seconds',
+                                   self).exec_()
+
+            # send signal to main to stop the recording
+            return_dict = {
+                'stop_recording': True
+            }
+            self.result_stop_recording.emit_signal(return_dict)

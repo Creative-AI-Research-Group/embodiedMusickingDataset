@@ -110,7 +110,7 @@ class MainWindow(QMainWindow):
             self.setup_hw()
 
         # record session object
-        self.record_session = RecordSession()
+        self.record_session = RecordSession(parent=self)
 
     def setup_hw(self):
         init_hardware = utls.Hardware(parent=self)
@@ -277,7 +277,7 @@ class MainWindow(QMainWindow):
     def change_value_mic_volume_label(self):
         self.volume_slider_label.setText(str(self.volume_slider.value()))
 
-    @Slot()
+    @Slot(dict)
     def action_record_stop_button(self):
         # check if the session name & video path file fields are filled
         if not self.session_name.text() or not self.video_file_path.text():

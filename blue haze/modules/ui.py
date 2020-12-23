@@ -39,6 +39,7 @@ class TimerMessageBox(QMessageBox):
         self.setWindowTitle(title)
         self.time_to_wait = timeout
         self.setText(self.text.format(timeout))
+        self.setIcon(QMessageBox.Information)
         self.setStandardButtons(QMessageBox.NoButton)
         self.timer = QTimer(self)
         self.timer.setInterval(1000)
