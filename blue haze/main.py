@@ -47,7 +47,8 @@ class MainWindow(QMainWindow):
         self.list_audio_devices = QComboBox()
         self.list_audio_devices.setDuplicatesEnabled(False)
         self.list_backing_tracks = QComboBox()
-        self.play_stop_backing_track_button = QPushButton('Play backing track')
+        self.PLAY_BACKING_TRACK = 'Play backing track'
+        self.play_stop_backing_track_button = QPushButton(self.PLAY_BACKING_TRACK)
 
         # check if debug is on & auto set
         # session name & video file path fields
@@ -85,7 +86,7 @@ class MainWindow(QMainWindow):
         self.recording = False
 
         # objects
-        self.backing_track_player = PlayBackTrack()
+        self.backing_track_player = PlayBackTrack(parent=self)
         self.view_finder = QCameraViewfinder()
 
         # hardware setup
@@ -331,9 +332,8 @@ class MainWindow(QMainWindow):
             self.list_backing_tracks.setEnabled(False)
             self.volume_slider.setEnabled(False)
             # start session
-            if self.backing_track_player.is_playing:
+            if self.backing_track_player.state() == QMediaPlayer.State.PlayingState:
                 self.backing_track_player.stop()
-                self.backing_track_player.player.isPlaying = False
             self.record_session.start_recording(self.session_name.text(),
                                                 self.video_file_path.text(),
                                                 self.list_cameras.currentData().description(),
@@ -374,14 +374,15 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def play_stop_backing_track(self):
-        if self.backing_track_player.is_playing:
+        if self.backing_track_player.state() == QMediaPlayer.State.PlayingState:
             self.backing_track_player.stop()
-            self.play_stop_backing_track_button.setText('Play backing track')
+            self.play_stop_backing_track_button.setText(self.PLAY_BACKING_TRACK)
             # disable field
             self.list_backing_tracks.setEnabled(True)
         else:
             backing_track_file = '{}{}'.format(cfg.ASSETS_BACKING_AUDIO_FOLDER, self.list_backing_tracks.currentText())
-            self.backing_track_player.play(backing_track_file)
+            self.backing_track_player.setup_media(backing_track_file)
+            self.backing_track_player.play()
             self.play_stop_backing_track_button.setText('Stop backing track')
             # enable field
             self.list_backing_tracks.setEnabled(False)
@@ -468,10 +469,14 @@ class MainWindow(QMainWindow):
             self.error_dialog('Error initializing {}. Please check the connections.'
                               .format(status['from']))
 
+    Slot()
+    def back_track_end(self):
+        self.play_stop_backing_track_button.setText(self.PLAY_BACKING_TRACK)
+
 
 if __name__ == '__main__':
     # UI startup
-    QApplication.setAttribute(Qt.AA_DisableHighDpiScaling)
+    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
 
     app = QApplication()
 

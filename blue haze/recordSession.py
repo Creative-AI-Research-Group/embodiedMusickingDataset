@@ -104,7 +104,8 @@ class RecordSession(QMessageBox, QObject):
 
         # play the backtrack
         backing_track_file = '{}{}'.format(cfg.ASSETS_BACKING_AUDIO_FOLDER, back_track)
-        self.backing_track_player.play(backing_track_file)
+        self.backing_track_player.setup_media(backing_track_file)
+        self.backing_track_player.play()
 
         self.database = Database(self.session.id,
                                  self.session.name,
@@ -157,7 +158,7 @@ class RecordSession(QMessageBox, QObject):
 
     def get_data(self, stop_thread_get_data, old_pos=-1):
         # backtrack play position
-        backing_track_pos = self.backing_track_player.player.position()
+        backing_track_pos = self.backing_track_player.position()
 
         if backing_track_pos != old_pos:
             delta_time = self.delta_time(backing_track_pos)
