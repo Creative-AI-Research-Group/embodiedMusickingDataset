@@ -6,10 +6,8 @@
 # Craig Vear - cvear@dmu.ac.uk
 #
 
-# todo: fix the backtrack button status when playing
 # todo: stop / terminate the hardware when the app closes
 # todo: implement restart hardware button
-# todo: implement baudrate calc from Bitalino (e.g. 10 = 0.1ms, 100 = 0.01ms)
 # todo: slider
 
 from PySide2.QtWidgets import *
