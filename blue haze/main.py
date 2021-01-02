@@ -30,6 +30,7 @@ import modules.utils as utls
 import modules.config as cfg
 import modules.ui as ui
 
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
