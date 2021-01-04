@@ -7,8 +7,8 @@
 # Craig Vear - cvear@dmu.ac.uk
 #
 
-from PySide2.QtMultimedia import QAudioRecorder, QAudioEncoderSettings, QMultimedia
-from PySide2.QtCore import QUrl, Slot, QObject, QTimer
+from PySide2.QtMultimedia import QAudioEncoderSettings, QMultimedia
+from PySide2.QtCore import QUrl, Slot, QObject
 from PySide2.QtWidgets import QMessageBox
 from database import *
 from playBackTrack import PlayBackTrack
@@ -41,7 +41,6 @@ class RecordSession(QMessageBox, QObject):
 
         self.video_process = None
 
-        self.audio_recorder = QAudioRecorder()
         self.backing_track_player = PlayBackTrack(parent=self)
 
         self.database = None
@@ -100,7 +99,6 @@ class RecordSession(QMessageBox, QObject):
         self.session.mic_volume = mic_volume / 100
 
         self.video_recording()
-        self.audio_recording()
 
         # play the backtrack
         backing_track_file = '{}{}'.format(cfg.ASSETS_BACKING_AUDIO_FOLDER, back_track)
@@ -127,6 +125,8 @@ class RecordSession(QMessageBox, QObject):
         # on Windows
         self.video_file_name = '{}/{}.avi'.format(self.session.video_audio_path,
                                                   self.session.name)
+        self.session.audio_file_name = '{}/{}.wav'.format(self.session.video_audio_path,
+                                                          self.session.name)
 
         # see:
         # https://trac.ffmpeg.org/wiki/Capture/Webcam
@@ -135,26 +135,20 @@ class RecordSession(QMessageBox, QObject):
         # list video and audio devices on Windows:
         # https://trac.ffmpeg.org/wiki/DirectShow
         # ffmpeg -list_devices true -f dshow -i dummy
-        cmd = ['ffmpeg', '-f', 'dshow',
+        cmd = ['ffmpeg',
+               '-f', 'dshow',
                '-framerate', '30',
                '-i', 'video={}:audio={}'.format(self.session.video_source,
                                                 self.session.audio_interface.deviceName()),
                '-q:v', '3',
                '-b:v', '2M',
-               self.video_file_name]
+               self.video_file_name,
+               '-f', 'dshow',
+               '-i', 'audio={}'.format(self.session.audio_interface.deviceName()),
+               '-ar', '48000',
+               '-q:a', '330',
+               self.session.audio_file_name]
         self.video_process = Popen(cmd)
-
-    def audio_recording(self):
-        audio_settings = QAudioEncoderSettings()
-        self.session.audio_file_name = '{}/{}.wav'.format(self.session.video_audio_path,
-                                                          self.session.name)
-        audio_settings.setCodec('audio/pcm')
-        audio_settings.setQuality(QMultimedia.VeryHighQuality)
-        self.audio_recorder.setEncodingSettings(audio_settings)
-        self.audio_recorder.setVolume(self.session.mic_volume)
-        self.audio_recorder.setOutputLocation(QUrl.fromLocalFile(self.session.audio_file_name))
-        self.audio_recorder.setAudioInput(self.session.audio_interface.deviceName())
-        self.audio_recorder.record()
 
     def get_data(self, stop_thread_get_data, old_pos=-1):
         # backtrack play position
@@ -302,7 +296,6 @@ class RecordSession(QMessageBox, QObject):
     def stop(self):
         self.backing_track_player.stop()
         self.thread_get_data.set()
-        self.audio_recorder.stop()
         self.video_process.terminate()
         self.database.close()
         self.hardware.stop()
