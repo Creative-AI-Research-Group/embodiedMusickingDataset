@@ -7,8 +7,7 @@
 # Craig Vear - cvear@dmu.ac.uk
 #
 
-from PySide2.QtMultimedia import QAudioEncoderSettings, QMultimedia
-from PySide2.QtCore import QUrl, Slot, QObject
+from PySide2.QtCore import Slot, QObject
 from PySide2.QtWidgets import QMessageBox
 from database import *
 from playBackTrack import PlayBackTrack
@@ -89,7 +88,6 @@ class RecordSession(QMessageBox, QObject):
 
         self.session.id = shortuuid.uuid()
         self.session.date = time.strftime('%Y%m%d')
-        #  self.session.time_start = current_milli_time()  ---  moved to after backing track starts
         self.session.name = '{}_{}_{}'.format(self.session.date,
                                               session_name,
                                               self.session.id)
@@ -98,7 +96,7 @@ class RecordSession(QMessageBox, QObject):
         self.session.audio_interface = audio_interface
         self.session.mic_volume = mic_volume / 100
 
-        self.video_recording()
+        self.video_audio_recording()
 
         # play the backtrack
         backing_track_file = '{}{}'.format(cfg.ASSETS_BACKING_AUDIO_FOLDER, back_track)
@@ -115,7 +113,7 @@ class RecordSession(QMessageBox, QObject):
         self.thread_get_data = threading.Event()
         self.get_data(self.thread_get_data)
 
-    def video_recording(self):
+    def video_audio_recording(self):
         # this is an ugly workaround
         # because QMediarecorder
         # doesn't work on Windows
@@ -147,6 +145,7 @@ class RecordSession(QMessageBox, QObject):
                '-i', 'audio={}'.format(self.session.audio_interface.deviceName()),
                '-ar', '48000',
                '-q:a', '330',
+               '-filter:a', 'volume={}'.format(self.session.mic_volume),
                self.session.audio_file_name]
         self.video_process = Popen(cmd)
 
