@@ -81,6 +81,9 @@ class MainWindow(QMainWindow):
         self.volume_slider.valueChanged.connect(self.change_value_mic_volume_label)
         self.volume_slider_label = QLabel('30')
 
+        # feedback tab
+        self.session_name_feedback_tab = QComboBox()
+
         # states
         self.recording = False
 
@@ -123,16 +126,12 @@ class MainWindow(QMainWindow):
         record_tab_widget = QWidget()
         record_tab_widget.setLayout(self.ui_tab_record_tab_widget())
 
-        edit_tab_widget = QWidget()
-
         feedback_tab_widget = QWidget()
+        feedback_tab_widget.setLayout(self.ui_tab_feedback_tab_widget())
 
         tab_widget = QTabWidget()
         tab_widget.addTab(record_tab_widget, 'Record')
         tab_widget.addTab(feedback_tab_widget, 'Feedback')
-
-        # disable Edit & Feedback for now
-        tab_widget.setTabEnabled(1, False)
 
         # let's add some margin/breathing space to it!
         main_layout = QHBoxLayout()
@@ -146,6 +145,30 @@ class MainWindow(QMainWindow):
 
         # connect the record/stop button signal
         self.record_stop_button.clicked.connect(self.action_record_stop_button)
+
+    def ui_tab_feedback_tab_widget(self):
+        # session field
+        session_to_edit = QGridLayout()
+        session_to_edit_group_box = QGroupBox()
+        session_to_edit_layout = QGridLayout()
+        session_to_edit_layout.setSpacing(8)
+
+        # session name
+        session_to_edit_name = QLabel('Session name: ')
+
+        # fields layout
+        session_to_edit_layout.addWidget(session_to_edit_name, 0, 1)
+        session_to_edit_layout.addWidget(self.session_name_feedback_tab, 0, 2)
+        session_to_edit_layout.setColumnStretch(3, 1)
+
+        session_to_edit_group_box.setLayout(session_to_edit_layout)
+        session_to_edit.addWidget(session_to_edit_group_box)
+
+        # layout
+        session_tab_layout = QVBoxLayout()
+        session_tab_layout.addLayout(session_to_edit)
+
+        return session_tab_layout
 
     def ui_tab_record_tab_widget(self):
         # fields & hardware
