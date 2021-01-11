@@ -16,13 +16,11 @@ class Database:
     def __init__(self,
                  session_id,
                  session_name,
-                 audio_file,
                  mic_volume,
                  video_file,
                  backing_track_file):
         self.session_id = session_id
         self.session_name = session_name
-        self.audio_file = audio_file
         self.mic_volume = mic_volume
         self.video_file = video_file
         self.backing_track_file = backing_track_file
@@ -59,8 +57,7 @@ class Database:
                 'sync': {'delta': delta_time,
                          'backing_track_position': backing_track_position,
                          'chorus_id': chorus_id},
-                'files': {'audio': {'file': self.audio_file,
-                                    'mic_volume': self.mic_volume},
+                'files': {'mic_volume': self.mic_volume,
                           'video': self.video_file,
                           'backing_track': self.backing_track_file},
                 'hardware': {'bitalino': bitalino_data,

@@ -96,7 +96,7 @@ class RecordSession(QMessageBox, QObject):
         self.session.audio_interface = audio_interface
         self.session.mic_volume = mic_volume / 100
 
-        self.video_audio_recording()
+        self.video_recording()
 
         # play the backtrack
         backing_track_file = '{}{}'.format(cfg.ASSETS_BACKING_AUDIO_FOLDER, back_track)
@@ -105,7 +105,6 @@ class RecordSession(QMessageBox, QObject):
 
         self.database = Database(self.session.id,
                                  self.session.name,
-                                 self.session.audio_file_name,
                                  self.session.mic_volume,
                                  self.video_file_name,
                                  back_track)
@@ -113,7 +112,7 @@ class RecordSession(QMessageBox, QObject):
         self.thread_get_data = threading.Event()
         self.get_data(self.thread_get_data)
 
-    def video_audio_recording(self):
+    def video_recording(self):
         # this is an ugly workaround
         # because QMediarecorder
         # doesn't work on Windows
@@ -123,9 +122,6 @@ class RecordSession(QMessageBox, QObject):
         # on Windows
         self.video_file_name = '{}/{}.avi'.format(self.session.video_audio_path,
                                                   self.session.name)
-        self.session.audio_file_name = '{}/{}.wav'.format(self.session.video_audio_path,
-                                                          self.session.name)
-
         # see:
         # https://trac.ffmpeg.org/wiki/Capture/Webcam
         cmd = None
@@ -140,13 +136,8 @@ class RecordSession(QMessageBox, QObject):
                                                 self.session.audio_interface.deviceName()),
                '-q:v', '3',
                '-b:v', '2M',
-               self.video_file_name,
-               '-f', 'dshow',
-               '-i', 'audio={}'.format(self.session.audio_interface.deviceName()),
-               '-ar', '48000',
-               '-q:a', '330',
                '-filter:a', 'volume={}'.format(self.session.mic_volume),
-               self.session.audio_file_name]
+               self.video_file_name]
         self.video_process = Popen(cmd)
 
     def get_data(self, stop_thread_get_data, old_pos=-1):
