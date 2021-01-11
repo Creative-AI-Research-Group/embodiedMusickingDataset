@@ -129,12 +129,10 @@ class MainWindow(QMainWindow):
 
         tab_widget = QTabWidget()
         tab_widget.addTab(record_tab_widget, 'Record')
-        tab_widget.addTab(edit_tab_widget, 'Edit')
         tab_widget.addTab(feedback_tab_widget, 'Feedback')
 
         # disable Edit & Feedback for now
         tab_widget.setTabEnabled(1, False)
-        tab_widget.setTabEnabled(2, False)
 
         # let's add some margin/breathing space to it!
         main_layout = QHBoxLayout()
