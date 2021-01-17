@@ -7,6 +7,7 @@
 #
 
 from PySide2.QtWidgets import QGridLayout, QGroupBox, QLabel, QVBoxLayout, QComboBox, QHBoxLayout, QPushButton
+from PySide2.QtGui import QIcon
 from database import *
 
 import modules.config as cfg
@@ -19,6 +20,16 @@ class Feedback:
         # list of sessions
         self.session_name_feedback_tab = QComboBox()
         self.session_name_feedback_tab.setDuplicatesEnabled(False)
+
+        # player buttons
+        self.pause_player_button = QPushButton()
+        self.pause_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_pause.png'))
+
+        self.play_player_button = QPushButton()
+        self.pause_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_play.png'))
+
+        self.stop_player_button = QPushButton()
+        self.pause_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_stop.png'))
 
         # start / stop area
         self.start_stop_button = QPushButton('Start')
