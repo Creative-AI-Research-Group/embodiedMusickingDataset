@@ -72,6 +72,7 @@ class Feedback:
         player_group_box = QGroupBox()
         player_group_box.setMinimumHeight(800)
         player_layout = QGridLayout()
+        player_layout.setSpacing(20)
         player_layout.addWidget(self.pause_player_button, 1, 1)
         player_layout.addWidget(self.play_player_button, 1, 2)
         player_layout.addWidget(self.stop_player_button, 1, 3)
