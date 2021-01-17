@@ -15,9 +15,11 @@ class Feedback:
 
         # list of sessions
         self.session_name_feedback_tab = QComboBox()
+        self.session_name_feedback_tab.setDuplicatesEnabled(False)
 
         # database object
         self.database = Database()
+        self.database.list_sessions()
 
     def ui_tab_feedback_tab_widget(self):
         # session field
@@ -41,7 +43,12 @@ class Feedback:
         session_tab_layout = QVBoxLayout()
         session_tab_layout.addLayout(session_to_edit)
 
+        # get list of sessions
+        self.get_list_sessions()
+
         return session_tab_layout
 
     def get_list_sessions(self):
-        pass
+        collections = self.database.list_sessions()
+        for collection_name in collections:
+            self.session_name_feedback_tab.addItem(collection_name)

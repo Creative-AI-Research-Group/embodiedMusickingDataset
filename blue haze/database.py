@@ -10,6 +10,7 @@
 import motor.motor_asyncio
 import datetime
 import asyncio
+import json
 
 import modules.utils as utls
 
@@ -74,7 +75,12 @@ class Database:
         _ = await collection.insert_one(post)
 
     def list_sessions(self):
-        pass
+        loop = asyncio.get_event_loop()
+        collections = loop.run_until_complete(self.list_sessions_async())
+        return collections
+
+    async def list_sessions_async(self):
+        return await self.db.list_collection_names()
 
     def close(self):
         self.client.close()
