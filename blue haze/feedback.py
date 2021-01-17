@@ -29,7 +29,7 @@ class Feedback:
         session_to_edit_layout.setSpacing(8)
 
         # session name
-        session_to_edit_name = QLabel('Session name: ')
+        session_to_edit_name = QLabel('Session: ')
 
         # fields layout
         session_to_edit_layout.addWidget(session_to_edit_name, 0, 1)
@@ -39,9 +39,16 @@ class Feedback:
         session_to_edit_group_box.setLayout(session_to_edit_layout)
         session_to_edit.addWidget(session_to_edit_group_box)
 
+        # player
+        player_to_edit_group_box = QGroupBox()
+        player_to_edit_group_box.setMinimumHeight(630)
+        player_to_edit_layout = QGridLayout()
+        player_to_edit_group_box.setLayout(player_to_edit_layout)
+
         # layout
         session_tab_layout = QVBoxLayout()
         session_tab_layout.addLayout(session_to_edit)
+        session_tab_layout.addWidget(player_to_edit_group_box)
 
         # get list of sessions
         self.get_list_sessions()
