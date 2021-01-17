@@ -48,7 +48,7 @@ class Feedback:
 
         # player
         player_group_box = QGroupBox()
-        player_group_box.setMinimumHeight(630)
+        player_group_box.setMinimumHeight(800)
         player_layout = QGridLayout()
         player_group_box.setLayout(player_layout)
 
