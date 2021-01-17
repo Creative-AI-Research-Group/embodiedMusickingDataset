@@ -8,6 +8,7 @@
 
 from PySide2.QtWidgets import QGridLayout, QGroupBox, QLabel, QVBoxLayout, QComboBox, QHBoxLayout, QPushButton
 from PySide2.QtGui import QIcon
+from PySide2.QtCore import QSize
 from database import *
 
 import modules.config as cfg
@@ -17,6 +18,10 @@ class Feedback:
     def __init__(self):
         super().__init__()
 
+        # stylesheet
+        style_sheet = "background-color: none;"\
+                      "border: none;"
+
         # list of sessions
         self.session_name_feedback_tab = QComboBox()
         self.session_name_feedback_tab.setDuplicatesEnabled(False)
@@ -24,12 +29,18 @@ class Feedback:
         # player buttons
         self.pause_player_button = QPushButton()
         self.pause_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_pause.png'))
+        self.pause_player_button.setIconSize(QSize(54, 54))
+        self.pause_player_button.setStyleSheet(style_sheet)
 
         self.play_player_button = QPushButton()
-        self.pause_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_play.png'))
+        self.play_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_play.png'))
+        self.play_player_button.setIconSize(QSize(68, 68))
+        self.play_player_button.setStyleSheet(style_sheet)
 
         self.stop_player_button = QPushButton()
-        self.pause_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_stop.png'))
+        self.stop_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_stop.png'))
+        self.stop_player_button.setIconSize(QSize(54, 54))
+        self.stop_player_button.setStyleSheet(style_sheet)
 
         # start / stop area
         self.start_stop_button = QPushButton('Start')
@@ -61,6 +72,11 @@ class Feedback:
         player_group_box = QGroupBox()
         player_group_box.setMinimumHeight(800)
         player_layout = QGridLayout()
+        player_layout.addWidget(self.pause_player_button, 1, 1)
+        player_layout.addWidget(self.play_player_button, 1, 2)
+        player_layout.addWidget(self.stop_player_button, 1, 3)
+        player_layout.setColumnStretch(0, 1)
+        player_layout.setColumnStretch(4, 1)
         player_group_box.setLayout(player_layout)
 
         # start / stop button
