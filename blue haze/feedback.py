@@ -6,8 +6,11 @@
 # Craig Vear - cvear@dmu.ac.uk
 #
 
-from PySide2.QtWidgets import QGridLayout, QGroupBox, QLabel, QVBoxLayout, QComboBox
+from PySide2.QtWidgets import QGridLayout, QGroupBox, QLabel, QVBoxLayout, QComboBox, QHBoxLayout, QPushButton
 from database import *
+
+import modules.config as cfg
+
 
 class Feedback:
     def __init__(self):
@@ -16,6 +19,10 @@ class Feedback:
         # list of sessions
         self.session_name_feedback_tab = QComboBox()
         self.session_name_feedback_tab.setDuplicatesEnabled(False)
+
+        # start / stop area
+        self.start_stop_button = QPushButton('Start')
+        self.start_stop_label = QLabel()
 
         # database object
         self.database = Database()
@@ -40,15 +47,25 @@ class Feedback:
         session_to_edit.addWidget(session_to_edit_group_box)
 
         # player
-        player_to_edit_group_box = QGroupBox()
-        player_to_edit_group_box.setMinimumHeight(630)
-        player_to_edit_layout = QGridLayout()
-        player_to_edit_group_box.setLayout(player_to_edit_layout)
+        player_group_box = QGroupBox()
+        player_group_box.setMinimumHeight(630)
+        player_layout = QGridLayout()
+        player_group_box.setLayout(player_layout)
+
+        # start / stop button
+        start_stop_button_group_box = QGroupBox()
+        start_stop_button_layout = QHBoxLayout()
+        self.start_stop_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'gray_start_stop.png')
+        start_stop_button_layout.addStretch(1)
+        start_stop_button_layout.addWidget(self.start_stop_label)
+        start_stop_button_layout.addWidget(self.start_stop_button)
+        start_stop_button_group_box.setLayout(start_stop_button_layout)
 
         # layout
         session_tab_layout = QVBoxLayout()
         session_tab_layout.addLayout(session_to_edit)
-        session_tab_layout.addWidget(player_to_edit_group_box)
+        session_tab_layout.addWidget(player_group_box)
+        session_tab_layout.addWidget(start_stop_button_group_box)
 
         # get list of sessions
         self.get_list_sessions()
