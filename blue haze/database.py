@@ -11,19 +11,22 @@ import motor.motor_asyncio
 import datetime
 import asyncio
 
+import modules.utils as utls
+
 
 class Database:
     def __init__(self,
-                 session_id,
-                 session_name,
-                 mic_volume,
-                 video_file,
-                 backing_track_file):
-        self.session_id = session_id
-        self.session_name = session_name
-        self.mic_volume = mic_volume
-        self.video_file = video_file
-        self.backing_track_file = backing_track_file
+                 session_id=None,
+                 session_name=None,
+                 mic_volume=None,
+                 video_file=None,
+                 backing_track_file=None):
+        if session_id is not None:
+            self.session_id = session_id
+            self.session_name = session_name
+            self.mic_volume = mic_volume
+            self.video_file = video_file
+            self.backing_track_file = backing_track_file
 
         self.client = motor.motor_asyncio.AsyncIOMotorClient()
         self.db = self.client.blue_haze_database
@@ -35,6 +38,9 @@ class Database:
                bitalino_data,
                brainbit_data,
                skeleton_data):
+        if self.session_id is None:
+            utls.logger.error('Parameters not specified')
+            return
         loop = asyncio.get_event_loop()
         loop.run_until_complete(self.insert_document(delta_time=delta_time,
                                                      backing_track_position=backing_track_position,
@@ -66,6 +72,9 @@ class Database:
                 'flow': None}
         collection = self.db.get_collection(self.session_name)
         _ = await collection.insert_one(post)
+
+    def list_sessions(self):
+        pass
 
     def close(self):
         self.client.close()

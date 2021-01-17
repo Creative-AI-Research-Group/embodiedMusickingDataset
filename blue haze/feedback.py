@@ -7,12 +7,17 @@
 #
 
 from PySide2.QtWidgets import QGridLayout, QGroupBox, QLabel, QVBoxLayout, QComboBox
-
+from database import *
 
 class Feedback:
     def __init__(self):
         super().__init__()
+
+        # list of sessions
         self.session_name_feedback_tab = QComboBox()
+
+        # database object
+        self.database = Database()
 
     def ui_tab_feedback_tab_widget(self):
         # session field
@@ -37,3 +42,6 @@ class Feedback:
         session_tab_layout.addLayout(session_to_edit)
 
         return session_tab_layout
+
+    def get_list_sessions(self):
+        pass
