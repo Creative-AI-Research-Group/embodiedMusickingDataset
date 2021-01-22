@@ -58,6 +58,13 @@ class Feedback(QWidget):
         self.stop_player_button = QPushButton()
         self.set_buttons()
 
+        # progress bar / feedback bar
+        self.feedback_bar = QProgressBar()
+        self.feedback_bar.setMinimum(0)
+        self.feedback_bar.setMaximum(10)
+        self.flow_level = 0
+        self.feedback_flow_level_label = QLabel(str(self.flow_level))
+
         # start / stop area
         self.start_stop_button = QPushButton('Start')
         self.start_stop_label = QLabel()
@@ -122,6 +129,15 @@ class Feedback(QWidget):
         player_layout.setColumnStretch(4, 1)
         player_group_box.setLayout(player_layout)
 
+        # progress bar / feedback bar
+        feedback_bar_group_box = QGroupBox()
+        feedback_bar_layout = QGridLayout()
+        feedback_bar_label = QLabel('Flow level: ')
+        feedback_bar_layout.addWidget(feedback_bar_label, 0, 0)
+        feedback_bar_layout.addWidget(self.feedback_bar, 0, 1)
+        feedback_bar_layout.addWidget(self.feedback_flow_level_label, 0, 2)
+        feedback_bar_group_box.setLayout(feedback_bar_layout)
+
         # start / stop button
         start_stop_button_group_box = QGroupBox()
         start_stop_button_layout = QHBoxLayout()
@@ -135,6 +151,7 @@ class Feedback(QWidget):
         session_tab_layout = QVBoxLayout()
         session_tab_layout.addLayout(session_to_edit)
         session_tab_layout.addWidget(player_group_box)
+        session_tab_layout.addWidget(feedback_bar_group_box)
         session_tab_layout.addWidget(start_stop_button_group_box)
 
         return session_tab_layout
@@ -216,9 +233,13 @@ class Feedback(QWidget):
         return super(Feedback, self).eventFilter(obj, event)
 
     def update_icons(self):
-        self.pause_player_button.setIcon(self.actual_icons[0])
-        self.play_player_button.setIcon(self.actual_icons[1])
-        self.stop_player_button.setIcon(self.actual_icons[2])
+        try:
+            self.pause_player_button.setIcon(self.actual_icons[0])
+            self.play_player_button.setIcon(self.actual_icons[1])
+            self.stop_player_button.setIcon(self.actual_icons[2])
+        except RuntimeError:
+            # all the C++ objects have been already deleted
+            pass
 
     @Slot()
     def player_track_end(self):
