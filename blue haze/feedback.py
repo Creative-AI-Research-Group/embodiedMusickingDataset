@@ -122,7 +122,9 @@ class Feedback(QWidget):
             self.session_name_feedback_tab.addItem(collection_name)
 
     def play(self):
-        pass
+        audio_file_name = self.database.get_audio_file_name(self.session_name_feedback_tab.currentText())
+        self.player.setup_media(audio_file_name)
+        self.player.play()
 
     def eventFilter(self, obj, event):
         if event.type() is QEvent.HoverEnter:

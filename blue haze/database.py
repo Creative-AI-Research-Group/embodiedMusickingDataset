@@ -82,5 +82,15 @@ class Database:
     async def list_sessions_async(self):
         return await self.db.list_collection_names()
 
+    def get_audio_file_name(self, collection):
+        loop = asyncio.get_event_loop()
+        video_file_name = loop.run_until_complete(self.get_audio_file_name_async(collection))
+        return video_file_name
+
+    async def get_audio_file_name_async(self, collection):
+        collection = self.db[collection]
+        document = await collection.find_one({'_id': {'$exists': True}})
+        return document['files']['video'][:-3]+'wav'
+
     def close(self):
         self.client.close()
