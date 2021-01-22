@@ -6,21 +6,25 @@
 # Craig Vear - cvear@dmu.ac.uk
 #
 
-from PySide2.QtWidgets import QGridLayout, QGroupBox, QLabel, QVBoxLayout, QComboBox, QHBoxLayout, QPushButton
-from PySide2.QtGui import QIcon
-from PySide2.QtCore import QSize
+from PySide2.QtWidgets import *
+from PySide2.QtGui import QIcon, QMouseEvent
+from PySide2.QtCore import QSize, QEvent
 from database import *
 
 import modules.config as cfg
 
 
-class Feedback:
+class Feedback(QWidget):
     def __init__(self):
         super().__init__()
 
-        # stylesheet
-        style_sheet = "background-color: none;"\
-                      "border: none;"
+        # see https://stackoverflow.com/questions/40318759/change-qpushbutton-icon-on-hover-and-pressed
+        style_sheet = """
+                            QPushButton {
+                                background-color: none;
+                                border: none;
+                            }
+                    """
 
         # list of sessions
         self.session_name_feedback_tab = QComboBox()
@@ -31,11 +35,13 @@ class Feedback:
         self.pause_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_pause.png'))
         self.pause_player_button.setIconSize(QSize(54, 54))
         self.pause_player_button.setStyleSheet(style_sheet)
+        self.pause_player_button.installEventFilter(self)
 
         self.play_player_button = QPushButton()
         self.play_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_play.png'))
         self.play_player_button.setIconSize(QSize(68, 68))
         self.play_player_button.setStyleSheet(style_sheet)
+        self.play_player_button.installEventFilter(self)
 
         self.stop_player_button = QPushButton()
         self.stop_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_stop.png'))
@@ -104,3 +110,12 @@ class Feedback:
         collections = self.database.list_sessions()
         for collection_name in collections:
             self.session_name_feedback_tab.addItem(collection_name)
+
+    def eventFilter(self, obj, event):
+        if event.type() is QEvent.HoverEnter:
+            if obj is self.pause_player_button:
+                self.pause_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'red_pause.png'))
+        elif event.type() is QEvent.HoverLeave:
+            if obj is self.pause_player_button:
+                self.pause_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_pause.png'))
+        return super(Feedback, self).eventFilter(obj, event)
