@@ -141,6 +141,6 @@ class Feedback(QWidget):
                 self.stop_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_stop.png'))
         return super(Feedback, self).eventFilter(obj, event)
 
-    Slot()
+    @Slot()
     def player_track_end(self):
         pass

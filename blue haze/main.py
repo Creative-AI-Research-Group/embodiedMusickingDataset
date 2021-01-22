@@ -13,9 +13,8 @@
 from PySide2.QtMultimedia import *
 from PySide2.QtMultimediaWidgets import QCameraViewfinder
 from PySide2.QtGui import QFont
-from PySide2.QtCore import Slot, Qt, QDir
+from PySide2.QtCore import Qt, QDir
 from glob import glob
-from playAudioTrack import PlayAudioTrack
 from recordSession import RecordSession
 from pathlib import Path
 from feedback import *
