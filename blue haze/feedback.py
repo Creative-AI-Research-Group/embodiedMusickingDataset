@@ -35,7 +35,6 @@ class Feedback(QWidget):
 
         # database object
         self.database = Database()
-        self.database.list_sessions()
 
         # player object
         self.player = PlayAudioTrack(parent=self)
@@ -111,13 +110,12 @@ class Feedback(QWidget):
         session_tab_layout.addWidget(player_group_box)
         session_tab_layout.addWidget(start_stop_button_group_box)
 
-        # get list of sessions
-        self.get_list_sessions()
-
         return session_tab_layout
 
     def get_list_sessions(self):
         collections = self.database.list_sessions()
+        # clear the list to avoid duplicates
+        self.session_name_feedback_tab.clear()
         for collection_name in collections:
             self.session_name_feedback_tab.addItem(collection_name)
 

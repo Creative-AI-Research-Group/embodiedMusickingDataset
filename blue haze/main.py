@@ -131,6 +131,7 @@ class MainWindow(QMainWindow):
         tab_widget = QTabWidget()
         tab_widget.addTab(record_tab_widget, 'Record')
         tab_widget.addTab(feedback_tab_widget, 'Feedback')
+        tab_widget.currentChanged.connect(self.tab_changed)
 
         # let's add some margin/breathing space to it!
         main_layout = QHBoxLayout()
@@ -336,6 +337,12 @@ class MainWindow(QMainWindow):
                                                 self.list_backing_tracks.currentText(),
                                                 int(self.volume_slider.value()))
         self.recording = not self.recording
+
+    @Slot()
+    def tab_changed(self, i):
+        # to reload / update the list of collections in the feedback tab
+        if i == 1:
+            self.feedback.get_list_sessions()
 
     @Slot()
     def show_folder_browser(self):
