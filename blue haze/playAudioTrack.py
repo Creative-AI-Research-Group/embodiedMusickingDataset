@@ -8,14 +8,14 @@
 #
 
 from PySide2.QtMultimedia import QMediaPlayer, QMediaContent
-from PySide2.QtCore import QUrl, QObject, Signal
+from PySide2.QtCore import QUrl
 
 import modules.utils as utls
 
 
-class PlayBackTrack(QMediaPlayer):
+class PlayAudioTrack(QMediaPlayer):
     def __init__(self, parent=None):
-        super(PlayBackTrack, self).__init__()
+        super(PlayAudioTrack, self).__init__()
         self.mediaStatusChanged[QMediaPlayer.MediaStatus].connect(self.media_status_changed)
         if parent is not None:
             self.result = utls.EmitSignal(parent, parent.back_track_end)

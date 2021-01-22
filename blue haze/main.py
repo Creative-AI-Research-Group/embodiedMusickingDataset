@@ -10,13 +10,12 @@
 # todo: implement restart hardware button
 # todo: slider
 
-from PySide2.QtWidgets import *
 from PySide2.QtMultimedia import *
 from PySide2.QtMultimediaWidgets import QCameraViewfinder
 from PySide2.QtGui import QFont
 from PySide2.QtCore import Slot, Qt, QDir
 from glob import glob
-from playBackTrack import PlayBackTrack
+from playAudioTrack import PlayAudioTrack
 from recordSession import RecordSession
 from pathlib import Path
 from feedback import *
@@ -86,7 +85,7 @@ class MainWindow(QMainWindow):
         self.recording = False
 
         # objects
-        self.backing_track_player = PlayBackTrack(parent=self)
+        self.backing_track_player = PlayAudioTrack(parent=self)
         self.view_finder = QCameraViewfinder()
 
         # hardware setup

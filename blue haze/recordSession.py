@@ -10,7 +10,7 @@
 from PySide2.QtCore import Slot, QObject
 from PySide2.QtWidgets import QMessageBox
 from database import *
-from playBackTrack import PlayBackTrack
+from playAudioTrack import PlayAudioTrack
 from subprocess import Popen
 
 import shortuuid
@@ -40,7 +40,7 @@ class RecordSession(QMessageBox, QObject):
 
         self.video_process = None
 
-        self.backing_track_player = PlayBackTrack(parent=self)
+        self.backing_track_player = PlayAudioTrack(parent=self)
 
         self.database = None
         self.video_file_name = None

@@ -7,7 +7,7 @@
 #
 
 from PySide2.QtWidgets import *
-from PySide2.QtGui import QIcon, QMouseEvent
+from PySide2.QtGui import QIcon
 from PySide2.QtCore import QSize, QEvent
 from database import *
 
