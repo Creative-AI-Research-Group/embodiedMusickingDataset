@@ -206,7 +206,6 @@ class Feedback(QWidget):
         current_state = self.player.state()
         if event.type() is QEvent.HoverEnter:
             if obj is self.pause_player_button and current_state is not self.PAUSED:
-                self.actual_icons[1] = self.PLAY_RED
                 self.actual_icons[0] = self.PAUSE_RED
             elif obj is self.play_player_button and current_state is not self.PLAYING:
                 self.actual_icons[1] = self.PLAY_RED
