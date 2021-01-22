@@ -53,6 +53,7 @@ class Feedback(QWidget):
         self.pause_player_button.setIconSize(QSize(54, 54))
         self.pause_player_button.setStyleSheet(style_sheet)
         self.pause_player_button.installEventFilter(self)
+        self.pause_player_button.clicked.connect(self.pause)
 
         self.play_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_play.png'))
         self.play_player_button.setIconSize(QSize(68, 68))
@@ -64,6 +65,7 @@ class Feedback(QWidget):
         self.stop_player_button.setIconSize(QSize(54, 54))
         self.stop_player_button.setStyleSheet(style_sheet)
         self.stop_player_button.installEventFilter(self)
+        self.stop_player_button.clicked.connect(self.stop)
 
     def ui_tab_feedback_tab_widget(self):
         # session field
@@ -121,8 +123,20 @@ class Feedback(QWidget):
 
     def play(self):
         audio_file_name = self.database.get_audio_file_name(self.session_name_feedback_tab.currentText())
-        self.player.setup_media(audio_file_name)
+        # check if the player is not paused
+        if self.player.state() is not self.player.State.PausedState:
+            self.player.setup_media(audio_file_name)
         self.player.play()
+
+    def stop(self):
+        self.player.stop()
+
+    def pause(self):
+        # check if the player is already paused
+        if self.player.state() is self.player.State.PausedState:
+            self.player.play()
+        else:
+            self.player.pause()
 
     def eventFilter(self, obj, event):
         if event.type() is QEvent.HoverEnter:
