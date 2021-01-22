@@ -18,36 +18,15 @@ class Feedback(QWidget):
     def __init__(self):
         super().__init__()
 
-        # see https://stackoverflow.com/questions/40318759/change-qpushbutton-icon-on-hover-and-pressed
-        style_sheet = """
-                            QPushButton {
-                                background-color: none;
-                                border: none;
-                            }
-                    """
-
         # list of sessions
         self.session_name_feedback_tab = QComboBox()
         self.session_name_feedback_tab.setDuplicatesEnabled(False)
 
         # player buttons
         self.pause_player_button = QPushButton()
-        self.pause_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_pause.png'))
-        self.pause_player_button.setIconSize(QSize(54, 54))
-        self.pause_player_button.setStyleSheet(style_sheet)
-        self.pause_player_button.installEventFilter(self)
-
         self.play_player_button = QPushButton()
-        self.play_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_play.png'))
-        self.play_player_button.setIconSize(QSize(68, 68))
-        self.play_player_button.setStyleSheet(style_sheet)
-        self.play_player_button.installEventFilter(self)
-
         self.stop_player_button = QPushButton()
-        self.stop_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_stop.png'))
-        self.stop_player_button.setIconSize(QSize(54, 54))
-        self.stop_player_button.setStyleSheet(style_sheet)
-        self.stop_player_button.installEventFilter(self)
+        self.set_buttons()
 
         # start / stop area
         self.start_stop_button = QPushButton('Start')
@@ -56,6 +35,32 @@ class Feedback(QWidget):
         # database object
         self.database = Database()
         self.database.list_sessions()
+
+    def set_buttons(self):
+        # see https://stackoverflow.com/questions/40318759/change-qpushbutton-icon-on-hover-and-pressed
+        style_sheet = """
+                            QPushButton {
+                                background-color: none;
+                                border: none;
+                            }
+                    """
+
+        # player buttons
+        self.pause_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_pause.png'))
+        self.pause_player_button.setIconSize(QSize(54, 54))
+        self.pause_player_button.setStyleSheet(style_sheet)
+        self.pause_player_button.installEventFilter(self)
+
+        self.play_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_play.png'))
+        self.play_player_button.setIconSize(QSize(68, 68))
+        self.play_player_button.setStyleSheet(style_sheet)
+        self.play_player_button.installEventFilter(self)
+
+        self.stop_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_stop.png'))
+        self.stop_player_button.setIconSize(QSize(54, 54))
+        self.stop_player_button.setStyleSheet(style_sheet)
+        self.stop_player_button.installEventFilter(self)
+
 
     def ui_tab_feedback_tab_widget(self):
         # session field
