@@ -18,7 +18,7 @@ class PlayAudioTrack(QMediaPlayer):
         super(PlayAudioTrack, self).__init__()
         self.mediaStatusChanged[QMediaPlayer.MediaStatus].connect(self.media_status_changed)
         if parent is not None:
-            self.result = utls.EmitSignal(parent, parent.back_track_end)
+            self.result = utls.EmitSignal(parent, parent.player_track_end)
 
     def setup_media(self, file_name):
         self.setMedia(QMediaContent(QUrl.fromLocalFile(file_name)))

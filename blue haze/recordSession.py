@@ -304,7 +304,7 @@ class RecordSession(QMessageBox, QObject):
 
     # slot to get signal when the back track file ends
     @Slot(dict)
-    def back_track_end(self, status):
+    def player_track_end(self, status):
         if status['end_of_audio_file']:
             # # timer to send the stop signal
             # timer = QTimer(self)

@@ -8,8 +8,9 @@
 
 from PySide2.QtWidgets import *
 from PySide2.QtGui import QIcon
-from PySide2.QtCore import QSize, QEvent
+from PySide2.QtCore import QSize, QEvent, Slot
 from database import *
+from playAudioTrack import PlayAudioTrack
 
 import modules.config as cfg
 
@@ -36,6 +37,9 @@ class Feedback(QWidget):
         self.database = Database()
         self.database.list_sessions()
 
+        # player object
+        self.player = PlayAudioTrack(parent=self)
+
     def set_buttons(self):
         # see https://stackoverflow.com/questions/40318759/change-qpushbutton-icon-on-hover-and-pressed
         style_sheet = """
@@ -55,6 +59,7 @@ class Feedback(QWidget):
         self.play_player_button.setIconSize(QSize(68, 68))
         self.play_player_button.setStyleSheet(style_sheet)
         self.play_player_button.installEventFilter(self)
+        self.play_player_button.clicked.connect(self.play)
 
         self.stop_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_stop.png'))
         self.stop_player_button.setIconSize(QSize(54, 54))
@@ -116,6 +121,9 @@ class Feedback(QWidget):
         for collection_name in collections:
             self.session_name_feedback_tab.addItem(collection_name)
 
+    def play(self):
+        pass
+
     def eventFilter(self, obj, event):
         if event.type() is QEvent.HoverEnter:
             if obj is self.pause_player_button:
@@ -132,3 +140,7 @@ class Feedback(QWidget):
             elif obj is self.stop_player_button:
                 self.stop_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_stop.png'))
         return super(Feedback, self).eventFilter(obj, event)
+
+    Slot()
+    def player_track_end(self):
+        pass

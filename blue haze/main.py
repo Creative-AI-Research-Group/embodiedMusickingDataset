@@ -468,7 +468,7 @@ class MainWindow(QMainWindow):
                               .format(status['from']))
 
     Slot()
-    def back_track_end(self):
+    def player_track_end(self):
         self.play_stop_backing_track_button.setText(self.PLAY_BACKING_TRACK)
 
 
