@@ -1,21 +1,26 @@
-"""download pip install https://github.com/drewarnett/pypicoboard/archive/master.zip
-COM5 is the picoboard - either USB port works"""
+#
+# Blue Haze
+# 22 Jan 2021
+#
+# Fabrizio Poltronieri - fabrizio.poltronieri@dmu.ac.uk
+# Craig Vear - cvear@dmu.ac.uk
+#
+
+# download pip install https://github.com/drewarnett/pypicoboard/archive/master.zip
+# how to install the drivers: https://cdn.sparkfun.com/datasheets/Widgets/picoboard03.pdf
 
 from picoboard import PicoBoard
-from time import sleep
+import modules.config as cfg
 
-pb = PicoBoard('COM5')
 
-while True:
-    readings = pb.read()
-    slider = readings["slider"]
-    button = readings["button"]
-    if button > 0:
-        button_cond = 'off'
-    else:
-        button_cond = 'on'
-    slider = int(slider / 10)
-    if slider > 100:
-        slider = 100
-    print(f'slider value = {slider}, button condition = {button_cond}')
-    sleep(0.1)
+class Slider:
+    def __init__(self):
+        self.pb = PicoBoard(cfg.PICOBOARD_PORT)
+
+    def slider_value(self):
+        readings = self.pb.read()
+        slider = readings['slider']
+        slider = int(slider / 100)
+        if slider > 100:
+            slider = 100
+        return slider

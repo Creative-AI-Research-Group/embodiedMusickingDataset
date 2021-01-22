@@ -10,6 +10,7 @@ from PySide2.QtWidgets import *
 from PySide2.QtGui import QIcon
 from PySide2.QtCore import QSize, QEvent, Slot
 from database import *
+from slider import *
 from playAudioTrack import PlayAudioTrack
 
 import modules.config as cfg
@@ -24,6 +25,9 @@ class Feedback(QWidget):
 
         # player object
         self.player = PlayAudioTrack(parent=self)
+
+        # slider object
+        self.slider = Slider()
 
         # constants
         # icons

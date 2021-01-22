@@ -28,3 +28,5 @@ ASSETS_BACKING_AUDIO_FOLDER = config_object['FOLDERS']['backing_audio']
 BITALINO_BAUDRATE = config_object['BITALINO'].getint('baudrate')
 BITALINO_ACQ_CHANNELS = json.loads(config_object['BITALINO']['channels'])
 BITALINO_MAC_ADDRESS = config_object['BITALINO']['mac_address']
+
+PICOBOARD_PORT = config_object['PICOBOARD']['port']
