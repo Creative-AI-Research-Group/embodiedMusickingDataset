@@ -47,6 +47,7 @@ class Feedback(QWidget):
         self.stop_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_stop.png'))
         self.stop_player_button.setIconSize(QSize(54, 54))
         self.stop_player_button.setStyleSheet(style_sheet)
+        self.stop_player_button.installEventFilter(self)
 
         # start / stop area
         self.start_stop_button = QPushButton('Start')
@@ -115,7 +116,15 @@ class Feedback(QWidget):
         if event.type() is QEvent.HoverEnter:
             if obj is self.pause_player_button:
                 self.pause_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'red_pause.png'))
+            elif obj is self.play_player_button:
+                self.play_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'red_play.png'))
+            elif obj is self.stop_player_button:
+                self.stop_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'red_stop.png'))
         elif event.type() is QEvent.HoverLeave:
             if obj is self.pause_player_button:
                 self.pause_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_pause.png'))
+            elif obj is self.play_player_button:
+                self.play_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_play.png'))
+            elif obj is self.stop_player_button:
+                self.stop_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_stop.png'))
         return super(Feedback, self).eventFilter(obj, event)
