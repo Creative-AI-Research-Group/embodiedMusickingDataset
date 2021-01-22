@@ -187,6 +187,18 @@ class RecordSession(QMessageBox, QObject):
                             function=self.get_data,
                             args=[self.thread_get_data, backing_track_pos]).start()
 
+    def extract_audio_from_video(self):
+        audio_file_name = self.video_file_name[:-3]+'wav'
+
+        cmd = ['ffmpeg',
+               '-i', self.video_file_name,
+               '-ab', '160k',
+               '-ac', '2',
+               '-ar', '44100',
+               '-vn', audio_file_name]
+
+        Popen(cmd)
+
     def which_chorus(self, backing_track_pos):
         # simple logging of chorus/ loop ID
         # 0 = count in; 1 = tune; 2 = improv 1; 3 = improv 2; 4 = improv 3; 5 = recap tune; 999 = ending

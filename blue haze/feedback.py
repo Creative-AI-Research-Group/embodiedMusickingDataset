@@ -61,7 +61,6 @@ class Feedback(QWidget):
         self.stop_player_button.setStyleSheet(style_sheet)
         self.stop_player_button.installEventFilter(self)
 
-
     def ui_tab_feedback_tab_widget(self):
         # session field
         session_to_edit = QGridLayout()

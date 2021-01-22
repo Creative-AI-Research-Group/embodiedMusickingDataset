@@ -392,6 +392,8 @@ class MainWindow(QMainWindow):
     async def check_video_process_terminate(self):
         while True:
             if self.record_session.video_process.poll() is not None:
+                # extract audio from video
+                self.record_session.extract_audio_from_video()
                 break
         self.change_camera()
 
