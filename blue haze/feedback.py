@@ -19,6 +19,12 @@ class Feedback(QWidget):
     def __init__(self):
         super().__init__()
 
+        # database object
+        self.database = Database()
+
+        # player object
+        self.player = PlayAudioTrack(parent=self)
+
         # list of sessions
         self.session_name_feedback_tab = QComboBox()
         self.session_name_feedback_tab.setDuplicatesEnabled(False)
@@ -33,14 +39,7 @@ class Feedback(QWidget):
         self.start_stop_button = QPushButton('Start')
         self.start_stop_label = QLabel()
 
-        # database object
-        self.database = Database()
-
-        # player object
-        self.player = PlayAudioTrack(parent=self)
-
     def set_buttons(self):
-        # see https://stackoverflow.com/questions/40318759/change-qpushbutton-icon-on-hover-and-pressed
         style_sheet = """
                             QPushButton {
                                 background-color: none;
@@ -66,6 +65,9 @@ class Feedback(QWidget):
         self.stop_player_button.setStyleSheet(style_sheet)
         self.stop_player_button.installEventFilter(self)
         self.stop_player_button.clicked.connect(self.stop)
+
+        # disable the pause & stop buttons
+        self.enable_disable_buttons(False)
 
     def ui_tab_feedback_tab_widget(self):
         # session field
@@ -116,20 +118,37 @@ class Feedback(QWidget):
 
     def get_list_sessions(self):
         collections = self.database.list_sessions()
+
         # clear the list to avoid duplicates
         self.session_name_feedback_tab.clear()
+
         for collection_name in collections:
             self.session_name_feedback_tab.addItem(collection_name)
 
     def play(self):
         audio_file_name = self.database.get_audio_file_name(self.session_name_feedback_tab.currentText())
+
+        # enable the other buttons
+        self.enable_disable_buttons(True)
+
         # check if the player is not paused
         if self.player.state() is not self.player.State.PausedState:
             self.player.setup_media(audio_file_name)
+
         self.player.play()
 
     def stop(self):
         self.player.stop()
+
+        # disable the stop & pause buttons & enable the play button
+        self.enable_disable_buttons(False, True)
+
+    def enable_disable_buttons(self, state_pause_stop=None, state_play=None):
+        if state_pause_stop is not None:
+            self.pause_player_button.setEnabled(state_pause_stop)
+            self.stop_player_button.setEnabled(state_pause_stop)
+        elif state_play is not None:
+            self.play_player_button.setEnabled(state_play)
 
     def pause(self):
         # check if the player is already paused
@@ -139,22 +158,41 @@ class Feedback(QWidget):
             self.player.pause()
 
     def eventFilter(self, obj, event):
+        # this is a bit messy and should be improved
+        current_state = self.player.state()
         if event.type() is QEvent.HoverEnter:
-            if obj is self.pause_player_button:
+            if obj is self.pause_player_button and current_state is not self.player.State.PausedState:
                 self.pause_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'red_pause.png'))
-            elif obj is self.play_player_button:
+            elif obj is self.play_player_button and current_state is not self.player.State.PlayingState:
                 self.play_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'red_play.png'))
             elif obj is self.stop_player_button:
                 self.stop_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'red_stop.png'))
         elif event.type() is QEvent.HoverLeave:
-            if obj is self.pause_player_button:
+            if obj is self.pause_player_button and current_state is not self.player.State.PausedState:
                 self.pause_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_pause.png'))
-            elif obj is self.play_player_button:
+            elif obj is self.play_player_button and current_state is not self.player.State.PlayingState:
                 self.play_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_play.png'))
             elif obj is self.stop_player_button:
                 self.stop_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_stop.png'))
+        elif event.type() is QEvent.MouseButtonPress:
+            if obj is self.play_player_button:
+                self.play_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'red_play.png'))
+                self.pause_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_pause.png'))
+            elif obj is self.pause_player_button:
+                if current_state is self.player.State.PausedState:
+                    self.pause_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_pause.png'))
+                    self.play_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'red_play.png'))
+                else:
+                    self.pause_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'red_pause.png'))
+                    self.play_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_play.png'))
+            elif obj is self.stop_player_button:
+                self.pause_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_pause.png'))
+                self.play_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_play.png'))
         return super(Feedback, self).eventFilter(obj, event)
 
     @Slot()
     def player_track_end(self):
-        pass
+        # reset the buttons
+        self.enable_disable_buttons(False, True)
+        self.play_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_play.png'))
+

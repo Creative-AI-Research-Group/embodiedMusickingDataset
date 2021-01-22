@@ -475,12 +475,12 @@ class BITalino(object):
 
     def state(self):
         """
-        :returns: dictionary with the state of all channels
+        :returns: dictionary with the state_pause_stop of all channels
         :raises Exception: device is not a BITalino version 2.0
         :raises Exception: device in acquisition (not IDLE)
         :raises Exception: lost communication with the device when data is corrupted
 
-        Returns the state of all analog and digital channels. Reading channel State from BITalino implies the use of the method :meth:`send` and :meth:`receive`.
+        Returns the state_pause_stop of all analog and digital channels. Reading channel State from BITalino implies the use of the method :meth:`send` and :meth:`receive`.
         The returned dictionary structure contains the following key-value pairs:
 
         =================  ================================ ============== =====================
