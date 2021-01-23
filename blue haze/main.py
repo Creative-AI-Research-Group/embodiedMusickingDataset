@@ -61,9 +61,12 @@ class MainWindow(QMainWindow):
         self.brainbit_label = QLabel('Brainbit')
         self.bullet_realsense_label = QLabel()
         self.realsense_label = QLabel('RealSense camera')
+        self.bullet_picoboard_label = QLabel()
+        self.picoboard_label = QLabel('Picoboard')
         self.hardware_status = {'Bitalino': not cfg.HARDWARE,
                                 'Brainbit': not cfg.HARDWARE,
-                                'RealSense': not cfg.HARDWARE}
+                                'RealSense': not cfg.HARDWARE,
+                                'Picoboard': not cfg.HARDWARE}
 
         # record bottom area
         self.record_stop_button = QPushButton('Record session')
@@ -227,6 +230,7 @@ class MainWindow(QMainWindow):
         self.bullet_bitalino_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_idle.png')
         self.bullet_brainbit_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_idle.png')
         self.bullet_realsense_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_idle.png')
+        self.bullet_picoboard_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_idle.png')
 
         refresh_hardware_button = QPushButton('Refresh hardware')
 
@@ -236,8 +240,10 @@ class MainWindow(QMainWindow):
         hardware_list.addWidget(self.brainbit_label, 1, 1)
         hardware_list.addWidget(self.bullet_realsense_label, 2, 0)
         hardware_list.addWidget(self.realsense_label, 2, 1)
-        hardware_list.addWidget(refresh_hardware_button, 3, 1, 2, 2)
-        hardware_list.setRowStretch(4, 1)
+        hardware_list.addWidget(self.bullet_picoboard_label, 3, 0)
+        hardware_list.addWidget(self.picoboard_label, 3, 1)
+        hardware_list.addWidget(refresh_hardware_button, 4, 1, 2, 2)
+        hardware_list.setRowStretch(5, 1)
 
         hardware_group_box.setLayout(hardware_list)
 
