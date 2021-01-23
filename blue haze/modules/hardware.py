@@ -4,7 +4,13 @@ https://stackoverflow.com/questions/61218285/oserror-winerror-126-when-importing
 "I had the same problem using a conda env. Demos worked but not the python sample.
 I explicitly added %CUBEMOS_SKEL_SDK%\bin to my Path environment since I had nothing before.
 That got it going. The %CUBEMOS_SKEL_SDK% was set up okay from the start."
+
+PICOBOARD:
+download pip install https://github.com/drewarnett/pypicoboard/archive/master.zip
+how to install the drivers: https://cdn.sparkfun.com/datasheets/Widgets/picoboard03.pdf
 '''
+
+from picoboard import PicoBoard
 
 from cubemos.skeletontracking.core_wrapper import CM_TargetComputeDevice
 from cubemos.skeletontracking.core_wrapper import initialise_logging, CM_LogLevel
@@ -25,6 +31,27 @@ import struct
 import time
 import select
 import sys
+
+import modules.config as cfg
+
+
+'''
+    PICOBOARD
+'''
+
+
+class PicoboardSlider:
+    def __init__(self):
+        self.pb = PicoBoard(cfg.PICOBOARD_PORT)
+
+    def slider_value(self):
+        readings = self.pb.read()
+        slider = readings['slider']
+        slider = int(slider / 100)
+        if slider > 100:
+            slider = 100
+        return slider
+
 
 '''
     REALSENSE SKELETON

@@ -47,6 +47,7 @@ class Hardware(Borg, QObject):
             self.realsense = None
             self.brainbit = None
             self.bitalino = None
+            self.picoboard = None
 
     def start_realsense(self):
         try:
@@ -121,6 +122,25 @@ class Hardware(Borg, QObject):
 
     def read_bitalino(self):
         return self.bitalino.read(self.n_samples)
+
+    def start_picoboard(self):
+        try:
+            # start picoboard
+            self.picoboard = hw.PicoboardSlider()
+        except Exception as err:
+            return_dict = {
+                'from': 'Picoboard',
+                'result': False
+            }
+            logger.error(err)
+        else:
+            return_dict = {
+                'from': 'Picoboard',
+                'result': True
+            }
+
+        self.result.emit_signal(return_dict)
+
 
     def stop(self):
         '''

@@ -10,7 +10,6 @@ from PySide2.QtWidgets import *
 from PySide2.QtGui import QIcon
 from PySide2.QtCore import QSize, QEvent, Slot
 from database import *
-from slider import *
 from playAudioTrack import PlayAudioTrack
 
 import modules.config as cfg
@@ -25,9 +24,6 @@ class Feedback(QWidget):
 
         # player object
         self.player = PlayAudioTrack(parent=self)
-
-        # slider object
-        self.slider = Slider()
 
         # constants
         # icons
@@ -203,7 +199,11 @@ class Feedback(QWidget):
 
     def eventFilter(self, obj, event):
         # this is a bit messy and should be improved
-        current_state = self.player.state()
+        try:
+            current_state = self.player.state()
+        except RuntimeError:
+            # all the C++ objects have been already deleted
+            pass
         if event.type() is QEvent.HoverEnter:
             if obj is self.pause_player_button and current_state is not self.PAUSED:
                 self.actual_icons[0] = self.PAUSE_RED

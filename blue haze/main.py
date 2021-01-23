@@ -113,6 +113,10 @@ class MainWindow(QMainWindow):
         if cfg.HARDWARE:
             self.setup_hw()
 
+        # todo: DELETE!!!
+        init_hardware = utls.Hardware(parent=self)
+        threading.Thread(target=init_hardware.start_picoboard).start()
+
         # record session object
         self.record_session = RecordSession(parent=self)
 
@@ -123,6 +127,7 @@ class MainWindow(QMainWindow):
         threading.Thread(target=init_hardware.start_realsense).start()
         threading.Thread(target=init_hardware.start_brainbit).start()
         threading.Thread(target=init_hardware.start_bitalino).start()
+        threading.Thread(target=init_hardware.start_picoboard).start()
 
     def setup_ui(self):
         record_tab_widget = QWidget()
@@ -464,6 +469,10 @@ class MainWindow(QMainWindow):
                 self.bullet_brainbit_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_ok.png')
                 self.brainbit_label.setStyleSheet('QLabel { color: GreenYellow; }')
                 self.hardware_status['Brainbit'] = True
+            elif status['from'] == 'Picoboard':
+                self.bullet_picoboard_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_ok.png')
+                self.picoboard_label.setStyleSheet('QLabel { color: GreenYellow; }')
+                self.hardware_status['Picoboard'] = True
             if False not in self.hardware_status.values():
                 self.record_stop_button.setEnabled(True)
         else:
@@ -476,6 +485,9 @@ class MainWindow(QMainWindow):
             elif status['from'] == 'BrainBit':
                 self.bullet_brainbit_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_error.png')
                 self.brainbit_label.setStyleSheet('QLabel { color: red; }')
+            elif status['from'] == 'Picoboard':
+                self.bullet_picoboard_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_error.png')
+                self.picoboard_label.setStyleSheet('QLabel { color: red; }')
             self.error_dialog('Error initializing {}. Please check the connections.'
                               .format(status['from']))
 
