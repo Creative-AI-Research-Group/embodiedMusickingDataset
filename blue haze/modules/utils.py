@@ -141,6 +141,8 @@ class Hardware(Borg, QObject):
 
         self.result.emit_signal(return_dict)
 
+    def read_picoboard(self):
+        return self.picoboard.slider_value()
 
     def stop(self):
         '''

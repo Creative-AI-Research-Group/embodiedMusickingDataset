@@ -13,6 +13,7 @@ from database import *
 from playAudioTrack import PlayAudioTrack
 
 import modules.config as cfg
+import modules.utils as utls
 
 
 class Feedback(QWidget):
@@ -24,6 +25,9 @@ class Feedback(QWidget):
 
         # player object
         self.player = PlayAudioTrack(parent=self)
+
+        # hardware (picoboard)
+        self.hardware = utls.Hardware()
 
         # constants
         # icons
@@ -63,7 +67,6 @@ class Feedback(QWidget):
         self.feedback_bar.setMinimum(0)
         self.feedback_bar.setMaximum(10)
         self.flow_level = 0
-        self.feedback_flow_level_label = QLabel(str(self.flow_level))
 
         # start / stop area
         self.start_stop_button = QPushButton('Start')
@@ -135,7 +138,6 @@ class Feedback(QWidget):
         feedback_bar_label = QLabel('Flow level: ')
         feedback_bar_layout.addWidget(feedback_bar_label, 0, 0)
         feedback_bar_layout.addWidget(self.feedback_bar, 0, 1)
-        feedback_bar_layout.addWidget(self.feedback_flow_level_label, 0, 2)
         feedback_bar_group_box.setLayout(feedback_bar_layout)
 
         # start / stop button
@@ -155,6 +157,10 @@ class Feedback(QWidget):
         session_tab_layout.addWidget(start_stop_button_group_box)
 
         return session_tab_layout
+
+    def update_feedback_bar(self):
+        self.flow_level = self.hardware.read_picoboard()
+        self.feedback_bar.setValue(self.flow_level)
 
     def get_list_sessions(self):
         collections = self.database.list_sessions()

@@ -95,6 +95,13 @@ class MainWindow(QMainWindow):
         self.get_list_audio_devices()
         self.get_list_backing_tracks()
 
+        if cfg.HARDWARE:
+            self.setup_hw()
+
+        # todo: DELETE!!!
+        init_hardware = utls.Hardware(parent=self)
+        threading.Thread(target=init_hardware.start_picoboard).start()
+
         # feedback
         self.feedback = Feedback()
 
@@ -108,14 +115,6 @@ class MainWindow(QMainWindow):
         # see
         # https://stackoverflow.com/questions/46827007/runtimeerror-this-event-loop-is-already-running-in-python
         nest_asyncio.apply()
-
-        # hardware setup
-        if cfg.HARDWARE:
-            self.setup_hw()
-
-        # todo: DELETE!!!
-        init_hardware = utls.Hardware(parent=self)
-        threading.Thread(target=init_hardware.start_picoboard).start()
 
         # record session object
         self.record_session = RecordSession(parent=self)
@@ -354,6 +353,7 @@ class MainWindow(QMainWindow):
         # to reload / update the list of collections in the feedback tab
         if i == 1:
             self.feedback.get_list_sessions()
+            self.feedback.update_feedback_bar()
 
     @Slot()
     def show_folder_browser(self):
