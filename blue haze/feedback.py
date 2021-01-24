@@ -8,12 +8,71 @@
 
 from PySide2.QtWidgets import *
 from PySide2.QtGui import QIcon
-from PySide2.QtCore import QSize, QEvent, Slot
+from PySide2.QtCore import QSize, QEvent, Slot, QRunnable, QThreadPool, Signal, QObject, QTimer
+
 from database import *
 from playAudioTrack import PlayAudioTrack
 
 import modules.config as cfg
 import modules.utils as utls
+
+
+# https://www.learnpyqt.com/tutorials/multithreading-pyqt-applications-qthreadpool/
+class WorkerSignals(QObject):
+    '''
+    Defines the signals available from a running worker thread.
+
+    Supported signals are:
+
+    finished
+        No data
+
+    error
+        tuple (exctype, value, traceback.format_exc() )
+
+    result
+        object data returned from processing, anything
+
+    progress
+        int indicating % progress
+
+    '''
+    finished = Signal()
+
+
+class Worker(QRunnable):
+    '''
+        Worker thread
+
+        Inherits from QRunnable to handler worker thread setup, signals and wrap-up.
+
+        :param callback: The function callback to run on this worker thread. Supplied args and
+                        kwargs will be passed through to the runner.
+        :type callback: function
+        :params args: Arguments to make available to the run code
+        :param kwargs: Keywords arguments to make available to the run code
+    '''
+
+    def __init__(self, fn, *args, **kwargs):
+        super(Worker, self).__init__()
+        self.fn = fn
+        self.args = args
+        self.kwargs = kwargs
+        self.signals = WorkerSignals()
+
+    @Slot()
+    def run(self):
+        '''
+            initialize the runner function with passed args, kwargs
+        '''
+
+        # retrieve args/kwargs
+        try:
+            result = self.fn(*self.args, **self.kwargs)
+        except:
+            pass
+        finally:
+            self.signals.finished.emit()
 
 
 class Feedback(QWidget):
@@ -28,6 +87,12 @@ class Feedback(QWidget):
 
         # hardware (picoboard)
         self.hardware = utls.Hardware()
+
+        # thread
+        self.threadpool = QThreadPool()
+        self.keep_thread_running = True
+        self.timer = QTimer()
+        self.timer.setInterval(1000)
 
         # constants
         # icons
@@ -158,9 +223,23 @@ class Feedback(QWidget):
 
         return session_tab_layout
 
-    def update_feedback_bar(self):
-        self.flow_level = self.hardware.read_picoboard()
+    def thread_complete(self):
         self.feedback_bar.setValue(self.flow_level)
+
+    def start_thread_picoboard(self):
+        worker = Worker(self.read_picoboard())
+        worker.signals.finished.connect(self.thread_complete)
+
+        # execute
+        self.threadpool.start(worker)
+
+    def read_picoboard(self):
+        old_value = 0
+        self.flow_level = self.hardware.read_picoboard()
+        if self.flow_level != old_value:
+            # self.update_feedback_bar()
+            print(self.flow_level)
+            old_value = self.flow_level
 
     def get_list_sessions(self):
         collections = self.database.list_sessions()
