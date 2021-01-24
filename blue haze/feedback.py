@@ -32,9 +32,13 @@ class ThreadToReadPicoboard(QThread):
         # hardware (picoboard)
         hardware = utls.Hardware()
         while True:
-            flow_level = hardware.read_picoboard()
-            self.signal.finished.emit(flow_level)
-            sleep(cfg.BITALINO_BAUDRATE / 1000)
+            try:
+                flow_level = hardware.read_picoboard()
+                self.signal.finished.emit(flow_level)
+                sleep(cfg.BITALINO_BAUDRATE / 1000)
+            except RuntimeError:
+                # all the C++ objects have been already deleted
+                pass
 
 
 class Feedback(QWidget):
@@ -282,5 +286,6 @@ class Feedback(QWidget):
     def player_track_end(self):
         # reset the buttons
         self.enable_disable_buttons(False, True)
-        self.play_player_button.setIcon(QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_play.png'))
+        self.actual_icons[1] = self.PLAY_GRAY
+        self.update_icons()
 
