@@ -32,11 +32,8 @@ class MplCanvas(FigureCanvasQTAgg):
     def __init__(self, parent=None, width=5, height=4, dpi=100):
         fig = Figure(figsize=(width, height), dpi=dpi)
 
-        # self.gca().axes.get_yaxis().set_visible(False)
-        # self.axis('off')
-
-
         self.axes = fig.add_subplot(111)
+        self.axes.axis('off')
         self.axes.get_yaxis().set_visible(False)
         self.axes.get_xaxis().set_visible(False)
         super(MplCanvas, self).__init__(fig)
@@ -129,7 +126,7 @@ class Feedback(QWidget):
         self.start_stop_label = QLabel()
 
         # spectrogram
-        self.spectrogram = MplCanvas(self, width=5, height=1, dpi=100)
+        self.spectrogram = MplCanvas(self, width=10, height=15, dpi=100)
 
     def setup(self):
         self.get_list_sessions()
@@ -188,12 +185,17 @@ class Feedback(QWidget):
         session_to_edit_group_box.setLayout(session_to_edit_layout)
         session_to_edit.addWidget(session_to_edit_group_box)
 
+        # spectrogram
+        spectrogram_group_box = QGroupBox()
+        spectrogram_layout = QGridLayout()
+        spectrogram_layout.addWidget(self.spectrogram, 0, 0)
+        spectrogram_group_box.setLayout(spectrogram_layout)
+
         # player
         player_group_box = QGroupBox()
-        player_group_box.setMinimumHeight(800)
+        # player_group_box.setMinimumHeight(800)
         player_layout = QGridLayout()
         player_layout.setSpacing(20)
-        player_layout.addWidget(self.spectrogram, 1, 2)
         player_layout.addWidget(self.pause_player_button, 2, 1)
         player_layout.addWidget(self.play_player_button, 2, 2)
         player_layout.addWidget(self.stop_player_button, 2, 3)
@@ -221,6 +223,7 @@ class Feedback(QWidget):
         # layout
         session_tab_layout = QVBoxLayout()
         session_tab_layout.addLayout(session_to_edit)
+        session_tab_layout.addWidget(spectrogram_group_box)
         session_tab_layout.addWidget(player_group_box)
         session_tab_layout.addWidget(feedback_bar_group_box)
         session_tab_layout.addWidget(start_stop_button_group_box)
@@ -342,10 +345,6 @@ class Feedback(QWidget):
 
         # this is a two channel soundtrack, I get the first track
         signal_data = signal_data.T[0]
-
-        # hide axis values
-        plt.gca().axes.get_yaxis().set_visible(False)
-        plt.axis('off')
 
         self.spectrogram.axes.cla()
         self.spectrogram.axes.plot(signal_data)
