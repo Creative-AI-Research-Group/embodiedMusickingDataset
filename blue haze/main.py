@@ -38,6 +38,9 @@ class MainWindow(QMainWindow):
         self.setWindowTitle('Blue Haze')
         self.setFixedSize(cfg.UI_WIDTH, cfg.UI_HEIGHT)
 
+        # tab widget
+        self.tab_widget = QTabWidget()
+
         # setup group
         self.session_name = QLineEdit()
         self.video_file_path = QLineEdit()
@@ -65,8 +68,7 @@ class MainWindow(QMainWindow):
         self.picoboard_label = QLabel('Picoboard')
         self.hardware_status = {'Bitalino': not cfg.HARDWARE,
                                 'Brainbit': not cfg.HARDWARE,
-                                'RealSense': not cfg.HARDWARE,
-                                'Picoboard': not cfg.HARDWARE}
+                                'RealSense': not cfg.HARDWARE}
 
         # record bottom area
         self.record_stop_button = QPushButton('Record session')
@@ -135,15 +137,17 @@ class MainWindow(QMainWindow):
         feedback_tab_widget = QWidget()
         feedback_tab_widget.setLayout(self.feedback.ui_tab_feedback_tab_widget())
 
-        tab_widget = QTabWidget()
-        tab_widget.addTab(record_tab_widget, 'Record')
-        tab_widget.addTab(feedback_tab_widget, 'Feedback')
-        tab_widget.currentChanged.connect(self.tab_changed)
+        self.tab_widget.addTab(record_tab_widget, 'Record')
+        self.tab_widget.addTab(feedback_tab_widget, 'Feedback')
+        self.tab_widget.currentChanged.connect(self.tab_changed)
+
+        # disable the feedback tab
+        self.tab_widget.setTabEnabled(1, False)
 
         # let's add some margin/breathing space to it!
         main_layout = QHBoxLayout()
         main_layout.setContentsMargins(20, 25, 20, 20)
-        main_layout.addWidget(tab_widget)
+        main_layout.addWidget(self.tab_widget)
 
         main_widget = QWidget()
         main_widget.setLayout(main_layout)
@@ -480,7 +484,7 @@ class MainWindow(QMainWindow):
             elif status['from'] == 'Picoboard':
                 self.bullet_picoboard_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_ok.png')
                 self.picoboard_label.setStyleSheet('QLabel { color: GreenYellow; }')
-                self.hardware_status['Picoboard'] = True
+                self.tab_widget.setTabEnabled(1, True)
             if False not in self.hardware_status.values():
                 self.record_stop_button.setEnabled(True)
         else:
@@ -496,6 +500,7 @@ class MainWindow(QMainWindow):
             elif status['from'] == 'Picoboard':
                 self.bullet_picoboard_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_error.png')
                 self.picoboard_label.setStyleSheet('QLabel { color: red; }')
+                self.tab_widget.setTabEnabled(1, False)
             self.error_dialog('Error initializing {}. Please check the connections.'
                               .format(status['from']))
 
