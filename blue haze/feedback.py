@@ -7,7 +7,6 @@
 #
 
 import matplotlib
-import matplotlib.pyplot as plt
 
 import modules.config as cfg
 import modules.utils as utls
@@ -31,8 +30,10 @@ from playAudioTrack import PlayAudioTrack
 class MplCanvas(FigureCanvasQTAgg):
     def __init__(self, parent=None, width=5, height=4, dpi=100):
         fig = Figure(figsize=(width, height), dpi=dpi)
+        fig.patch.set_facecolor('#424242')
 
         self.axes = fig.add_subplot(111)
+        self.axes.set_facecolor('#424242')
         self.axes.axis('off')
         self.axes.get_yaxis().set_visible(False)
         self.axes.get_xaxis().set_visible(False)
@@ -349,5 +350,3 @@ class Feedback(QWidget):
         self.spectrogram.axes.cla()
         self.spectrogram.axes.plot(signal_data)
         self.spectrogram.draw()
-
-
