@@ -350,11 +350,15 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def tab_changed(self, i):
-        # to reload / update the list of collections in the feedback tab &
-        # start the thread to read data from the picoboard
         if i == 1:
+            # to reload / update the list of collections in the feedback tab &
+            # start the thread to read data from the picoboard
             self.feedback.get_list_sessions()
             self.feedback.start_thread_picoboard()
+        else:
+            # terminate the thread to read data from the picoboard
+            # exit & quit simply don't work
+            self.feedback.thread.terminate()
 
     @Slot()
     def show_folder_browser(self):
