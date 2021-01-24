@@ -6,19 +6,37 @@
 # Craig Vear - cvear@dmu.ac.uk
 #
 
+import matplotlib
+import matplotlib.pyplot as plt
+
+import modules.config as cfg
+import modules.utils as utls
+
 from PySide2.QtWidgets import *
 from PySide2.QtGui import QIcon
 from PySide2.QtCore import QSize, QEvent, Slot, Signal, QObject, QThread
+
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
+from matplotlib.figure import Figure
+
+from scipy.io import wavfile
+
 from time import sleep
 
 from database import *
 from playAudioTrack import PlayAudioTrack
 
-import matplotlib.pyplot as plt
-from scipy.io import wavfile
 
-import modules.config as cfg
-import modules.utils as utls
+# https://www.learnpyqt.com/tutorials/plotting-matplotlib/
+class MplCanvas(FigureCanvasQTAgg):
+    def __init__(self, parent=None, width=5, height=4, dpi=100):
+        fig = Figure(figsize=(width, height), dpi=dpi)
+
+        # self.gca().axes.get_yaxis().set_visible(False)
+        # self.axis('off')
+
+        self.axes = fig.add_subplot(111)
+        super(MplCanvas, self).__init__(fig)
 
 
 # https://www.matteomattei.com/pyside-signals-and-slots-with-qthread-example/
@@ -47,6 +65,9 @@ class ThreadToReadPicoboard(QThread):
 class Feedback(QWidget):
     def __init__(self):
         super().__init__()
+
+        # setup matplotlib to use Qt5
+        matplotlib.use('Qt5Agg')
 
         # database object
         self.database = Database()
@@ -103,6 +124,9 @@ class Feedback(QWidget):
         # start / stop area
         self.start_stop_button = QPushButton('Start')
         self.start_stop_label = QLabel()
+
+        # spectrogram
+        self.spectrogram = MplCanvas(self, width=5, height=1, dpi=100)
 
     def setup(self):
         self.get_list_sessions()
@@ -166,9 +190,10 @@ class Feedback(QWidget):
         player_group_box.setMinimumHeight(800)
         player_layout = QGridLayout()
         player_layout.setSpacing(20)
-        player_layout.addWidget(self.pause_player_button, 1, 1)
-        player_layout.addWidget(self.play_player_button, 1, 2)
-        player_layout.addWidget(self.stop_player_button, 1, 3)
+        player_layout.addWidget(self.spectrogram, 1, 2)
+        player_layout.addWidget(self.pause_player_button, 2, 1)
+        player_layout.addWidget(self.play_player_button, 2, 2)
+        player_layout.addWidget(self.stop_player_button, 2, 3)
         player_layout.setColumnStretch(0, 1)
         player_layout.setColumnStretch(4, 1)
         player_group_box.setLayout(player_layout)
@@ -319,9 +344,8 @@ class Feedback(QWidget):
         plt.gca().axes.get_yaxis().set_visible(False)
         plt.axis('off')
 
-        # plot the signal read from the wav file
-        plt.plot(signal_data)
-
-        plt.show()
+        self.spectrogram.axes.cla()
+        self.spectrogram.axes.plot(signal_data)
+        self.spectrogram.draw()
 
 
