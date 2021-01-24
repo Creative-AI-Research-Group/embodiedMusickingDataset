@@ -34,7 +34,6 @@ class MplCanvas(FigureCanvasQTAgg):
 
         self.axes = fig.add_subplot(111)
         self.axes.set_facecolor('#424242')
-        self.axes.axis('off')
         self.axes.get_yaxis().set_visible(False)
         self.axes.get_xaxis().set_visible(False)
         super(MplCanvas, self).__init__(fig)
@@ -349,4 +348,5 @@ class Feedback(QWidget):
 
         self.spectrogram.axes.cla()
         self.spectrogram.axes.plot(signal_data, color='#CCCCCC')
+        self.spectrogram.axes.axis('off')
         self.spectrogram.draw()
