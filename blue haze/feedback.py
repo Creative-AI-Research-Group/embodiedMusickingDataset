@@ -19,14 +19,14 @@ import modules.utils as utls
 
 
 # https://www.matteomattei.com/pyside-signals-and-slots-with-qthread-example/
-class WorkerSignals(QObject):
+class ThreadToReadPicoboardSignals(QObject):
     finished = Signal(int)
 
 
-class Worker(QThread):
+class ThreadToReadPicoboard(QThread):
     def __init__(self, parent=None):
         QThread.__init__(self, parent)
-        self.signal = WorkerSignals()
+        self.signal = ThreadToReadPicoboardSignals()
 
     def run(self):
         # hardware (picoboard)
@@ -48,7 +48,7 @@ class Feedback(QWidget):
         self.player = PlayAudioTrack(parent=self)
 
         # thread
-        self.thread = Worker()
+        self.thread = ThreadToReadPicoboard()
         self.keep_thread_running = True
         self.timer = QTimer()
         self.timer.setInterval(1000)
