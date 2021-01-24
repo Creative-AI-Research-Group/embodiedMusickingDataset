@@ -218,8 +218,8 @@ class Feedback(QWidget):
     def stop(self):
         self.player.stop()
 
-        # disable the stop & pause buttons & enable the play button
-        self.enable_disable_buttons(False, True)
+        # reset the buttons
+        self.player_track_end()
 
     def enable_disable_buttons(self, state_pause_stop=None, state_play=None):
         if state_pause_stop is not None:
@@ -284,8 +284,12 @@ class Feedback(QWidget):
 
     @Slot()
     def player_track_end(self):
-        # reset the buttons
+        # disable the stop & pause buttons & enable the play button
         self.enable_disable_buttons(False, True)
+
+        # restart the buttons colours
+        self.actual_icons[0] = self.PAUSE_GRAY
         self.actual_icons[1] = self.PLAY_GRAY
+        self.actual_icons[2] = self.STOP_GRAY
         self.update_icons()
 

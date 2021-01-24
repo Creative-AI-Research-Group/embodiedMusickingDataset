@@ -356,6 +356,9 @@ class MainWindow(QMainWindow):
             self.feedback.get_list_sessions()
             self.feedback.start_thread_picoboard()
         else:
+            # stop the player & restart the button states if it is playing
+            if self.feedback.player.state() is self.feedback.PLAYING:
+                self.feedback.stop()
             # terminate the thread to read data from the picoboard
             # exit & quit simply don't work
             self.feedback.thread.terminate()
