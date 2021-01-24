@@ -14,8 +14,9 @@ from time import sleep
 from database import *
 from playAudioTrack import PlayAudioTrack
 
-import matplotlib.pyplot as plot
-import numpy as np
+import matplotlib.pyplot as plt
+from scipy.io import wavfile
+from scipy.fftpack import fft
 
 import modules.config as cfg
 import modules.utils as utls
@@ -111,6 +112,7 @@ class Feedback(QWidget):
 
     def change_session(self):
         self.audio_file_name = self.database.get_audio_file_name(self.session_name_feedback_tab.currentText())
+        self.generate_spectrogram()
 
     def set_buttons(self):
         style_sheet = """
@@ -306,5 +308,18 @@ class Feedback(QWidget):
         self.update_icons()
 
     def generate_spectrogram(self):
-        pass
+        # https://pythontic.com/visualization/signals/spectrogram
+
+        # read the wav file
+        sampling_frequency, signal_data = wavfile.read(self.audio_file_name)
+
+        # this is a two channel soundtrack, I get the first track
+        signal_data = signal_data.T[0]
+
+        # plot the signal read from the wav file
+        plt.subplot(211)
+        plt.plot(signal_data)
+
+        plt.show()
+
 
