@@ -348,5 +348,5 @@ class Feedback(QWidget):
         signal_data = signal_data.T[0]
 
         self.spectrogram.axes.cla()
-        self.spectrogram.axes.plot(signal_data)
+        self.spectrogram.axes.plot(signal_data, color='#CCCCCC')
         self.spectrogram.draw()
