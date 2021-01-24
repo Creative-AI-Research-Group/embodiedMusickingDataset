@@ -16,7 +16,6 @@ from playAudioTrack import PlayAudioTrack
 
 import matplotlib.pyplot as plt
 from scipy.io import wavfile
-from scipy.fftpack import fft
 
 import modules.config as cfg
 import modules.utils as utls
@@ -316,8 +315,11 @@ class Feedback(QWidget):
         # this is a two channel soundtrack, I get the first track
         signal_data = signal_data.T[0]
 
+        # hide axis values
+        plt.gca().axes.get_yaxis().set_visible(False)
+        plt.axis('off')
+
         # plot the signal read from the wav file
-        plt.subplot(211)
         plt.plot(signal_data)
 
         plt.show()
