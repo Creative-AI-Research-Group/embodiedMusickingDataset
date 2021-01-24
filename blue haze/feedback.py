@@ -14,6 +14,9 @@ from time import sleep
 from database import *
 from playAudioTrack import PlayAudioTrack
 
+import matplotlib.pyplot as plot
+import numpy as np
+
 import modules.config as cfg
 import modules.utils as utls
 
@@ -54,6 +57,8 @@ class Feedback(QWidget):
         # thread
         self.thread = ThreadToReadPicoboard()
 
+        # audio file name
+        self.audio_file_name = None
 
         # constants
         # icons
@@ -81,6 +86,7 @@ class Feedback(QWidget):
         # list of sessions
         self.session_name_feedback_tab = QComboBox()
         self.session_name_feedback_tab.setDuplicatesEnabled(False)
+        self.session_name_feedback_tab.activated[str].connect(self.change_session)
 
         # player buttons
         self.pause_player_button = QPushButton()
@@ -97,6 +103,14 @@ class Feedback(QWidget):
         # start / stop area
         self.start_stop_button = QPushButton('Start')
         self.start_stop_label = QLabel()
+
+    def setup(self):
+        self.get_list_sessions()
+        self.start_thread_picoboard()
+        self.change_session()
+
+    def change_session(self):
+        self.audio_file_name = self.database.get_audio_file_name(self.session_name_feedback_tab.currentText())
 
     def set_buttons(self):
         style_sheet = """
@@ -204,14 +218,12 @@ class Feedback(QWidget):
             self.session_name_feedback_tab.addItem(collection_name)
 
     def play(self):
-        audio_file_name = self.database.get_audio_file_name(self.session_name_feedback_tab.currentText())
-
         # enable the other buttons
         self.enable_disable_buttons(True)
 
         # check if the player is not paused
         if self.player.state() is not self.PAUSED:
-            self.player.setup_media(audio_file_name)
+            self.player.setup_media(self.audio_file_name)
 
         self.player.play()
 
@@ -292,4 +304,7 @@ class Feedback(QWidget):
         self.actual_icons[1] = self.PLAY_GRAY
         self.actual_icons[2] = self.STOP_GRAY
         self.update_icons()
+
+    def generate_spectrogram(self):
+        pass
 

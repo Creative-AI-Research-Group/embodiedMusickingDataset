@@ -357,8 +357,7 @@ class MainWindow(QMainWindow):
         if i == 1:
             # to reload / update the list of collections in the feedback tab &
             # start the thread to read data from the picoboard
-            self.feedback.get_list_sessions()
-            self.feedback.start_thread_picoboard()
+            self.feedback.setup()
         else:
             # stop the player & restart the button states if it is playing
             if self.feedback.player.state() is self.feedback.PLAYING:
