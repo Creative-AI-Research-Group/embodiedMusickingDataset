@@ -8,7 +8,7 @@
 
 from PySide2.QtWidgets import *
 from PySide2.QtGui import QIcon
-from PySide2.QtCore import QSize, QEvent, Slot, Signal, QObject, QTimer, QThread
+from PySide2.QtCore import QSize, QEvent, Slot, Signal, QObject, QThread
 from time import sleep
 
 from database import *
@@ -49,9 +49,7 @@ class Feedback(QWidget):
 
         # thread
         self.thread = ThreadToReadPicoboard()
-        self.keep_thread_running = True
-        self.timer = QTimer()
-        self.timer.setInterval(1000)
+
 
         # constants
         # icons
@@ -90,7 +88,7 @@ class Feedback(QWidget):
         self.feedback_bar = QProgressBar()
         self.feedback_bar.setMinimum(0)
         self.feedback_bar.setMaximum(10)
-        self.flow_level = 0
+        self.old_flow_level = 0
 
         # start / stop area
         self.start_stop_button = QPushButton('Start')
@@ -184,7 +182,9 @@ class Feedback(QWidget):
 
     @Slot(int)
     def thread_complete(self, flow):
-        self.feedback_bar.setValue(flow)
+        if self.old_flow_level != flow:
+            self.feedback_bar.setValue(flow)
+            self.old_flow_level = flow
 
     def start_thread_picoboard(self):
         self.thread.signal.finished.connect(self.thread_complete)
