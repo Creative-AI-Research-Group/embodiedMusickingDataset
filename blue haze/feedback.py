@@ -35,7 +35,10 @@ class MplCanvas(FigureCanvasQTAgg):
         # self.gca().axes.get_yaxis().set_visible(False)
         # self.axis('off')
 
+
         self.axes = fig.add_subplot(111)
+        self.axes.get_yaxis().set_visible(False)
+        self.axes.get_xaxis().set_visible(False)
         super(MplCanvas, self).__init__(fig)
 
 
