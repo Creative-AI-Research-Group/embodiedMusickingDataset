@@ -345,13 +345,8 @@ class Feedback(QWidget, QObject):
         self.update_icons()
 
     def generate_spectrogram(self):
-        # https://pythontic.com/visualization/signals/spectrogram
-
         # read the wav file
-        sampling_frequency, signal_data = wavfile.read(self.audio_file_name)
-
-        # this is a two channel soundtrack, I get the first track
-        signal_data = signal_data.T[0]
+        sampling_frequency, signal_data = wavfile.read(self.audio_file_name[:-4]+'_m.wav')
 
         self.spectrogram.axes.cla()
         self.spectrogram.axes.plot(signal_data, color='#CCCCCC')

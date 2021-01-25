@@ -189,13 +189,25 @@ class RecordSession(QMessageBox, QObject):
 
     def extract_audio_from_video(self):
         audio_file_name = self.video_file_name[:-3]+'wav'
+        audio_file_name_mono = self.video_file_name[:-4]+'_m.wav'
 
+        # stereo
         cmd = ['ffmpeg',
                '-i', self.video_file_name,
                '-ab', '160k',
                '-ac', '2',
                '-ar', '44100',
                '-vn', audio_file_name]
+
+        Popen(cmd)
+
+        # mono
+        cmd = ['ffmpeg',
+               '-i', self.video_file_name,
+               '-ab', '64k',
+               '-ac', '1',
+               '-ar', '11025',
+               '-vn', audio_file_name_mono]
 
         Popen(cmd)
 
