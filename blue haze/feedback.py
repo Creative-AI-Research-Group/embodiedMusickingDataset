@@ -368,6 +368,8 @@ class Feedback(QWidget, QObject):
             # let's start a feedback session
             self.start_stop_button.setText('Stop')
             self.start_stop_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'red_start_stop.png')
+            self.actual_icons[1] = self.PLAY_RED
+            self.update_icons()
             self.play()
             return_dict = {
                 'disable': True
