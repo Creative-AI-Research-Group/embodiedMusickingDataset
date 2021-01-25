@@ -9,6 +9,7 @@
 import matplotlib
 
 import modules.config as cfg
+import modules.ui as ui
 import modules.utils as utls
 
 from PySide2.QtWidgets import *
@@ -362,14 +363,20 @@ class Feedback(QWidget, QObject):
             # a feedback session is running
             self.start_stop_button.setText('Start')
             self.start_stop_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'gray_start_stop.png')
-            if not stop_feedback:
-                self.stop()
             self.session_name_feedback_tab.setEnabled(True)
             return_dict = {
                 'disable': False
             }
             self.enable_disable_recording_tab.emit_signal(return_dict)
             self.feedback_session = False
+            if not stop_feedback:
+                self.stop()
+            else:
+                # show the message box warning about the end of the session in 3 seconds
+                _ = ui.TimerMessageBox(3,
+                                       'Blue Haze - Stopping session',
+                                       'Stopping automatically the feedback session in {} seconds',
+                                       self).exec_()
         else:
             # let's start a feedback session
             self.start_stop_button.setText('Stop')
