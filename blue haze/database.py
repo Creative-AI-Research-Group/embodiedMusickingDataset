@@ -104,9 +104,45 @@ class Database:
                 'flow': feedback,
                 'session.last_update': datetime.datetime.utcnow()
                 }
-            }
+            },
+            new=True
         )
         return document
+
+    def update_fields(self, collection, old_feedback, feedback, initial_position, actual_position):
+        loop = asyncio.get_event_loop()
+        _ = loop.run_until_complete(self.update_fields_async(collection,
+                                                             old_feedback,
+                                                             feedback,
+                                                             initial_position,
+                                                             actual_position))
+
+    async def update_fields_async(self, collection, old_feedback, feedback, initial_position, actual_position):
+        collection = self.db[collection]
+        _ = await collection.update_many(
+            {'sync.backing_track_position': {'$gt': initial_position, '$lt': actual_position-1}},
+            {'$set': {'flow': old_feedback, 'session.last_update': datetime.datetime.utcnow()}}
+        )
+        _ = await collection.find_one_and_update(
+            {'sync.backing_track_position': {'$gt': initial_position-1, '$lt': actual_position+1}},
+            {'$set': {
+                'flow': feedback,
+                'session.last_update': datetime.datetime.utcnow()
+                }
+            },
+            new=True
+        )
+
+    def update_last_one(self, collection, feedback, initial_position):
+        loop = asyncio.get_event_loop()
+        _ = loop.run_until_complete(self.update_last_one_async(collection, feedback, initial_position))
+
+    async def update_last_one_async(self, collection, feedback, initial_position):
+        collection = self.db[collection]
+        _ = await collection.update_many(
+            {'sync.backing_track_position': {'$gt': initial_position}},
+            {'$set': {'flow': feedback, 'session.last_update': datetime.datetime.utcnow()}}
+        )
 
     def close(self):
         self.client.close()

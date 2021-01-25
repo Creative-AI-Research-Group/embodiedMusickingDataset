@@ -244,6 +244,15 @@ class Feedback(QWidget, QObject):
     def picoboard_thread_complete(self, flow):
         if self.old_flow_level != flow:
             self.feedback_bar.setValue(flow)
+            if self.feedback_session:
+                # update MongoDB
+                actual_position = self.player.position()
+                self.database.update_fields(self.session_name_feedback_tab.currentText(),
+                                            self.old_flow_level,
+                                            flow,
+                                            self.last_position,
+                                            actual_position)
+                self.last_position = actual_position
             self.old_flow_level = flow
 
     def start_thread_picoboard(self):
@@ -383,6 +392,10 @@ class Feedback(QWidget, QObject):
     def start_stop_feedback(self, stop_feedback=False):
         if self.feedback_session or stop_feedback:
             # a feedback session is running
+            # update database
+            self.database.update_last_one(self.session_name_feedback_tab.currentText(),
+                                          self.old_flow_level,
+                                          self.last_position)
             self.start_stop_button.setText('Start')
             self.start_stop_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'gray_start_stop.png')
             self.session_name_feedback_tab.setEnabled(True)
@@ -415,5 +428,4 @@ class Feedback(QWidget, QObject):
             self.feedback_session = True
 
             # 1st entry
-            print(self.old_flow_level)
             self.database.update_first_one(self.session_name_feedback_tab.currentText(), self.old_flow_level)
