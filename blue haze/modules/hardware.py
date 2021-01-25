@@ -47,7 +47,7 @@ class PicoboardSlider:
     def slider_value(self):
         readings = self.pb.read()
         slider = readings['slider']
-        slider = int(slider / 100)
+        slider = int(slider / 10)
         if slider > 100:
             slider = 100
         return slider

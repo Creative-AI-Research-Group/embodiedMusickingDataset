@@ -120,7 +120,7 @@ class Feedback(QWidget, QObject):
         # progress bar / feedback bar
         self.feedback_bar = QProgressBar()
         self.feedback_bar.setMinimum(0)
-        self.feedback_bar.setMaximum(10)
+        self.feedback_bar.setMaximum(100)
         self.old_flow_level = 0
 
         # start / stop area
@@ -234,13 +234,13 @@ class Feedback(QWidget, QObject):
         return session_tab_layout
 
     @Slot(int)
-    def thread_complete(self, flow):
+    def picoboard_thread_complete(self, flow):
         if self.old_flow_level != flow:
             self.feedback_bar.setValue(flow)
             self.old_flow_level = flow
 
     def start_thread_picoboard(self):
-        self.thread.signal.finished.connect(self.thread_complete)
+        self.thread.signal.finished.connect(self.picoboard_thread_complete)
         self.thread.start()
 
     def get_list_sessions(self):
