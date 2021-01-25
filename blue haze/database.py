@@ -92,5 +92,21 @@ class Database:
         document = await collection.find_one({'_id': {'$exists': True}})
         return document['files']['video'][:-3]+'wav'
 
+    def update_first_one(self, collection, feedback):
+        loop = asyncio.get_event_loop()
+        _ = loop.run_until_complete(self.update_first_one_async(collection, feedback))
+
+    async def update_first_one_async(self, collection, feedback):
+        collection = self.db[collection]
+        document = await collection.find_one_and_update(
+            {'sync.backing_track_position': 0},
+            {'$set': {
+                'flow': feedback,
+                'session.last_update': datetime.datetime.utcnow()
+                }
+            }
+        )
+        return document
+
     def close(self):
         self.client.close()

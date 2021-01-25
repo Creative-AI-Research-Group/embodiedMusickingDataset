@@ -16,7 +16,7 @@ import modules.utils as utls
 
 from PySide2.QtWidgets import *
 from PySide2.QtGui import QIcon
-from PySide2.QtCore import QSize, QEvent, Slot, Signal, QObject, QThread
+from PySide2.QtCore import *
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
@@ -32,6 +32,7 @@ from playAudioTrack import PlayAudioTrack
 
 class MplCanvas(FigureCanvasQTAgg):
     def __init__(self, parent=None, width=5, height=4, dpi=100):
+
         fig = Figure(figsize=(width, height), dpi=dpi)
         fig.patch.set_facecolor('#424242')
 
@@ -75,6 +76,7 @@ class Feedback(QWidget, QObject):
 
         # database object
         self.database = Database()
+        self.last_position = 0
 
         # player object
         self.player = PlayAudioTrack(parent=self)
@@ -411,3 +413,7 @@ class Feedback(QWidget, QObject):
             self.enable_disable_recording_tab.emit_signal(return_dict)
             self.stop_player_button.setEnabled(False)
             self.feedback_session = True
+
+            # 1st entry
+            print(self.old_flow_level)
+            self.database.update_first_one(self.session_name_feedback_tab.currentText(), self.old_flow_level)
