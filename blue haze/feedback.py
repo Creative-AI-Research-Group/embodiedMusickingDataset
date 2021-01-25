@@ -396,6 +396,7 @@ class Feedback(QWidget, QObject):
             self.database.update_last_one(self.session_name_feedback_tab.currentText(),
                                           self.old_flow_level,
                                           self.last_position)
+            self.old_flow_level = 0
             self.start_stop_button.setText('Start')
             self.start_stop_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'gray_start_stop.png')
             self.session_name_feedback_tab.setEnabled(True)
@@ -414,6 +415,7 @@ class Feedback(QWidget, QObject):
                                        self).exec_()
         else:
             # let's start a feedback session
+            self.last_position = 0
             self.start_stop_button.setText('Stop')
             self.start_stop_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'red_start_stop.png')
             self.actual_icons[1] = self.PLAY_RED
@@ -428,4 +430,5 @@ class Feedback(QWidget, QObject):
             self.feedback_session = True
 
             # 1st entry
+            self.database.clean_collection(self.session_name_feedback_tab.currentText())
             self.database.update_first_one(self.session_name_feedback_tab.currentText(), self.old_flow_level)

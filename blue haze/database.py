@@ -92,6 +92,17 @@ class Database:
         document = await collection.find_one({'_id': {'$exists': True}})
         return document['files']['video'][:-3]+'wav'
 
+    def clean_collection(self, collection):
+        loop = asyncio.get_event_loop()
+        _ = loop.run_until_complete(self.clean_collection_async(collection))
+
+    async def clean_collection_async(self, collection):
+        collection = self.db[collection]
+        _ = await collection.update_many(
+            {'_id': {'$exists': True}},
+            {'$set': {'flow': None, 'session.last_update': datetime.datetime.utcnow()}}
+        )
+
     def update_first_one(self, collection, feedback):
         loop = asyncio.get_event_loop()
         _ = loop.run_until_complete(self.update_first_one_async(collection, feedback))
@@ -113,18 +124,21 @@ class Database:
         loop = asyncio.get_event_loop()
         _ = loop.run_until_complete(self.update_fields_async(collection,
                                                              old_feedback,
-                                                             feedback,
                                                              initial_position,
                                                              actual_position))
 
-    async def update_fields_async(self, collection, old_feedback, feedback, initial_position, actual_position):
+    async def update_fields_async(self, collection, old_feedback, initial_position, actual_position):
         collection = self.db[collection]
         _ = await collection.update_many(
             {'sync.backing_track_position': {'$gt': initial_position, '$lt': actual_position-1}},
             {'$set': {'flow': old_feedback, 'session.last_update': datetime.datetime.utcnow()}}
         )
+        return _
+
+    async def update_current_position_async(self, collection, feedback, actual_position):
+        collection = self.db[collection]
         _ = await collection.find_one_and_update(
-            {'sync.backing_track_position': {'$gt': initial_position-1, '$lt': actual_position+1}},
+            {'sync.backing_track_position': {'$gt': actual_position-1, '$lt': actual_position+1}},
             {'$set': {
                 'flow': feedback,
                 'session.last_update': datetime.datetime.utcnow()
