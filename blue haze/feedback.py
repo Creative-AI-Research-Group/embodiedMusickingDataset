@@ -359,6 +359,7 @@ class Feedback(QWidget, QObject):
             self.start_stop_button.setText('Start')
             self.start_stop_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'gray_start_stop.png')
             self.stop()
+            self.session_name_feedback_tab.setEnabled(True)
             return_dict = {
                 'disable': False
             }
@@ -371,6 +372,7 @@ class Feedback(QWidget, QObject):
             self.actual_icons[1] = self.PLAY_RED
             self.update_icons()
             self.play()
+            self.session_name_feedback_tab.setEnabled(False)
             return_dict = {
                 'disable': True
             }
