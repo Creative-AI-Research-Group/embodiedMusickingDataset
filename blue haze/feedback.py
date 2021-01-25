@@ -330,6 +330,10 @@ class Feedback(QWidget, QObject):
 
     @Slot()
     def player_track_end(self):
+        # check if there is an active feedback session
+        if self.feedback_session:
+            self.start_stop_feedback(stop_feedback=True)
+
         # disable the stop & pause buttons & enable the play button
         self.enable_disable_buttons(False, True)
 
@@ -353,12 +357,13 @@ class Feedback(QWidget, QObject):
         self.spectrogram.axes.axis('off')
         self.spectrogram.draw()
 
-    def start_stop_feedback(self):
-        if self.feedback_session:
+    def start_stop_feedback(self, stop_feedback=False):
+        if self.feedback_session or stop_feedback:
             # a feedback session is running
             self.start_stop_button.setText('Start')
             self.start_stop_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'gray_start_stop.png')
-            self.stop()
+            if not stop_feedback:
+                self.stop()
             self.session_name_feedback_tab.setEnabled(True)
             return_dict = {
                 'disable': False
@@ -379,4 +384,3 @@ class Feedback(QWidget, QObject):
             self.enable_disable_recording_tab.emit_signal(return_dict)
             self.stop_player_button.setEnabled(False)
             self.feedback_session = True
-
