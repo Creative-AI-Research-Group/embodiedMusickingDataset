@@ -123,11 +123,11 @@ class MainWindow(QMainWindow):
     def setup_hw(self):
         init_hardware = utls.Hardware(parent=self)
 
-        # realsense, bitalino and brainbit init
+        # picoboard, realsense, bitalino and brainbit init
+        threading.Thread(target=init_hardware.start_picoboard).start()
         threading.Thread(target=init_hardware.start_realsense).start()
         threading.Thread(target=init_hardware.start_brainbit).start()
         threading.Thread(target=init_hardware.start_bitalino).start()
-        threading.Thread(target=init_hardware.start_picoboard).start()
 
     def setup_ui(self):
         record_tab_widget = QWidget()
@@ -502,12 +502,10 @@ class MainWindow(QMainWindow):
             elif status['from'] == 'BrainBit':
                 self.bullet_brainbit_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_error.png')
                 self.brainbit_label.setStyleSheet('QLabel { color: red; }')
-            self.error_dialog('Error initializing {}. Please check the connections.'
-                              .format(status['from']))
-        elif not status['result'] and status['from'] == 'Picoboard':
-            self.bullet_picoboard_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_error.png')
-            self.picoboard_label.setStyleSheet('QLabel { color: red; }')
-            self.tab_widget.setTabEnabled(1, False)
+            elif status['from'] == 'Picoboard':
+                self.bullet_picoboard_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_error.png')
+                self.picoboard_label.setStyleSheet('QLabel { color: red; }')
+                self.tab_widget.setTabEnabled(1, False)
             self.error_dialog('Error initializing {}. Please check the connections.'
                               .format(status['from']))
 

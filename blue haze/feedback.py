@@ -44,16 +44,15 @@ class ThreadToReadPicoboardSignals(QObject):
 
 
 class ThreadToReadPicoboard(QThread):
-    def __init__(self, parent=None):
+    def __init__(self, hardware, parent=None):
         QThread.__init__(self, parent)
         self.signal = ThreadToReadPicoboardSignals()
+        self.hardware = hardware
 
     def run(self):
-        # hardware (picoboard)
-        hardware = utls.Hardware()
         while True:
             try:
-                flow_level = hardware.read_picoboard()
+                flow_level = self.hardware.read_picoboard()
                 self.signal.finished.emit(flow_level)
                 sleep(cfg.BITALINO_BAUDRATE / 1000)
             except RuntimeError:
@@ -77,8 +76,11 @@ class Feedback(QWidget, QObject):
         # player object
         self.player = PlayAudioTrack(parent=self)
 
+        # picoboard
+        hardware = utls.Hardware()
+
         # thread
-        self.thread = ThreadToReadPicoboard()
+        self.thread = ThreadToReadPicoboard(hardware)
 
         # audio file name
         self.audio_file_name = None
