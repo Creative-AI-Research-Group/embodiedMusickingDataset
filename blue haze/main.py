@@ -507,8 +507,9 @@ class MainWindow(QMainWindow):
                 self.bullet_picoboard_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_error.png')
                 self.picoboard_label.setStyleSheet('QLabel { color: red; }')
                 self.tab_widget.setTabEnabled(1, False)
-            self.error_dialog('Error initializing {}. Please check the connections.'
-                              .format(status['from']))
+            if status['from'] != 'Picoboard':
+                self.error_dialog('Error initializing {}. Please check the connections.'
+                                  .format(status['from']))
 
     Slot()
     def player_track_end(self):
