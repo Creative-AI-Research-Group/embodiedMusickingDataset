@@ -26,7 +26,6 @@ from database import *
 from playAudioTrack import PlayAudioTrack
 
 
-# https://www.learnpyqt.com/tutorials/plotting-matplotlib/
 class MplCanvas(FigureCanvasQTAgg):
     def __init__(self, parent=None, width=5, height=4, dpi=100):
         fig = Figure(figsize=(width, height), dpi=dpi)
@@ -39,7 +38,6 @@ class MplCanvas(FigureCanvasQTAgg):
         super(MplCanvas, self).__init__(fig)
 
 
-# https://www.matteomattei.com/pyside-signals-and-slots-with-qthread-example/
 class ThreadToReadPicoboardSignals(QObject):
     finished = Signal(int)
 
@@ -124,6 +122,8 @@ class Feedback(QWidget):
         # start / stop area
         self.start_stop_button = QPushButton('Start')
         self.start_stop_label = QLabel()
+        self.start_stop_button.clicked.connect(self.start_stop_feedback)
+        self.feedback_session = False
 
         # spectrogram
         self.spectrogram = MplCanvas(self, width=10, height=15, dpi=100)
@@ -193,7 +193,6 @@ class Feedback(QWidget):
 
         # player
         player_group_box = QGroupBox()
-        # player_group_box.setMinimumHeight(800)
         player_layout = QGridLayout()
         player_layout.setSpacing(20)
         player_layout.addWidget(self.pause_player_button, 2, 1)
@@ -350,3 +349,19 @@ class Feedback(QWidget):
         self.spectrogram.axes.plot(signal_data, color='#CCCCCC')
         self.spectrogram.axes.axis('off')
         self.spectrogram.draw()
+
+    def start_stop_feedback(self):
+        if self.feedback_session:
+            # a feedback session is running
+            self.start_stop_button.setText('Start')
+            self.start_stop_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'gray_start_stop.png')
+            self.stop()
+            self.feedback_session = False
+        else:
+            # let's start a feedback session
+            self.start_stop_button.setText('Stop')
+            self.start_stop_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'red_start_stop.png')
+            self.play()
+            self.stop_player_button.setEnabled(False)
+            self.feedback_session = True
+
