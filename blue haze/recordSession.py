@@ -201,16 +201,6 @@ class RecordSession(QMessageBox, QObject):
 
         Popen(cmd)
 
-        # mono
-        cmd = ['ffmpeg',
-               '-i', self.video_file_name,
-               '-ab', '64k',
-               '-ac', '1',
-               '-ar', '11025',
-               '-vn', audio_file_name_mono]
-
-        Popen(cmd)
-
     def which_chorus(self, backing_track_pos):
         # simple logging of chorus/ loop ID
         # 0 = count in; 1 = tune; 2 = improv 1; 3 = improv 2; 4 = improv 3; 5 = recap tune; 999 = ending

@@ -6,6 +6,8 @@
 # Craig Vear - cvear@dmu.ac.uk
 #
 
+import os
+
 import matplotlib
 
 import modules.config as cfg
@@ -22,6 +24,7 @@ from matplotlib.figure import Figure
 from scipy.io import wavfile
 
 from time import sleep
+from subprocess import Popen
 
 from database import *
 from playAudioTrack import PlayAudioTrack
@@ -347,13 +350,33 @@ class Feedback(QWidget, QObject):
         self.update_icons()
 
     def generate_spectrogram(self):
+        audio_file_name_mono = self.audio_file_name[:-4]+'_m.wav'
+
+        # convert file to mono
+        cmd = ['ffmpeg',
+               '-y',
+               '-i', self.audio_file_name,
+               '-ac', '1',
+               '-ab', '32k',
+               '-ar', '11025',
+               audio_file_name_mono]
+
+        process = Popen(cmd)
+
+        while True:
+            if process.poll() is not None:
+                break
+
         # read the wav file
-        sampling_frequency, signal_data = wavfile.read(self.audio_file_name[:-4]+'_m.wav')
+        sampling_frequency, signal_data = wavfile.read(audio_file_name_mono)
 
         self.spectrogram.axes.cla()
         self.spectrogram.axes.plot(signal_data, color='#CCCCCC')
         self.spectrogram.axes.axis('off')
         self.spectrogram.draw()
+
+        # delete the mono file
+        os.remove(audio_file_name_mono)
 
     def start_stop_feedback(self, stop_feedback=False):
         if self.feedback_session or stop_feedback:
