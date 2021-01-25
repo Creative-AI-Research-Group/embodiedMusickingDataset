@@ -8,7 +8,6 @@
 
 # todo: stop / terminate the hardware when the app closes
 # todo: implement restart hardware button
-# todo: slider
 
 from PySide2.QtMultimedia import *
 from PySide2.QtMultimediaWidgets import QCameraViewfinder
@@ -493,7 +492,7 @@ class MainWindow(QMainWindow):
                 self.tab_widget.setTabEnabled(1, True)
             if False not in self.hardware_status.values():
                 self.record_stop_button.setEnabled(True)
-        else:
+        elif not status['result'] and status['from'] != 'Picoboard':
             if status['from'] == 'RealSense':
                 self.bullet_realsense_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_error.png')
                 self.realsense_label.setStyleSheet('QLabel { color: red; }')
@@ -503,13 +502,14 @@ class MainWindow(QMainWindow):
             elif status['from'] == 'BrainBit':
                 self.bullet_brainbit_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_error.png')
                 self.brainbit_label.setStyleSheet('QLabel { color: red; }')
-            elif status['from'] == 'Picoboard':
-                self.bullet_picoboard_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_error.png')
-                self.picoboard_label.setStyleSheet('QLabel { color: red; }')
-                self.tab_widget.setTabEnabled(1, False)
-            if status['from'] != 'Picoboard':
-                self.error_dialog('Error initializing {}. Please check the connections.'
-                                  .format(status['from']))
+            self.error_dialog('Error initializing {}. Please check the connections.'
+                              .format(status['from']))
+        elif not status['result'] and status['from'] == 'Picoboard':
+            self.bullet_picoboard_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_error.png')
+            self.picoboard_label.setStyleSheet('QLabel { color: red; }')
+            self.tab_widget.setTabEnabled(1, False)
+            self.error_dialog('Error initializing {}. Please check the connections.'
+                              .format(status['from']))
 
     Slot()
     def player_track_end(self):
