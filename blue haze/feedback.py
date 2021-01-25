@@ -60,9 +60,12 @@ class ThreadToReadPicoboard(QThread):
                 pass
 
 
-class Feedback(QWidget):
-    def __init__(self):
+class Feedback(QWidget, QObject):
+    def __init__(self, parent=None):
         super().__init__()
+
+        if parent is not None:
+            self.enable_disable_recording_tab = utls.EmitSignal(parent, parent.enable_disable_recording_tab)
 
         # setup matplotlib to use Qt5
         matplotlib.use('Qt5Agg')
@@ -356,12 +359,20 @@ class Feedback(QWidget):
             self.start_stop_button.setText('Start')
             self.start_stop_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'gray_start_stop.png')
             self.stop()
+            return_dict = {
+                'disable': False
+            }
+            self.enable_disable_recording_tab.emit_signal(return_dict)
             self.feedback_session = False
         else:
             # let's start a feedback session
             self.start_stop_button.setText('Stop')
             self.start_stop_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'red_start_stop.png')
             self.play()
+            return_dict = {
+                'disable': True
+            }
+            self.enable_disable_recording_tab.emit_signal(return_dict)
             self.stop_player_button.setEnabled(False)
             self.feedback_session = True
 

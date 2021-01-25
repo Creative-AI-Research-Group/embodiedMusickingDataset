@@ -105,7 +105,7 @@ class MainWindow(QMainWindow):
         threading.Thread(target=init_hardware.start_picoboard).start()
 
         # feedback
-        self.feedback = Feedback()
+        self.feedback = Feedback(parent=self)
 
         # ui setup
         self.setup_ui()
@@ -286,6 +286,13 @@ class MainWindow(QMainWindow):
 
     def change_value_mic_volume_label(self):
         self.volume_slider_label.setText(str(self.volume_slider.value()))
+
+    @Slot(dict)
+    def enable_disable_recording_tab(self, action):
+        if action['disable']:
+            self.tab_widget.setTabEnabled(0, False)
+        else:
+            self.tab_widget.setTabEnabled(0, True)
 
     @Slot(dict)
     def action_record_stop_button(self):
