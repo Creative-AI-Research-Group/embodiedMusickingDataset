@@ -99,10 +99,6 @@ class MainWindow(QMainWindow):
         if cfg.HARDWARE:
             self.setup_hw()
 
-        # todo: DELETE!!!
-        init_hardware = utls.Hardware(parent=self)
-        threading.Thread(target=init_hardware.start_picoboard).start()
-
         # feedback
         self.feedback = Feedback(parent=self)
 
