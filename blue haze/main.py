@@ -54,7 +54,7 @@ class MainWindow(QMainWindow):
         # session name & video file path fields
         if cfg.DEBUG:
             self.session_name.setText('test')
-            self.video_file_path.setText(str(Path.home()) + '\Documents')
+            self.video_file_path.setText(str(Path.home()) + '\Documents\hdi')
 
         # hardware
         self.bullet_bitalino_label = QLabel()

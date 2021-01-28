@@ -21,6 +21,7 @@ class Data:
         self.eda = []
         self.delta = []
         self.timestamp = []
+        self.flow = []
 
         if self.DATA_LOGGING:
             print(f'dataframe = {df.values}')
@@ -41,6 +42,10 @@ class Data:
         # make the eeg list
         for _eeg in df.values:
             self.eeg.append(_eeg[13:17])
+
+        # make a flow list
+        for _flow in df.values:
+            self.flow.append(_flow[-1])
 
         # make the skeleton coords list
         for _coords in df.values:
@@ -71,6 +76,7 @@ class Data:
             print(f'eda = {self.eda}')
             print(f'eeg = {self.eeg}')
             print(f'coords = {self.coords}')
+            print(f'flow = {self.flow}')
 
     # iterate through lists for each frame
     def get_data(self):
@@ -85,11 +91,14 @@ class Data:
 
         now_timestamp = self.timestamp[self.count]
 
+        now_flow = self.flow[self.count]
+
         if self.DATA_LOGGING:
-            print(f'full data is: coords = {now_coords}, eeg = {now_eeg}, eda = {now_eda}, delta = {now_delta}, timestamp = {now_timestamp}')
+            print(f'full data is: coords = {now_coords}, eeg = {now_eeg}, eda = {now_eda},'
+                  f' delta = {now_delta}, timestamp = {now_timestamp}, flow = {now_flow}')
 
         self.count += 1
-        return now_coords, now_eeg, now_eda, now_delta, now_timestamp
+        return now_coords, now_eeg, now_eda, now_delta, now_timestamp, now_flow
 
     # calc all distances
     def calc_hypot(self, x, x1, y, y1):
@@ -208,11 +217,11 @@ class Draw(Frame):
     # schedules all the mainloop tasks
     def UIUpdater(self):
         # gets skeleton coords, line, and colour details
-        coords, eeg, eda, delta, timestamp = self.data_bot.get_data()
+        coords, eeg, eda, delta, timestamp, flow = self.data_bot.get_data()
         lines = self.data_bot.worker(coords)
 
         # draws the stuff that is refreshed each frame
-        self.drawing(coords, lines, eeg, eda, timestamp, delta)
+        self.drawing(coords, lines, eeg, eda, timestamp, delta, flow)
 
         # control playback FPS here
         if self.FPS == 0:
@@ -230,7 +239,7 @@ class Draw(Frame):
         mixer.music.play(loops=0)
 
     # handles all the drawing onto the canvas
-    def drawing(self, coords, lines, eeg, eda, timestamp, delta):
+    def drawing(self, coords, lines, eeg, eda, timestamp, delta, flow):
         # reset the canvas
         self.canvas.delete("all")
 
@@ -250,6 +259,8 @@ class Draw(Frame):
                                 fill="white", text=f"timedelta =  {delta} ms,\nerror = {delta - 100} ms")
         self.canvas.create_text(1400, 240, font=("Purisa", 20),
                                 fill="white", text=f"chorus (loop) =  {timestamp[1]}")
+        self.canvas.create_text(1400, 800, font=("Purisa", 20),
+                                fill="white", text=f"flow =  {flow}")
 
         # change background on eda value
         col_eda = eda - 100 # dirty fix as offset
@@ -315,6 +326,13 @@ class Draw(Frame):
                                 900 + eda,
                                 150 + eda,
                                 outline="#000", fill="#fff", width=1)
+
+        # draw a flow blob
+        self.canvas.create_rectangle(1350,
+                                640,
+                                1350 + flow,
+                                640 + flow,
+                                outline="#000", fill="red", width=1)
 
 if __name__ == '__main__':
     # user vars
