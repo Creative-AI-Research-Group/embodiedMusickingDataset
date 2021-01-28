@@ -131,18 +131,13 @@ class Feedback(QWidget, QObject):
         self.record_player_button = QPushButton()
         self.stop_player_button = QPushButton()
         self.set_buttons()
+        self.feedback_session = False
 
         # progress bar / feedback bar
         self.feedback_bar = QProgressBar()
         self.feedback_bar.setMinimum(0)
         self.feedback_bar.setMaximum(100)
         self.old_flow_level = 0
-
-        # start / stop area
-        self.start_stop_button = QPushButton('Record')
-        self.start_stop_label = QLabel()
-        self.start_stop_button.clicked.connect(self.start_stop_feedback)
-        self.feedback_session = False
 
         # spectrogram
         self.spectrogram = MplCanvas(self, width=10, height=15, dpi=100)
@@ -172,12 +167,10 @@ class Feedback(QWidget, QObject):
     def show_hide_sessions_names(self, show_sessions_names=True):
         ERROR_MESSAGE = 'ERROR: Could not find any records in the database'
         if show_sessions_names:
-            self.start_stop_button.setEnabled(True)
             self.enable_disable_buttons(False, True)
             self.session_name_feedback_tab.show()
             self.session_to_edit_name.setText('Session: ')
         else:
-            self.start_stop_button.setEnabled(False)
             self.enable_disable_buttons(False, False)
             self.session_name_feedback_tab.hide()
             self.session_to_edit_name.setText(ERROR_MESSAGE)
@@ -259,22 +252,12 @@ class Feedback(QWidget, QObject):
         feedback_bar_layout.addWidget(self.feedback_bar, 0, 1)
         feedback_bar_group_box.setLayout(feedback_bar_layout)
 
-        # start / stop button
-        start_stop_button_group_box = QGroupBox()
-        start_stop_button_layout = QHBoxLayout()
-        self.start_stop_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'gray_start_stop.png')
-        start_stop_button_layout.addStretch(1)
-        start_stop_button_layout.addWidget(self.start_stop_label)
-        start_stop_button_layout.addWidget(self.start_stop_button)
-        start_stop_button_group_box.setLayout(start_stop_button_layout)
-
         # layout
         session_tab_layout = QVBoxLayout()
         session_tab_layout.addLayout(session_to_edit)
         session_tab_layout.addWidget(spectrogram_group_box)
         session_tab_layout.addWidget(player_group_box)
         session_tab_layout.addWidget(feedback_bar_group_box)
-        session_tab_layout.addWidget(start_stop_button_group_box)
 
         return session_tab_layout
 
