@@ -109,7 +109,8 @@ class Feedback(QWidget, QObject):
         '''
             [0] -> pause button
             [1] -> play button
-            [2] -> stop button
+            [2] -> record button
+            [3] -> stop button
         '''
         self.actual_icons = [self.PAUSE_GRAY,
                              self.PLAY_GRAY,
@@ -321,12 +322,13 @@ class Feedback(QWidget, QObject):
         # reset the buttons
         self.player_track_end()
 
-    def enable_disable_buttons(self, state_pause_stop=None, state_play=None):
+    def enable_disable_buttons(self, state_pause_stop=None, state_play_record=None):
         if state_pause_stop is not None:
             self.pause_player_button.setEnabled(state_pause_stop)
             self.stop_player_button.setEnabled(state_pause_stop)
-        elif state_play is not None:
-            self.play_player_button.setEnabled(state_play)
+        elif state_play_record is not None:
+            self.play_player_button.setEnabled(state_play_record)
+            self.record_player_button.setEnabled(state_play_record)
 
     def pause(self):
         # check if the player is already paused
@@ -367,13 +369,18 @@ class Feedback(QWidget, QObject):
             elif obj is self.pause_player_button:
                 if current_state is self.PAUSED:
                     self.actual_icons[0] = self.PAUSE_GRAY
-                    self.actual_icons[1] = self.PLAY_RED
+                    if self.feedback_session:
+                        self.actual_icons[2] = self.RECORD_RED
+                    else:
+                        self.actual_icons[1] = self.PLAY_RED
                 else:
                     self.actual_icons[0] = self.PAUSE_RED
                     self.actual_icons[1] = self.PLAY_GRAY
+                    self.actual_icons[2] = self.RECORD_GRAY
             elif obj is self.stop_player_button:
                 self.actual_icons[0] = self.PAUSE_GRAY
                 self.actual_icons[1] = self.PLAY_GRAY
+                self.actual_icons[2] = self.RECORD_GRAY
         self.update_icons()
         return super(Feedback, self).eventFilter(obj, event)
 
