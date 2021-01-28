@@ -131,7 +131,7 @@ class Feedback(QWidget, QObject):
         self.old_flow_level = 0
 
         # start / stop area
-        self.start_stop_button = QPushButton('Start')
+        self.start_stop_button = QPushButton('Record')
         self.start_stop_label = QLabel()
         self.start_stop_button.clicked.connect(self.start_stop_feedback)
         self.feedback_session = False

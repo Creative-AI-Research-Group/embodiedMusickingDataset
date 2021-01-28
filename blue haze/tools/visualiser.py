@@ -37,11 +37,11 @@ class Data:
 
         # make the eda list
         for _eda in df.values:
-            self.eda.append(_eda[12])
+            self.eda.append(_eda[11])
 
         # make the eeg list
         for _eeg in df.values:
-            self.eeg.append(_eeg[13:17])
+            self.eeg.append(_eeg[12:16])
 
         # make a flow list
         for _flow in df.values:
@@ -50,7 +50,7 @@ class Data:
         # make the skeleton coords list
         for _coords in df.values:
             # generates a temp list for all the skeleton data
-            temp_list = _coords[17:-1]
+            temp_list = _coords[16:-1]
             # print(temp_list)
 
             # parse the skeleton to tuples for each joint
@@ -251,7 +251,7 @@ class Draw(Frame):
                                 fill="white", text="Skeleton")
         self.canvas.create_text(600, 800, font=("Purisa", 20),
                                 fill="white", text="Core nose-neck movement")
-        self.canvas.create_text(1000, 40, font=("Purisa", 20),
+        self.canvas.create_text(1050, 40, font=("Purisa", 20),
                                 fill="white", text=f"EDA arousal\n    {eda}")
         self.canvas.create_text(1400, 40, font=("Purisa", 20),
                                 fill="white", text=f"timestamp =  {timestamp[0]} ms")
@@ -259,8 +259,10 @@ class Draw(Frame):
                                 fill="white", text=f"timedelta =  {delta} ms,\nerror = {delta - 100} ms")
         self.canvas.create_text(1400, 240, font=("Purisa", 20),
                                 fill="white", text=f"chorus (loop) =  {timestamp[1]}")
-        self.canvas.create_text(1400, 800, font=("Purisa", 20),
+        self.canvas.create_text(1200, 800, font=("Purisa", 20),
                                 fill="white", text=f"flow =  {flow}")
+        self.canvas.create_text(1200, 850, font=("Purisa", 20),
+                                fill="white", text=f"flow + EDA =  {flow+eda}")
 
         # change background on eda value
         col_eda = eda - 100 # dirty fix as offset
@@ -306,13 +308,13 @@ class Draw(Frame):
                                 outline="#f11", fill=None, width=1)
 
         # draw in the EEG blob
-        # start circle coords
-        eeg_x_a = eeg[0] / 1000 * self.WIDTH_FACTOR * 2
-        eeg_y_a = eeg[1] / 1000 * self.DEPTH_FACTOR * 2
+        # start rect coords
+        eeg_x_a = eeg[0] / 1000 * self.WIDTH_FACTOR * 2 - 50
+        eeg_y_a = eeg[1] / 1000 * self.DEPTH_FACTOR * 2 + 200
 
-        # end circle coords
-        eeg_x_b = eeg[2] / 1000 * self.WIDTH_FACTOR * 2 + 200
-        eeg_y_b = eeg[3] / 1000 * self.DEPTH_FACTOR * 2 + 200
+        # end rect coords
+        eeg_x_b = eeg[2] / 1000 * self.WIDTH_FACTOR * 2 + 50
+        eeg_y_b = eeg[3] / 1000 * self.DEPTH_FACTOR * 2 + 300
 
         self.canvas.create_rectangle(eeg_x_a,
                                      eeg_y_a,
@@ -321,22 +323,28 @@ class Draw(Frame):
                                      outline="#000", fill="#fff", width=1)
 
         # draw the EDA blob
-        self.canvas.create_oval(900,
+        self.canvas.create_oval(1000,
                                 150,
-                                900 + eda,
+                                1000 + eda,
                                 150 + eda,
                                 outline="#000", fill="#fff", width=1)
 
-        # draw a flow blob
-        self.canvas.create_rectangle(1350,
+        # draw a flow blob & Flow + EDA outline
+        self.canvas.create_rectangle(1050,
                                 640,
-                                1350 + flow,
+                                1050 + flow,
                                 640 + flow,
                                 outline="#000", fill="red", width=1)
 
+        self.canvas.create_rectangle(1050,
+                                     640,
+                                     1050 + flow + eda,
+                                     640 + flow + eda,
+                                     outline="red", fill=None, width=5)
+
 if __name__ == '__main__':
     # user vars
-    db_path = 'data/20210104_test-20200104-take3.csv'
+    db_path = 'data/20210128_test-uk-2.csv'
     audio_path = 'data/20210104_test-20200104-take3.wav'
 
     # listen to sync audio track
