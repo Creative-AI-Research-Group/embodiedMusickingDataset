@@ -119,7 +119,6 @@ class MainWindow(QMainWindow):
         self.record_session = RecordSession(parent=self)
 
     def setup_hw(self):
-        print('hardware')
         init_hardware = utls.Hardware(parent=self)
 
         # picoboard, realsense, bitalino and brainbit init
