@@ -205,7 +205,7 @@ class Feedback(QWidget, QObject):
         self.record_player_button.setIconSize(QSize(68, 68))
         self.record_player_button.setStyleSheet(style_sheet)
         self.record_player_button.installEventFilter(self)
-        # self.play_player_button.clicked.connect(self.play)
+        self.record_player_button.clicked.connect(self.start_stop_feedback)
 
         self.stop_player_button.setIconSize(QSize(54, 54))
         self.stop_player_button.setStyleSheet(style_sheet)
@@ -282,7 +282,7 @@ class Feedback(QWidget, QObject):
     def picoboard_thread_complete(self, flow):
         if self.old_flow_level != flow:
             self.feedback_bar.setValue(flow)
-            if self.feedback_session:
+            if self.feedback_session and self.player.state() is not self.PAUSED:
                 # update MongoDB
                 actual_position = self.player.position()
                 self.database.update_fields(self.session_name_feedback_tab.currentText(),
@@ -358,14 +358,15 @@ class Feedback(QWidget, QObject):
                 self.actual_icons[0] = self.PAUSE_GRAY
             elif obj is self.play_player_button and current_state is not self.PLAYING:
                 self.actual_icons[1] = self.PLAY_GRAY
-            elif obj is self.record_player_button:
+            elif obj is self.record_player_button and not self.feedback_session:
                 self.actual_icons[2] = self.RECORD_GRAY
             elif obj is self.stop_player_button:
                 self.actual_icons[3] = self.STOP_GRAY
         elif event.type() is QEvent.MouseButtonPress:
             if obj is self.play_player_button:
-                self.actual_icons[0] = self.PAUSE_GRAY
-                self.actual_icons[1] = self.PLAY_RED
+                if not self.feedback_session:
+                    self.actual_icons[0] = self.PAUSE_GRAY
+                    self.actual_icons[1] = self.PLAY_RED
             elif obj is self.pause_player_button:
                 if current_state is self.PAUSED:
                     self.actual_icons[0] = self.PAUSE_GRAY
@@ -381,6 +382,8 @@ class Feedback(QWidget, QObject):
                 self.actual_icons[0] = self.PAUSE_GRAY
                 self.actual_icons[1] = self.PLAY_GRAY
                 self.actual_icons[2] = self.RECORD_GRAY
+                if self.feedback_session:
+                    self.start_stop_feedback(button_pressed=True)
         self.update_icons()
         return super(Feedback, self).eventFilter(obj, event)
 
@@ -439,7 +442,7 @@ class Feedback(QWidget, QObject):
         # delete the mono file
         os.remove(audio_file_name_mono)
 
-    def start_stop_feedback(self, stop_feedback=False):
+    def start_stop_feedback(self, stop_feedback=False, button_pressed=False):
         if self.feedback_session or stop_feedback:
             # a feedback session is running
             # update database
@@ -447,15 +450,14 @@ class Feedback(QWidget, QObject):
                                           self.old_flow_level,
                                           self.last_position)
             self.old_flow_level = 0
-            self.start_stop_button.setText('Start')
-            self.start_stop_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'gray_start_stop.png')
             self.session_name_feedback_tab.setEnabled(True)
             return_dict = {
                 'disable': False
             }
             self.enable_disable_recording_tab.emit_signal(return_dict)
             self.feedback_session = False
-            if not stop_feedback:
+            self.play_player_button.setEnabled(True)
+            if not stop_feedback or button_pressed:
                 self.stop()
             else:
                 # show the message box warning about the end of the session in 3 seconds
@@ -466,17 +468,15 @@ class Feedback(QWidget, QObject):
         else:
             # let's start a feedback session
             self.last_position = 0
-            self.start_stop_button.setText('Stop')
-            self.start_stop_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'red_start_stop.png')
-            self.actual_icons[1] = self.PLAY_RED
+            self.actual_icons[2] = self.RECORD_RED
             self.update_icons()
             self.play()
+            self.play_player_button.setEnabled(False)
             self.session_name_feedback_tab.setEnabled(False)
             return_dict = {
                 'disable': True
             }
             self.enable_disable_recording_tab.emit_signal(return_dict)
-            self.stop_player_button.setEnabled(False)
             self.feedback_session = True
 
             # 1st entry
