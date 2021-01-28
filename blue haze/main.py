@@ -530,7 +530,6 @@ if __name__ == '__main__':
     font.setPixelSize(13)
     app.setFont(font)
 
-    app.setAttribute(Qt.AA_DontUseNativeDialogs)
     app.setStyle('Fusion')
     app.setPalette(ui.dark_palette())
 
