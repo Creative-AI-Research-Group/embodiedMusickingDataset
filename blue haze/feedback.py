@@ -38,6 +38,8 @@ class MplCanvas(FigureCanvasQTAgg):
 
         self.axes = fig.add_subplot(111)
         self.axes.set_facecolor('#424242')
+        self.axes.get_yaxis().set_visible(False)
+        self.axes.get_xaxis().set_visible(False)
         super(MplCanvas, self).__init__(fig)
 
 
@@ -143,8 +145,12 @@ class Feedback(QWidget, QObject):
         self.spectrogram.axes.get_xaxis().set_visible(False)
         self.spectrogram.axes.axis('off')
 
-    def setup(self):
+    def setup(self, current_session):
         self.get_list_sessions()
+        if current_session is not None:
+            idx = self.session_name_feedback_tab.findText(current_session)
+            if idx != -1:
+                self.session_name_feedback_tab.setCurrentIndex(idx)
         self.start_thread_picoboard()
         self.change_session()
 
@@ -154,6 +160,7 @@ class Feedback(QWidget, QObject):
             self.audio_file_name = self.database.get_audio_file_name(self.session_name_feedback_tab.currentText())
             self.generate_spectrogram()
         except Exception as err:
+            print(err)
             # empty database
             self.show_hide_sessions_names(False)
 
@@ -402,6 +409,7 @@ class Feedback(QWidget, QObject):
         sampling_frequency, signal_data = wavfile.read(audio_file_name_mono)
 
         self.spectrogram.axes.cla()
+        self.spectrogram.axes.axis('off')
         self.spectrogram.axes.plot(signal_data, color='#CCCCCC')
         self.spectrogram.draw()
 

@@ -41,6 +41,7 @@ class MainWindow(QMainWindow):
         self.tab_widget = QTabWidget()
 
         # setup group
+        self.complete_session_name = None
         self.session_name = QLineEdit()
         self.video_file_path = QLineEdit()
         self.list_cameras = QComboBox()
@@ -294,6 +295,10 @@ class MainWindow(QMainWindow):
             self.tab_widget.setTabEnabled(0, True)
 
     @Slot(dict)
+    def get_complete_session_name(self, complete_session_name):
+        self.complete_session_name = complete_session_name['session_name']
+
+    @Slot(dict)
     def action_record_stop_button(self):
         # check if the session name & video path file fields are filled
         if not self.session_name.text() or not self.video_file_path.text():
@@ -363,7 +368,7 @@ class MainWindow(QMainWindow):
         if i == 1:
             # to reload / update the list of collections in the feedback tab &
             # start the thread to read data from the picoboard
-            self.feedback.setup()
+            self.feedback.setup(self.complete_session_name)
         else:
             # stop the player & restart the button states if it is playing
             if self.feedback.player.state() is self.feedback.PLAYING:

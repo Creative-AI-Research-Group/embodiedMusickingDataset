@@ -35,6 +35,7 @@ class RecordSession(QMessageBox, QObject):
 
         if parent is not None:
             self.result_stop_recording = utls.EmitSignal(parent, parent.action_record_stop_button)
+            self.send_complete_session_name = utls.EmitSignal(parent, parent.get_complete_session_name)
 
         self.session = datastr.RecordSessionData()
 
@@ -91,6 +92,7 @@ class RecordSession(QMessageBox, QObject):
         self.session.name = '{}_{}_{}'.format(self.session.date,
                                               session_name,
                                               self.session.id)
+        self.send_complete_session_name.emit_signal({'session_name': self.session.name})
         self.session.video_audio_path = video_audio_path
         self.session.video_source = video_source
         self.session.audio_interface = audio_interface
