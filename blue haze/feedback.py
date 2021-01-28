@@ -347,6 +347,8 @@ class Feedback(QWidget, QObject):
                 self.actual_icons[0] = self.PAUSE_RED
             elif obj is self.play_player_button and current_state is not self.PLAYING:
                 self.actual_icons[1] = self.PLAY_RED
+            elif obj is self.record_player_button:
+                self.actual_icons[2] = self.RECORD_RED
             elif obj is self.stop_player_button:
                 self.actual_icons[3] = self.STOP_RED
         elif event.type() is QEvent.HoverLeave:
@@ -354,6 +356,8 @@ class Feedback(QWidget, QObject):
                 self.actual_icons[0] = self.PAUSE_GRAY
             elif obj is self.play_player_button and current_state is not self.PLAYING:
                 self.actual_icons[1] = self.PLAY_GRAY
+            elif obj is self.record_player_button:
+                self.actual_icons[2] = self.RECORD_GRAY
             elif obj is self.stop_player_button:
                 self.actual_icons[3] = self.STOP_GRAY
         elif event.type() is QEvent.MouseButtonPress:
