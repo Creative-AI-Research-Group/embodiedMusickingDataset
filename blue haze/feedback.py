@@ -38,8 +38,6 @@ class MplCanvas(FigureCanvasQTAgg):
 
         self.axes = fig.add_subplot(111)
         self.axes.set_facecolor('#424242')
-        self.axes.get_yaxis().set_visible(False)
-        self.axes.get_xaxis().set_visible(False)
         super(MplCanvas, self).__init__(fig)
 
 
@@ -118,6 +116,9 @@ class Feedback(QWidget, QObject):
         self.session_name_feedback_tab.setDuplicatesEnabled(False)
         self.session_name_feedback_tab.activated[str].connect(self.change_session)
 
+        # session name
+        self.session_to_edit_name = QLabel('Session: ')
+
         # player buttons
         self.pause_player_button = QPushButton()
         self.play_player_button = QPushButton()
@@ -138,6 +139,9 @@ class Feedback(QWidget, QObject):
 
         # spectrogram
         self.spectrogram = MplCanvas(self, width=10, height=15, dpi=100)
+        self.spectrogram.axes.get_yaxis().set_visible(False)
+        self.spectrogram.axes.get_xaxis().set_visible(False)
+        self.spectrogram.axes.axis('off')
 
     def setup(self):
         self.get_list_sessions()
@@ -145,8 +149,27 @@ class Feedback(QWidget, QObject):
         self.change_session()
 
     def change_session(self):
-        self.audio_file_name = self.database.get_audio_file_name(self.session_name_feedback_tab.currentText())
-        self.generate_spectrogram()
+        try:
+            self.show_hide_sessions_names(True)
+            self.audio_file_name = self.database.get_audio_file_name(self.session_name_feedback_tab.currentText())
+            self.generate_spectrogram()
+        except Exception as err:
+            # empty database
+            self.show_hide_sessions_names(False)
+
+    def show_hide_sessions_names(self, show_sessions_names=True):
+        ERROR_MESSAGE = 'ERROR: Could not find any records in the database'
+        if show_sessions_names:
+            self.start_stop_button.setEnabled(True)
+            self.enable_disable_buttons(False, True)
+            self.session_name_feedback_tab.show()
+            self.session_to_edit_name.setText('Session: ')
+        else:
+            self.start_stop_button.setEnabled(False)
+            self.enable_disable_buttons(False, False)
+            self.session_name_feedback_tab.hide()
+            self.session_to_edit_name.setText(ERROR_MESSAGE)
+            ui.MessageBox('Blue Haze - Error', ERROR_MESSAGE, ui.MessageBox.Warning).exec_()
 
     def set_buttons(self):
         style_sheet = """
@@ -185,11 +208,8 @@ class Feedback(QWidget, QObject):
         session_to_edit_layout = QGridLayout()
         session_to_edit_layout.setSpacing(8)
 
-        # session name
-        session_to_edit_name = QLabel('Session: ')
-
         # fields layout
-        session_to_edit_layout.addWidget(session_to_edit_name, 0, 1)
+        session_to_edit_layout.addWidget(self.session_to_edit_name, 0, 1)
         session_to_edit_layout.addWidget(self.session_name_feedback_tab, 0, 2)
         session_to_edit_layout.setColumnStretch(3, 1)
 
@@ -383,7 +403,6 @@ class Feedback(QWidget, QObject):
 
         self.spectrogram.axes.cla()
         self.spectrogram.axes.plot(signal_data, color='#CCCCCC')
-        self.spectrogram.axes.axis('off')
         self.spectrogram.draw()
 
         # delete the mono file

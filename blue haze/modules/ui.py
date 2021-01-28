@@ -56,3 +56,11 @@ class TimerMessageBox(QMessageBox):
         self.timer.stop()
         event.accept()
 
+
+class MessageBox(QMessageBox):
+    def __init__(self, title, text, icon, parent=None):
+        super(MessageBox, self).__init__(parent)
+        self.setWindowTitle(title)
+        self.setText(text)
+        self.setIcon(icon)
+
