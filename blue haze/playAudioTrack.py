@@ -18,7 +18,7 @@ class PlayAudioTrack(QMediaPlayer):
         super(PlayAudioTrack, self).__init__()
         self.mediaStatusChanged[QMediaPlayer.MediaStatus].connect(self.media_status_changed)
         if parent is not None:
-            self.result = utls.EmitSignal(parent, parent.player_track_end)
+            self.track_end = utls.EmitSignal(parent, parent.player_track_end)
 
     def setup_media(self, file_name):
         self.setMedia(QMediaContent(QUrl.fromLocalFile(file_name)))
@@ -30,6 +30,6 @@ class PlayAudioTrack(QMediaPlayer):
                 return_dict = {
                     'end_of_audio_file': True
                 }
-                self.result.emit_signal(return_dict)
+                self.track_end.emit_signal(return_dict)
             except AttributeError:
                 pass

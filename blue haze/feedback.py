@@ -133,6 +133,32 @@ class Feedback(QWidget, QObject):
         self.set_buttons()
         self.feedback_session = False
 
+        # position slider
+        # style sheet
+        position_slider_style_sheet = """
+                .QSlider {
+                    min-height: 45px;
+                    max-height: 45px;
+                }
+                
+                .QSlider::groove:horizontal {
+                    height: 25px;
+                    background: #393939;
+                }
+                
+                .QSlider::sub-page:horizontal {
+                    background: #CCCCCC;
+                }
+                
+        """
+        self.position_slider = QSlider()
+        self.position_slider.setOrientation(Qt.Horizontal)
+        self.position_slider.setStyleSheet(position_slider_style_sheet)
+        self.position_slider.setMinimum(1)
+        self.position_slider.setMaximum(100)
+        self.position_slider.setValue(0)
+        self.position_slider.setEnabled(False)
+
         # progress bar / feedback bar
         self.feedback_bar = QProgressBar()
         self.feedback_bar.setMinimum(0)
@@ -232,6 +258,13 @@ class Feedback(QWidget, QObject):
         spectrogram_layout.addWidget(self.spectrogram, 0, 0)
         spectrogram_group_box.setLayout(spectrogram_layout)
 
+        # position slider
+        position_slider_group_box = QGroupBox()
+        position_slider_layout = QGridLayout()
+        position_slider_layout.setContentsMargins(200, 0, 170, 0)
+        position_slider_layout.addWidget(self.position_slider, 2, 1)
+        position_slider_group_box.setLayout(position_slider_layout)
+
         # player
         player_group_box = QGroupBox()
         player_layout = QGridLayout()
@@ -256,6 +289,7 @@ class Feedback(QWidget, QObject):
         session_tab_layout = QVBoxLayout()
         session_tab_layout.addLayout(session_to_edit)
         session_tab_layout.addWidget(spectrogram_group_box)
+        session_tab_layout.addWidget(position_slider_group_box)
         session_tab_layout.addWidget(player_group_box)
         session_tab_layout.addWidget(feedback_bar_group_box)
 
@@ -263,6 +297,9 @@ class Feedback(QWidget, QObject):
 
     @Slot(int)
     def picoboard_thread_complete(self, flow):
+        if self.player.state() is self.PLAYING:
+            self.position_slider.setMaximum(self.player.duration())
+            self.position_slider.setValue(self.player.position())
         if self.old_flow_level != flow:
             self.feedback_bar.setValue(flow)
             if self.feedback_session and self.player.state() is not self.PAUSED:
