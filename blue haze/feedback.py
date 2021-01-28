@@ -96,6 +96,8 @@ class Feedback(QWidget, QObject):
         self.PAUSE_RED = QIcon(cfg.ASSETS_IMAGES_FOLDER + 'red_pause.png')
         self.PLAY_GRAY = QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_play.png')
         self.PLAY_RED = QIcon(cfg.ASSETS_IMAGES_FOLDER + 'red_play.png')
+        self.RECORD_GRAY = QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_record.png')
+        self.RECORD_RED = QIcon(cfg.ASSETS_IMAGES_FOLDER + 'red_record.png')
         self.STOP_GRAY = QIcon(cfg.ASSETS_IMAGES_FOLDER + 'gray_stop.png')
         self.STOP_RED = QIcon(cfg.ASSETS_IMAGES_FOLDER + 'red_stop.png')
 
@@ -111,6 +113,7 @@ class Feedback(QWidget, QObject):
         '''
         self.actual_icons = [self.PAUSE_GRAY,
                              self.PLAY_GRAY,
+                             self.RECORD_GRAY,
                              self.STOP_GRAY]
 
         # list of sessions
@@ -124,6 +127,7 @@ class Feedback(QWidget, QObject):
         # player buttons
         self.pause_player_button = QPushButton()
         self.play_player_button = QPushButton()
+        self.record_player_button = QPushButton()
         self.stop_player_button = QPushButton()
         self.set_buttons()
 
@@ -160,7 +164,7 @@ class Feedback(QWidget, QObject):
             self.audio_file_name = self.database.get_audio_file_name(self.session_name_feedback_tab.currentText())
             self.generate_spectrogram()
         except Exception as err:
-            print(err)
+            utls.logger.error(err)
             # empty database
             self.show_hide_sessions_names(False)
 
@@ -196,6 +200,11 @@ class Feedback(QWidget, QObject):
         self.play_player_button.setStyleSheet(style_sheet)
         self.play_player_button.installEventFilter(self)
         self.play_player_button.clicked.connect(self.play)
+
+        self.record_player_button.setIconSize(QSize(68, 68))
+        self.record_player_button.setStyleSheet(style_sheet)
+        self.record_player_button.installEventFilter(self)
+        # self.play_player_button.clicked.connect(self.play)
 
         self.stop_player_button.setIconSize(QSize(54, 54))
         self.stop_player_button.setStyleSheet(style_sheet)
@@ -235,9 +244,10 @@ class Feedback(QWidget, QObject):
         player_layout.setSpacing(20)
         player_layout.addWidget(self.pause_player_button, 2, 1)
         player_layout.addWidget(self.play_player_button, 2, 2)
-        player_layout.addWidget(self.stop_player_button, 2, 3)
+        player_layout.addWidget(self.record_player_button, 2, 3)
+        player_layout.addWidget(self.stop_player_button, 2, 4)
         player_layout.setColumnStretch(0, 1)
-        player_layout.setColumnStretch(4, 1)
+        player_layout.setColumnStretch(5, 1)
         player_group_box.setLayout(player_layout)
 
         # progress bar / feedback bar
@@ -338,14 +348,14 @@ class Feedback(QWidget, QObject):
             elif obj is self.play_player_button and current_state is not self.PLAYING:
                 self.actual_icons[1] = self.PLAY_RED
             elif obj is self.stop_player_button:
-                self.actual_icons[2] = self.STOP_RED
+                self.actual_icons[3] = self.STOP_RED
         elif event.type() is QEvent.HoverLeave:
             if obj is self.pause_player_button and current_state is not self.PAUSED:
                 self.actual_icons[0] = self.PAUSE_GRAY
             elif obj is self.play_player_button and current_state is not self.PLAYING:
                 self.actual_icons[1] = self.PLAY_GRAY
             elif obj is self.stop_player_button:
-                self.actual_icons[2] = self.STOP_GRAY
+                self.actual_icons[3] = self.STOP_GRAY
         elif event.type() is QEvent.MouseButtonPress:
             if obj is self.play_player_button:
                 self.actual_icons[0] = self.PAUSE_GRAY
@@ -367,7 +377,8 @@ class Feedback(QWidget, QObject):
         try:
             self.pause_player_button.setIcon(self.actual_icons[0])
             self.play_player_button.setIcon(self.actual_icons[1])
-            self.stop_player_button.setIcon(self.actual_icons[2])
+            self.record_player_button.setIcon(self.actual_icons[2])
+            self.stop_player_button.setIcon(self.actual_icons[3])
         except RuntimeError:
             # all the C++ objects have been already deleted
             pass
@@ -384,7 +395,8 @@ class Feedback(QWidget, QObject):
         # restart the buttons colours
         self.actual_icons[0] = self.PAUSE_GRAY
         self.actual_icons[1] = self.PLAY_GRAY
-        self.actual_icons[2] = self.STOP_GRAY
+        self.actual_icons[2] = self.RECORD_GRAY
+        self.actual_icons[3] = self.STOP_GRAY
         self.update_icons()
 
     def generate_spectrogram(self):

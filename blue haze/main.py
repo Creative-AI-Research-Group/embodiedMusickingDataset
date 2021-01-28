@@ -69,6 +69,7 @@ class MainWindow(QMainWindow):
         self.hardware_status = {'Bitalino': not cfg.HARDWARE,
                                 'Brainbit': not cfg.HARDWARE,
                                 'RealSense': not cfg.HARDWARE}
+        self.picoboard_status = False
 
         # record bottom area
         self.record_stop_button = QPushButton('Record session')
@@ -122,13 +123,18 @@ class MainWindow(QMainWindow):
         self.record_session = RecordSession(parent=self)
 
     def setup_hw(self):
+        print('hardware')
         init_hardware = utls.Hardware(parent=self)
 
         # picoboard, realsense, bitalino and brainbit init
-        threading.Thread(target=init_hardware.start_picoboard).start()
-        threading.Thread(target=init_hardware.start_realsense).start()
-        threading.Thread(target=init_hardware.start_brainbit).start()
-        threading.Thread(target=init_hardware.start_bitalino).start()
+        if not self.picoboard_status:
+            threading.Thread(target=init_hardware.start_picoboard).start()
+        if not self.hardware_status['RealSense']:
+            threading.Thread(target=init_hardware.start_realsense).start()
+        if not self.hardware_status['Brainbit']:
+            threading.Thread(target=init_hardware.start_brainbit).start()
+        if not self.hardware_status['Bitalino']:
+            threading.Thread(target=init_hardware.start_bitalino).start()
 
     def setup_ui(self):
         record_tab_widget = QWidget()
@@ -241,6 +247,8 @@ class MainWindow(QMainWindow):
         self.bullet_picoboard_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_idle.png')
 
         refresh_hardware_button = QPushButton('Refresh hardware')
+        # connect the refresh hardware button
+        refresh_hardware_button.clicked.connect(self.setup_hw)
 
         hardware_list.addWidget(self.bullet_bitalino_label, 0, 0)
         hardware_list.addWidget(self.bitalino_label, 0, 1)
@@ -495,6 +503,7 @@ class MainWindow(QMainWindow):
                 self.bullet_picoboard_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_ok.png')
                 self.picoboard_label.setStyleSheet('QLabel { color: GreenYellow; }')
                 self.tab_widget.setTabEnabled(1, True)
+                self.picoboard_status = True
             if False not in self.hardware_status.values():
                 self.record_stop_button.setEnabled(True)
         elif not status['result'] and status['from'] != 'Picoboard':
@@ -511,6 +520,7 @@ class MainWindow(QMainWindow):
                 self.bullet_picoboard_label.setPixmap(cfg.ASSETS_IMAGES_FOLDER + 'hardware_error.png')
                 self.picoboard_label.setStyleSheet('QLabel { color: red; }')
                 self.tab_widget.setTabEnabled(1, False)
+                self.picoboard_status = False
             self.error_dialog('Error initializing {}. Please check the connections.'
                               .format(status['from']))
 
