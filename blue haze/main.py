@@ -7,7 +7,6 @@
 #
 
 # todo: stop / terminate the hardware when the app closes
-# todo: implement restart hardware button
 
 from PySide2.QtMultimedia import *
 from PySide2.QtMultimediaWidgets import QCameraViewfinder
@@ -540,6 +539,7 @@ if __name__ == '__main__':
     font.setPixelSize(13)
     app.setFont(font)
 
+    app.setAttribute(Qt.AA_DontUseNativeDialogs)
     app.setStyle('Fusion')
     app.setPalette(ui.dark_palette())
 
