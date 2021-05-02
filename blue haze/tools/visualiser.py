@@ -1,7 +1,7 @@
 from math import sqrt
 from random import random, randint
 from tkinter import Tk, Canvas, Frame
-from pandas import read_csv
+from pandas import read_json, json_normalize
 from pygame import mixer
 
 class Data:
@@ -15,63 +15,59 @@ class Data:
         self.count = 0
 
         # extract usable data from csv
-        df = read_csv(self.db_path, sep=',')
+        df = read_json(self.db_path)
+
         self.coords = []
         self.eeg = []
         self.eda = []
         self.delta = []
         self.timestamp = []
+        self.chorus = []
         self.flow = []
 
         if self.DATA_LOGGING:
-            print(f'dataframe = {df.values}')
-            print(f'dataframe[1000] = {df.values[1000]}')
+            print(f'dataframe = {df.head()}')
+            # print(f'dataframe[1000] = {df.values[1000]}')
 
-        # make the timestamp and chorus list for UI
-        for _timestamp in df.values:
-            self.timestamp.append(_timestamp[6:8])
+        # parse JSON to lists for UI
+        for _stuff in df.values:
+            self.timestamp.append(_stuff[2]['backing_track_position'])
 
-        # make the delta list for timing
-        for _delta in df.values:
-            self.delta.append(_delta[5])
+            self.chorus.append(_stuff[2]['chorus_id'])
 
-        # make the eda list
-        for _eda in df.values:
-            self.eda.append(_eda[11])
+            self.delta.append(_stuff[2]['delta'])
 
-        # make the eeg list
-        for _eeg in df.values:
-            self.eeg.append(_eeg[12:16])
+            self.eda.append(_stuff[4]['bitalino'])
 
-        # make a flow list
-        for _flow in df.values:
-            self.flow.append(_flow[-1])
+            # parse eeg values
+            _eeg = []
+            for _key, value in _stuff[4]['brainbit'].items():
+                _eeg.append(value)
+            self.eeg.append(_eeg)
+
+            # parse flow field
+            self.flow.append(_stuff[5])
 
         # make the skeleton coords list
         for _coords in df.values:
             # generates a temp list for all the skeleton data
-            temp_list = _coords[16:-1]
-            # print(temp_list)
+            temp_list = _coords[4]['skeleton']
 
-            # parse the skeleton to tuples for each joint
+            # parse joint x, y values and ignore confidence
             t, temp = (), []
+            for joint in temp_list.items():
+                t = (joint[1]['x'], joint[1]['y'])
 
-            # for each triplet of info (x, y, conf), make a tuple of x, y only,
-            # then pack into a list
-            for i, d in enumerate(temp_list):
-                # if its x, y add to a tuple
-                if i % 3 != 2:
-                    t += (d, )
-                else:
-                    # add the tuple to a temp array
-                    temp.append(t)
-                    t = ()
+                temp.append(t)
 
             # pack tuple list to the final list
             self.coords.append(temp)
 
+
+
         if self.DATA_LOGGING:
             print(f'timestamp = {self.timestamp}')
+            print(f'chorus = {self.chorus}')
             print(f'delta = {self.delta}')
             print(f'eda = {self.eda}')
             print(f'eeg = {self.eeg}')
@@ -91,18 +87,21 @@ class Data:
 
         now_timestamp = self.timestamp[self.count]
 
+        now_chorus = self.chorus[self.count]
+
         now_flow = self.flow[self.count]
 
         if self.DATA_LOGGING:
             print(f'full data is: coords = {now_coords}, eeg = {now_eeg}, eda = {now_eda},'
-                  f' delta = {now_delta}, timestamp = {now_timestamp}, flow = {now_flow}')
+                  f' delta = {now_delta}, timestamp = {now_timestamp}, chorus = {now_chorus}, flow = {now_flow}')
 
         self.count += 1
-        return now_coords, now_eeg, now_eda, now_delta, now_timestamp, now_flow
+        return now_coords, now_eeg, now_eda, now_delta, now_timestamp, now_chorus, now_flow
 
     # calc all distances
     def calc_hypot(self, x, x1, y, y1):
         # cal x diff
+        print (x, x1, y, y1)
         diff_x = x - x1
 
         # make positive if < 0
@@ -144,16 +143,30 @@ class Data:
         return temp_list
 
     # handles all main calcs coordination for line generation
-    def worker(self, coords):
+    def worker(self, old_coords, coords):
         lines = []
+        print(f'original coords are {old_coords}, {coords}')
+
+        # for each coords
+
+
+
+
+
+
+
+
+
+
         for i, cood in enumerate(coords):
             sub_list = []
 
             # iter through each other coord
             for j, next_coord in enumerate(coords):
 
-                if self.DATA_LOGGING:
-                    print(f'coords are {i, cood} and {j, next_coord}')
+                # if self.DATA_LOGGING:
+
+                print(f'coords are {i, cood} and {j, next_coord}')
 
                 # if they are not same coord
                 if i != j:
@@ -167,7 +180,7 @@ class Data:
                     # add as tuples to list
                     sub_list.append([j, lngth])
 
-            # get a list of all the shortest disctances between nodes
+            # get a list of all the shortest distances between nodes
             short_list = self.shortest_dists(sub_list)
             lines.append(short_list)
             if self.DATA_LOGGING:
@@ -216,12 +229,19 @@ class Draw(Frame):
 
     # schedules all the mainloop tasks
     def UIUpdater(self):
+        first_through = True
+
+        if first_through:
+            old_coords = (0, 0)
+            first_through = False
+
         # gets skeleton coords, line, and colour details
-        coords, eeg, eda, delta, timestamp, flow = self.data_bot.get_data()
-        lines = self.data_bot.worker(coords)
+        coords, eeg, eda, delta, timestamp, chorus, flow = self.data_bot.get_data()
+        lines = self.data_bot.worker(old_coords, coords)
+        old_coords = coords
 
         # draws the stuff that is refreshed each frame
-        self.drawing(coords, lines, eeg, eda, timestamp, delta, flow)
+        self.drawing(coords, lines, eeg, eda, timestamp, chorus, delta, flow)
 
         # control playback FPS here
         if self.FPS == 0:
@@ -239,7 +259,7 @@ class Draw(Frame):
         mixer.music.play(loops=0)
 
     # handles all the drawing onto the canvas
-    def drawing(self, coords, lines, eeg, eda, timestamp, delta, flow):
+    def drawing(self, coords, lines, eeg, eda, timestamp, chorus, delta, flow):
         # reset the canvas
         self.canvas.delete("all")
 
@@ -254,11 +274,11 @@ class Draw(Frame):
         self.canvas.create_text(1050, 40, font=("Purisa", 20),
                                 fill="white", text=f"EDA arousal\n    {eda}")
         self.canvas.create_text(1400, 40, font=("Purisa", 20),
-                                fill="white", text=f"timestamp =  {timestamp[0]} ms")
+                                fill="white", text=f"timestamp =  {timestamp} ms")
         self.canvas.create_text(1400, 140, font=("Purisa", 20),
                                 fill="white", text=f"timedelta =  {delta} ms,\nerror = {delta - 100} ms")
         self.canvas.create_text(1400, 240, font=("Purisa", 20),
-                                fill="white", text=f"chorus (loop) =  {timestamp[1]}")
+                                fill="white", text=f"chorus (loop) =  {chorus}")
         self.canvas.create_text(1200, 800, font=("Purisa", 20),
                                 fill="white", text=f"flow =  {flow}")
         self.canvas.create_text(1200, 850, font=("Purisa", 20),
@@ -344,7 +364,7 @@ class Draw(Frame):
 
 if __name__ == '__main__':
     # user vars
-    db_path = 'data/20210128_test-uk-2.csv'
+    db_path = 'data/20210402_NewHaven01-02.json'
     audio_path = 'data/20210104_test-20200104-take3.wav'
 
     # listen to sync audio track
