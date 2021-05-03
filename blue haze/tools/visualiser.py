@@ -58,12 +58,11 @@ class Data:
             for joint in temp_list.items():
                 t = (joint[1]['x'], joint[1]['y'])
 
+                # pack individual joints into temp list ready to export to master coords list
                 temp.append(t)
 
             # pack tuple list to the final list
             self.coords.append(temp)
-
-
 
         if self.DATA_LOGGING:
             print(f'timestamp = {self.timestamp}')
@@ -101,7 +100,6 @@ class Data:
     # calc all distances
     def calc_hypot(self, x, x1, y, y1):
         # cal x diff
-        print (x, x1, y, y1)
         diff_x = x - x1
 
         # make positive if < 0
@@ -143,30 +141,18 @@ class Data:
         return temp_list
 
     # handles all main calcs coordination for line generation
-    def worker(self, old_coords, coords):
+    def worker(self, coords):
         lines = []
-        print(f'original coords are {old_coords}, {coords}')
 
         # for each coords
-
-
-
-
-
-
-
-
-
-
         for i, cood in enumerate(coords):
             sub_list = []
 
             # iter through each other coord
             for j, next_coord in enumerate(coords):
 
-                # if self.DATA_LOGGING:
-
-                print(f'coords are {i, cood} and {j, next_coord}')
+                if self.DATA_LOGGING:
+                    print(f'coords are {i, cood} and {j, next_coord}')
 
                 # if they are not same coord
                 if i != j:
@@ -229,16 +215,11 @@ class Draw(Frame):
 
     # schedules all the mainloop tasks
     def UIUpdater(self):
-        first_through = True
-
-        if first_through:
-            old_coords = (0, 0)
-            first_through = False
-
         # gets skeleton coords, line, and colour details
         coords, eeg, eda, delta, timestamp, chorus, flow = self.data_bot.get_data()
-        lines = self.data_bot.worker(old_coords, coords)
-        old_coords = coords
+
+        # make lines per iter
+        lines = self.data_bot.worker(coords)
 
         # draws the stuff that is refreshed each frame
         self.drawing(coords, lines, eeg, eda, timestamp, chorus, delta, flow)
@@ -350,22 +331,23 @@ class Draw(Frame):
                                 outline="#000", fill="#fff", width=1)
 
         # draw a flow blob & Flow + EDA outline
-        self.canvas.create_rectangle(1050,
+        if flow > 0:
+            self.canvas.create_rectangle(1050,
                                 640,
                                 1050 + flow,
                                 640 + flow,
                                 outline="#000", fill="red", width=1)
 
-        self.canvas.create_rectangle(1050,
-                                     640,
-                                     1050 + flow + eda,
-                                     640 + flow + eda,
-                                     outline="red", fill=None, width=5)
+            self.canvas.create_rectangle(1050,
+                                         640,
+                                         1050 + flow + eda,
+                                         640 + flow + eda,
+                                         outline="red", fill=None, width=5)
 
 if __name__ == '__main__':
     # user vars
     db_path = 'data/20210402_NewHaven01-02.json'
-    audio_path = 'data/20210104_test-20200104-take3.wav'
+    audio_path = 'data/20210402_NewHaven01-02.wav'
 
     # listen to sync audio track
     # for when you are using different FPS than normal
