@@ -13,7 +13,7 @@ pyserial==3.4
 shortuuid>=1.0.1
 motor==3.11.2
 matplotlib==3.3.3
-scipy==1.6.0
+scipy==1.10.0
 https://github.com/drewarnett/pypicoboard/archive/master.zip
 nest_asyncio==1.4.3
 
